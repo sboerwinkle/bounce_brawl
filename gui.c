@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
+//#include <SDL2/SDL2_gfxPrimitives.h>
 #include "structs.h"
 #include "font.h"
 #include "levels.h"
