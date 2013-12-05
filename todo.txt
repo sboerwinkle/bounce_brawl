@@ -1,7 +1,10 @@
 Player management:
 		keyboard 2 net control?
 
-windows port
+windows port:
+	http://msdn.microsoft.com/en-us/library/windows/desktop/ms724397(v=vs.85).aspx
+	http://msdn.microsoft.com/en-us/library/windows/desktop/ms724284(v=vs.85).aspx
+	http://msdn.microsoft.com/en-us/library/windows/desktop/aa383742(v=vs.85).aspx
 
 source forge
 action key - implement in mech

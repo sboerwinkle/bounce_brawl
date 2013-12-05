@@ -10,6 +10,10 @@
 #include "field.h"
 #include "networking.h"
 
+#ifdef WINDOWS
+#include <windows.h>
+#endif
+
 #define NUMKEYS 5
 #define TEXTSIZE 2
 //If these are changed, change gui.h
@@ -435,9 +439,11 @@ int main(int argc, char** argv){
 	}
 	requests[0].controlMode = 1;
 	requests[1].controlMode = 0;
+	#ifndef WINDOWS
 	struct timespec t;
 	t.tv_sec = 0;
 	time_t lastTime = 0;
+	#endif
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow("Bounce Brawl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 750, 750, 0);
 	if(window == NULL){
