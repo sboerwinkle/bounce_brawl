@@ -1,0 +1,18 @@
+Player management:
+		keyboard 2 net control?
+
+windows port
+
+source forge
+action key - implement in mech
+grabber device - warehouse style
+buildings - three vertical columns: blank, floor, ramp
+cave - some form of editor
+text task
+tutorials
+weaker, stronger enemies
+mech ais
+missions - high scores
+guns
+Connection forming between balls that collide strongly
+parajet
