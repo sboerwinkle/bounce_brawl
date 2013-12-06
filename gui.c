@@ -439,11 +439,15 @@ int main(int argc, char** argv){
 	}
 	requests[0].controlMode = 1;
 	requests[1].controlMode = 0;
-	#ifndef WINDOWS
+#ifndef WINDOWS
 	struct timespec t;
 	t.tv_sec = 0;
 	time_t lastTime = 0;
-	#endif
+#else
+	HANDLE hTimer = createWaitableTimer(0);
+	FILETIME lastTime = {.dwLowDateTime = 0, .dwHighDateTime = 0};
+	LARGE_INTEGER largeInt;
+#endif
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow("Bounce Brawl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 750, 750, 0);
 	if(window == NULL){
@@ -475,7 +479,7 @@ int main(int argc, char** argv){
 	while(running){
 		if(netMode) readKeys();
 		paint();//Also runs the thing if relevant.
-
+#ifndef WINDOWS
 		long int sleep = (sloMo?.15:0.015 - difftime(time(NULL), lastTime))*1000000000;
 		if(sleep > 0){
 			frameFlag = 0;
@@ -483,6 +487,12 @@ int main(int argc, char** argv){
 			nanosleep(&t, &t);
 		} else frameFlag = 1;
 		time(&lastTime);
+#else
+		largeInt.LowPart = lastTime.dwLowDateTime;
+		largeInt.HighPart = lastTime.dwHighDateTime;
+		largeInt.QuatPart += sloMo?
+		GetSystemTimeAsFileTime(&thisTime);
+#endif
 
 		SDL_Event evnt;
 		while(SDL_PollEvent(&evnt)){
