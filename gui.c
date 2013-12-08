@@ -444,7 +444,7 @@ int main(int argc, char** argv){
 	t.tv_sec = 0;
 	time_t lastTime = 0;
 #else
-	HANDLE hTimer = createWaitableTimer(NULL, 1, NULL);
+	HANDLE hTimer = CreateWaitableTimer(NULL, 1, NULL);
 	FILETIME lastTime = {.dwLowDateTime = 0, .dwHighDateTime = 0};
 	LARGE_INTEGER largeInt;
 #endif
@@ -507,6 +507,9 @@ int main(int argc, char** argv){
 	if(netMode) stopHosting();
 	stopNetworking();
 	SDL_DestroyWindow(window);
+#ifdef WINDOWS
+	CloseHandle(hTimer);
+#endif
 	SDL_Quit();
 	return 0;
 }

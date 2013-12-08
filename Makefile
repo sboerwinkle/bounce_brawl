@@ -2,13 +2,16 @@
 CC=gcc
 CFLAGS=-Wall -O2 -c -pthread $(DEBUG)
 
-.PHONY: clean debug remake
+.PHONY: debug windows remake clean
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o
-	$(CC) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -lm -lSDL2 -pthread $(DEBUG) -o game
+	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game -ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -LLib/SDL2/x86_64-w64-mingw32/lib -lmingw32 -lSDL2main -lSDL2 -lm -pthread -mwindows
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
+	
+windows:
+	$(MAKE) DEBUG="-D WINDOWS"
 
 remake:
 	$(MAKE) clean
@@ -40,3 +43,6 @@ networking.o: networking.c structs.h font.h gfx.h gui.h field.h
 
 clean:
 	rm -f *.o game game.exe
+
+cleanWindows:
+	del *.o game game.exe

@@ -1,9 +1,23 @@
 #include "structs.h"
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/select.h>
+#ifndef WINDOWS
+	#include <arpa/inet.h>
+	#include <sys/socket.h>
+	#include <sys/select.h>
 #include <netinet/in.h>
+#else
+	#ifndef UNICODE
+	#define UNICODE
+	#endif
+
+	#define WIN32_LEAN_AND_MEAN
+
+	#include <winsock2.h>
+	#include <Ws2tcpip.h>
+
+	// Link with ws2_32.lib
+	//#pragma comment(lib, "Ws2_32.lib") //Doesn't work
+#endif
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,43 +26,6 @@
 #include "gfx.h"
 #include "font.h"
 #include "field.h"
-
-/* The following is a description of the system of networking used by this game.
- *
- * Client side - One thread waits patiently for keyboard input, and immediately zaps any relevant key presses to the server. Meanwhile, another thread waits patiently for screenshots (format described shortly) and immediately displays them. An escape keypress caught by the first thread kills the second and returns to the menu, while also sending a key press with all bits on to the server (the signal for quitting).
- *
- * Server side - Acts like a single player game, but immediately before starting simulation reads all the client key presses waiting in the socket. Any drawing done on the canvas is recorded (format described shortly), and to each client is sent the following:
- * 	- a packet with the length of the screenshot
- * 	- a packet with the screenshot itself.
- *
- * Screenshot format - A screenshot consists of the shapes drawn on the canvas, possibly excluding the offscreen ones. In the following breakdown, a short is a signed, big-endian 2 byte integer, and the prefix 'u' means unsigned.
- *
- * (ushort) number of circles
- * For each circle (6 bytes total):
- * 	(short) center x
- * 	(short) center y
- * 	(ushort) radius
- * (ushort) number of circles with lines attached
- * For each circle:
- * 	(ushort) index of the circle
- * 	(ubyte) number of lines attached
- * 	For each line (3 bytes total):
- * 		(ushort) index of the other circle
- * 		(ubyte) hue
- * (ushort) number of player circles (the ones that signify a player)
- * (short) radius (will be the same for every player circle)
- * For each player circle (7 bytes total):
- * 	(ubyte x3) rgb components of color
- * 	(short) center x
- * 	(short) center y
- * (ushort) number of tool squares (squares signifying a tool)
- * (short) side length
- * For each tool square (4 bytes total):
- * 	(short) upper left x
- * 	(short) upper left y
- *
- * There is currently no protocol for text, but that's just because I'm lazy and don't think it's necessary.
- */
 
 
 int port = 4659;
@@ -67,7 +44,7 @@ static client *clients;
 static int running; // So keypresses can stop the connect function
 static Sint8 netListenKill = 0;
 
-static Uint8 myKeys; // We could use the arrays defined in gui.h, but this way is more condusive to networking.
+static char myKeys; // We could use the arrays defined in gui.h, but this way is more condusive to networking.
 
 static Uint16 numLineBytes = 0, numCircles = 0, numPlayerCircles = 0;
 static Uint16 maxLineBytes = 0, maxCircles = 0, maxPlayerCircles = 0;
@@ -144,7 +121,7 @@ void addNetTool(int ix){
 
 struct imgData{
 	Uint16 sizeData;
-	Uint8* data;
+	char* data;
 	Uint16 size;
 	Uint16* centers;
 };
@@ -181,7 +158,7 @@ static void sendImgs(void* derp){
 		for(; i < numClients; i++){
 			if(!clients[i].dead){
 				memcpy((Uint8*)dataToSend->data, (Uint8*)(dataToSend->centers+2*i), 4);
-				sendto(sockfd, (Uint8*)&dataToSend->sizeData, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
+				sendto(sockfd, (char*)&dataToSend->sizeData, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 				sendto(sockfd, dataToSend->data, dataToSend->size, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 			}
 		}
@@ -216,7 +193,7 @@ void writeImgs(){
 
 		dataToSend = malloc(sizeof(struct imgData));
 		dataToSend->sizeData = sizeData;
-		dataToSend->data = realData;//At this point, it is the other thread's responsibility to free realData
+		dataToSend->data = (char*)realData;//At this point, it is the other thread's responsibility to free realData
 		dataToSend->centers = netCenters;
 		dataToSend->size = size;
 		pthread_mutex_unlock(&myMutex);
@@ -231,12 +208,19 @@ void writeImgs(){
 void initNetworking(){
 	addressString = malloc(16); //xxx.xxx.xxx.xxx is 15 chars.
 	strcpy(addressString, "127.0.0.1");
+#ifdef WINDOWS
+	WSADATA derp;
+	WSAStartup(MAKEWORD(2, 2), &derp);
+#endif
 }
 
 void stopNetworking(){
 	pthread_mutex_destroy(&myMutex);
 	pthread_cond_destroy(&myCond);
 	free(addressString);
+#ifdef WINDOWS
+	WSACleanup();
+#endif
 }
 
 static void keyAction(int code, char pressed){
@@ -256,7 +240,7 @@ static void keyAction(int code, char pressed){
 	else if(code == SDL_SCANCODE_RCTRL) code = 16;
 	else return; // No need to send information, no vital keys changed.
 
-	Uint8 old = myKeys;
+	char old = myKeys;
 	if(pressed)	myKeys |= code;// Hence the resetting of 'code' shown above.
 	else 		myKeys &= 255-code;
 	if(old!=myKeys)//If it wasn't caused by a key repeat (such as "down ... downdowndowndownup"
@@ -265,7 +249,7 @@ static void keyAction(int code, char pressed){
 
 static void netListen(void* color){ // Helper to myConnect. Listens for frames and draws them. Kills itself when netListenKill is set
 	Uint32 Color = htonl(*(Uint32*)color);
-	sendto(sockfd, (Uint8*)&Color, 4, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+	sendto(sockfd, (char*)&Color, 4, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
 	struct timeval wait, waitClone = {.tv_sec = 1, .tv_usec = 0};
 	fd_set* fdSet = malloc(sizeof(fd_set));
 	FD_ZERO(fdSet);
@@ -291,7 +275,7 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 	}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
 	{
 		Uint8 code;
-		recvfrom(sockfd, &code, 1, 0, (struct sockaddr*)&sender, &addrSize);
+		recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize);
 		if(code) running = 0;
 		else drawText(screen, 20, 20, 0x00FF00FF, TEXTSIZE, "ACKNOWLEDGED");
 	}
@@ -309,7 +293,7 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 				FD_SET(sockfd, fdSet);
 				wait = waitClone;
 			}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
-			msgSize = recvfrom(sockfd, sizeData, 3, 0, (struct sockaddr*)&sender, &addrSize);
+			msgSize = recvfrom(sockfd, (char*)sizeData, 3, 0, (struct sockaddr*)&sender, &addrSize);
 			if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
 				puts("E: Info from someone besides the server!");
 				continue;
@@ -338,10 +322,10 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 			wait = waitClone;
 		}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
 		FD_ZERO(fdSet);
-		msgSize = recvfrom(sockfd, data, size, 0, (struct sockaddr*)&sender, &addrSize);
+		msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
 		while(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
 			puts("E: Info from someone besides the server! ");
-			msgSize = recvfrom(sockfd, data, size, 0, (struct sockaddr*)&sender, &addrSize);
+			msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
 		}
 		if(msgSize == 2){
 			puts("E: Read length data as frame");
@@ -422,11 +406,20 @@ void myConnect(Uint32 color){ // Entered by pressing 'c', not exited until you p
 		return;
 	}
 
+#ifndef WINDOWS
 	in_addr_t addr = inet_addr(addressString);
 	if(addr == (in_addr_t)(-1)){
 		close(sockfd);
 		return;
 	}
+#else
+	unsigned long addr = inet_addr(addressString);
+	if(addr == -1){
+		close(sockfd);
+		return;
+	}
+#endif
+
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr=addr;
@@ -500,7 +493,7 @@ void stopHosting(){
 	for(; i < numClients; i++){
 		if(clients[i].dead) continue;
 		requests[clients[i].playerNum].color = 0x606060FF;
-		sendto(sockfd, (Uint8*)&size, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
+		sendto(sockfd, (char*)&size, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 	}
 	close(sockfd);
 	free(clients);
@@ -515,7 +508,7 @@ void kickNoRoom(){ // When the game begins, kick any players whose space was req
 		if(clients[i].dead) continue;
 		clients[i].dead = 1;
 		requests[clients[i].playerNum].color = 0x606060FF;
-		sendto(sockfd, (Uint8*)&size, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
+		sendto(sockfd, (char*)&size, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 	}
 }
 
@@ -535,7 +528,7 @@ void readKeys(){
 		data = malloc(1);
 		int twoPower;
 		while(select(sockfd+1, fdSet, NULL, NULL, zeroTime)){
-			recvfrom(sockfd, data, 1, 0, (struct sockaddr*)&sender, &size);
+			recvfrom(sockfd,(char*) data, 1, 0, (struct sockaddr*)&sender, &size);
 			current = clients;
 			for(index = 0; index < numClients; index++){
 				if(!current->dead && current->addr.sin_addr.s_addr == sender.sin_addr.s_addr){
@@ -559,7 +552,7 @@ void readKeys(){
 		int msgLen;
 		client* target;
 		while(select(sockfd+1, fdSet, NULL, NULL, zeroTime)){
-			msgLen = recvfrom(sockfd, data, 5, 0, (struct sockaddr*)&sender, &size);
+			msgLen = recvfrom(sockfd, (char*)data, 5, 0, (struct sockaddr*)&sender, &size);
 			current = clients;
 			target = NULL;
 			for(index = 0; index < maxClients; index++){
@@ -593,7 +586,7 @@ void readKeys(){
 				numClients++;
 				*data = 0;
 			}else *data = 1;
-			sendto(sockfd, data, 1, 0, (struct sockaddr*)&sender, size);
+			sendto(sockfd, (char*)data, 1, 0, (struct sockaddr*)&sender, size);
 		}
 	}
 	free(zeroTime);
