@@ -356,15 +356,11 @@ int addPlanet(int x, int y){
 	return ix;
 }
 void lvlplanet(){
-	if(players > 2) players = 2;
 	initField(750, 750);
-	if(players > 0){
-		taskguycontroladdLong(130, 240, 1);
-		taskscoreadd(0);
-	}
-	if(players > 1){
-		taskguycontroladd(370, 240);
-		taskscoreaddLong(1, 670, 20);
+	double rads = players == 0?0:M_PI*2/players;
+	register int i = 0;
+	for(; i < players; i++){
+		taskguycontroladd(240+130*cos(i*rads), 240+130*sin(i*rads));
 	}
 	taskcenteradd(addPlanet(250, 250));
 	taskuniversalgravityadd(0.02);
@@ -372,26 +368,20 @@ void lvlplanet(){
 }
 #define rosetteSpeed 3
 void lvl3rosette(){
-	if(players > 2) players = 2;
 	initField(750, 750);
 	maxZoomIn = 1.6;
-	double rads = M_PI*2/players;
-	if(players > 0){
-		taskguycontroladdLong(130, 240, 1);
-		taskscoreadd(0);
-	}
-	if(players > 1){
-		taskguycontroladd(370, 240);
-		taskscoreaddLong(1, 670, 20);
+	double rads = players == 0?0:M_PI*2/players;
+	register int i = 0;
+	for(; i < players; i++){
+		taskguycontroladd(240+130*cos(i*rads), 240+130*sin(i*rads));
 	}
 	int indexes[3];
 	indexes[0] = addPlanet(250, 250);
 	indexes[1] = addPlanet(-250, 250);
 	indexes[2] = addPlanet(0, -183);
-	register int i = 0;
 	double xmom = rosetteSpeed/2;
 	double ymom = -sqrt(3)/2*rosetteSpeed;
-	for(; i < players*4+85; i++){
+	for(i = 0; i < players*4+85; i++){
 		nodes[i].xmom = xmom;
 		nodes[i].ymom = ymom;
 	}
