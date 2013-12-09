@@ -375,6 +375,7 @@ void lvl3rosette(){
 	if(players > 2) players = 2;
 	initField(750, 750);
 	maxZoomIn = 1.6;
+	double rads = M_PI*2/players;
 	if(players > 0){
 		taskguycontroladdLong(130, 240, 1);
 		taskscoreadd(0);

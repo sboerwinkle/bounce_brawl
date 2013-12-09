@@ -436,7 +436,7 @@ int main(int argc, char** argv){
 	t.tv_sec = 0;
 	time_t lastTime = 0;
 #else
-	HANDLE hTimer = createWaitableTimer(0);
+	HANDLE hTimer = CreateWaitableTimer(NULL, 1, NULL);
 	FILETIME lastTime = {.dwLowDateTime = 0, .dwHighDateTime = 0};
 	LARGE_INTEGER largeInt;
 #endif
@@ -482,8 +482,10 @@ int main(int argc, char** argv){
 #else
 		largeInt.LowPart = lastTime.dwLowDateTime;
 		largeInt.HighPart = lastTime.dwHighDateTime;
-		largeInt.QuatPart += sloMo?
-		GetSystemTimeAsFileTime(&thisTime);
+		largeInt.QuadPart += sloMo?1500000:150000;
+		SetWaitableTimer(hTimer, &largeInt, 0, NULL, NULL, 0);
+		WaitForSingleObject(hTimer, INFINITE);
+		GetSystemTimeAsFileTime(&lastTime);
 #endif
 
 		SDL_Event evnt;
@@ -497,6 +499,9 @@ int main(int argc, char** argv){
 	if(netMode) stopHosting();
 	stopNetworking();
 	SDL_DestroyWindow(window);
+#ifdef WINDOWS
+	CloseHandle(hTimer);
+#endif
 	SDL_Quit();
 	return 0;
 }
