@@ -297,25 +297,30 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 	short eleven0 = 28;
 	short sl = 35;
 	short ll = 49;
-	if(myKeys[0]){
-		nine0 = sl;
-		nine1 = sl;
-		nine2 = ll;
-	}
-	if(myKeys[2]){
-		ten0 = sl;
-		ten1 = sl;
-		nine2 = ll;
-	}
-	if(myKeys[3]){
-		ten0 = sl;
-		nine0 = sl;
-		eleven0 = ll;
-	}
-	if(myKeys[1]){
-		ten1 = sl;
-		nine1 = sl;
-		eleven0 = ll;
+	if(myKeys[5]){
+		ten0 = ten1 = nine0 = nine1 = sl;
+		nine2 = eleven0 = ll;
+	}else{
+		if(myKeys[0]){
+			nine0 = sl;
+			nine1 = sl;
+			nine2 = ll;
+		}
+		if(myKeys[2]){
+			ten0 = sl;
+			ten1 = sl;
+			nine2 = ll;
+		}
+		if(myKeys[3]){
+			ten0 = sl;
+			nine0 = sl;
+			eleven0 = ll;
+		}
+		if(myKeys[1]){
+			ten1 = sl;
+			nine1 = sl;
+			eleven0 = ll;
+		}
 	}
 	if(!nodes[index].connections[1].dead){
 		nodes[index].connections[1].preflength = nine0;
@@ -345,11 +350,16 @@ inline void taskguycontroldoBigLegs(taskguycontroldata* data){
 	int centerDists[4] = {42, 42, 42, 42};
 	int edgeLengths[4] = {60, 60, 60, 60};
 	int i = 0;
-	for(; i < 4; i++){
-		if(myKeys[i]){
-			centerDists[i] = 74;
-			edgeLengths[i] = 105;
-			edgeLengths[(i+1)%4] = 105;
+	if(myKeys[5]){
+		centerDists[0] = centerDists[1] = centerDists[2] = centerDists[3] = 74;
+		edgeLengths[0] = edgeLengths[1] = edgeLengths[2] = edgeLengths[3] = 105;
+	}else{
+		for(; i < 4; i++){
+			if(myKeys[i]){
+				centerDists[i] = 74;
+				edgeLengths[i] = 105;
+				edgeLengths[(i+1)%4] = 105;
+			}
 		}
 	}
 	int controlindex = data->controlindex;

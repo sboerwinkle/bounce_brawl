@@ -110,12 +110,12 @@ void lvlsumo(){
 		taskfixedadd(i, .5);
 	}
 	if(players > 0){
-		taskguycontroladd(280, 270);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladd(200, 270);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladd(200, 270);
-		taskscoreadd(1);
+		taskguycontroladd(280, 270);
+		taskscoreaddLong(1, 670, 20);
 	}
 
 	taskgravityadd();
@@ -134,12 +134,12 @@ void lvltipsy(){
 		taskfixedadd(i, .5);
 	}
 	if(players > 0){
-		taskguycontroladd(280, 270);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladdLong(220, 270, 1);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladdLong(220, 270, 1);
-		taskscoreadd(1);
+		taskguycontroladd(280, 270);
+		taskscoreaddLong(1, 670, 20);
 	}
 
 	taskgravityadd();
@@ -172,12 +172,12 @@ void lvltilt(){
 		newConnection(28, i, 13+i, .95, dist(nodes+28, target), 18, 0.5);
 	}
 	if(players > 0){
-		taskguycontroladd(275, 270);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladdLong(225, 270, 1);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladdLong(225, 270, 1);
-		taskscoreadd(1);
+		taskguycontroladd(275, 270);
+		taskscoreaddLong(1, 670, 20);
 	}
 	taskgravityadd();
 	taskfrictionadd();
@@ -297,12 +297,12 @@ void lvlswing(){
 		killNode(i);
 	}
 	if(players > 0){
-		taskguycontroladd(280, 240);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladd(200, 240);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladd(200, 240);
-		taskscoreadd(1);
+		taskguycontroladd(280, 240);
+		taskscoreaddLong(1, 670, 20);
 	}
 	taskgravityadd();
 	taskincineratoradd(510);
@@ -322,12 +322,12 @@ void lvldrop(){
 		taskfixedadd(n, .3);
 	}
 	if(players > 0){
-		taskguycontroladdLong(400, 250, 1);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladd(90, 250);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladd(90, 250);
-		taskscoreadd(1);
+		taskguycontroladdLong(400, 250, 1);
+		taskscoreaddLong(1, 670, 20);
 	}
 	taskgravityadd();
 	taskincineratoradd(500);
@@ -359,12 +359,12 @@ void lvlplanet(){
 	if(players > 2) players = 2;
 	initField(750, 750);
 	if(players > 0){
-		taskguycontroladd(370, 240);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladdLong(130, 240, 1);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladdLong(130, 240, 1);
-		taskscoreadd(1);
+		taskguycontroladd(370, 240);
+		taskscoreaddLong(1, 670, 20);
 	}
 	taskcenteradd(addPlanet(250, 250));
 	taskuniversalgravityadd(0.02);
@@ -374,14 +374,14 @@ void lvlplanet(){
 void lvl3rosette(){
 	if(players > 2) players = 2;
 	initField(750, 750);
-	maxZoomIn = 0.9;
+	maxZoomIn = 1.6;
 	if(players > 0){
-		taskguycontroladd(370, 240);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladdLong(130, 240, 1);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladdLong(130, 240, 1);
-		taskscoreadd(1);
+		taskguycontroladd(370, 240);
+		taskscoreaddLong(1, 670, 20);
 	}
 	int indexes[3];
 	indexes[0] = addPlanet(250, 250);
@@ -418,12 +418,12 @@ void lvlmech(){
 	taskfixedadd(1, .5);
 	taskfixedadd(33, .5);
 	if(players > 0){
-		taskguycontroladd(446, 366);
-		taskscoreaddLong(0, 670, 20);
+		taskguycontroladdLong(49, 366, 1);
+		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladdLong(49, 366, 1);
-		taskscoreadd(1);
+		taskguycontroladd(446, 366);
+		taskscoreaddLong(1, 670, 20);
 	}
 	taskguycontroladdToolMech1(386, 326);
 	taskguycontroladdToolMech1(109, 326);
@@ -441,12 +441,12 @@ void lvlsurvive(){
 	taskfixedadd(1, .5);
 	taskfixedadd(33, .5);
 	if(players > 0){
-		taskguycontroladd(446, 366);
-		taskscoreaddLong(0, 670, 20);
-	}
-	if(players > 1){
 		taskguycontroladd(30, 366);
 		taskscoreadd(0);
+	}
+	if(players > 1){
+		taskguycontroladd(446, 366);
+		taskscoreaddLong(1, 670, 20);
 	}
 	//taskblorbcontrol.add(200, 363, 0);
 	//addBlock(30, 336, 6, 7, .9/*fric*/, 12/*spacing*/, 7/*vertspacing*/, 6, 3, 4, 7);

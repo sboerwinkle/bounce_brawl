@@ -14,7 +14,7 @@
 #include <windows.h>
 #endif
 
-#define NUMKEYS 5
+#define NUMKEYS 6
 #define TEXTSIZE 2
 //If these are changed, change gui.h
 
@@ -89,9 +89,9 @@ static char* modeToString(int ix){
 		case -1:
 			return "NETWORKED PLAYER";
 		case 0:
-			return "ARROW KEYS + RIGHT CONTROL";
+			return "ARROW KEYS, RIGHT CTRL, RIGHT SHIFT";
 		case 1:
-			return "WASD + Q";
+			return "WASD, Q, 1";
 		case 2:
 			return "COMBAT AI";
 		default:
@@ -166,16 +166,6 @@ static void spKeyAction(int bit, Sint8 pressed){
 	if(mode == 0){
 		if(!pressed) return;
 		if(inputMode == 0){
-		/*	if(bit == SDL_SCANCODE_RCTRL){
-				ais[0] = 1-ais[0];
-				nothingChanged = 0;
-				return;
-			}
-			if(bit == SDL_SCANCODE_Q){
-				ais[1] = 1-ais[1];
-				nothingChanged = 0;
-				return;
-			}*/
 			if(bit == SDL_SCANCODE_TAB){
 				sloMo = !sloMo;
 				nothingChanged = 0;
@@ -392,6 +382,7 @@ static void spKeyAction(int bit, Sint8 pressed){
 			case SDL_SCANCODE_RIGHT:	masterKeys[pIndex[0]*NUMKEYS + 1] = pressed; return;
 			case SDL_SCANCODE_DOWN:		masterKeys[pIndex[0]*NUMKEYS + 2] = pressed; return;
 			case SDL_SCANCODE_RCTRL:	masterKeys[pIndex[0]*NUMKEYS + 4] = pressed; return;
+			case SDL_SCANCODE_RSHIFT:	masterKeys[pIndex[0]*NUMKEYS + 5] = pressed; return;
 			default: break;
 		}
 	}
@@ -402,6 +393,7 @@ static void spKeyAction(int bit, Sint8 pressed){
 			case SDL_SCANCODE_D:		masterKeys[pIndex[1]*NUMKEYS + 1] = pressed; return;
 			case SDL_SCANCODE_S:		masterKeys[pIndex[1]*NUMKEYS + 2] = pressed; return;
 			case SDL_SCANCODE_Q:		masterKeys[pIndex[1]*NUMKEYS + 4] = pressed; return;
+			case SDL_SCANCODE_1:		masterKeys[pIndex[1]*NUMKEYS + 5] = pressed; return;
 			default: return;
 		}
 	}

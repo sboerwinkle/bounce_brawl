@@ -13,44 +13,6 @@
 #include "font.h"
 #include "field.h"
 
-/* The following is a description of the system of networking used by this game.
- *
- * Client side - One thread waits patiently for keyboard input, and immediately zaps any relevant key presses to the server. Meanwhile, another thread waits patiently for screenshots (format described shortly) and immediately displays them. An escape keypress caught by the first thread kills the second and returns to the menu, while also sending a key press with all bits on to the server (the signal for quitting).
- *
- * Server side - Acts like a single player game, but immediately before starting simulation reads all the client key presses waiting in the socket. Any drawing done on the canvas is recorded (format described shortly), and to each client is sent the following:
- * 	- a packet with the length of the screenshot
- * 	- a packet with the screenshot itself.
- *
- * Screenshot format - A screenshot consists of the shapes drawn on the canvas, possibly excluding the offscreen ones. In the following breakdown, a short is a signed, big-endian 2 byte integer, and the prefix 'u' means unsigned.
- *
- * (ushort) number of circles
- * For each circle (6 bytes total):
- * 	(short) center x
- * 	(short) center y
- * 	(ushort) radius
- * (ushort) number of circles with lines attached
- * For each circle:
- * 	(ushort) index of the circle
- * 	(ubyte) number of lines attached
- * 	For each line (3 bytes total):
- * 		(ushort) index of the other circle
- * 		(ubyte) hue
- * (ushort) number of player circles (the ones that signify a player)
- * (short) radius (will be the same for every player circle)
- * For each player circle (7 bytes total):
- * 	(ubyte x3) rgb components of color
- * 	(short) center x
- * 	(short) center y
- * (ushort) number of tool squares (squares signifying a tool)
- * (short) side length
- * For each tool square (4 bytes total):
- * 	(short) upper left x
- * 	(short) upper left y
- *
- * There is currently no protocol for text, but that's just because I'm lazy and don't think it's necessary.
- */
-
-
 int port = 4659;
 Sint8 netMode = 0;
 char* addressString;
@@ -254,6 +216,7 @@ static void keyAction(int code, char pressed){
 	else if(code == SDL_SCANCODE_DOWN) code = 4;
 	else if(code == SDL_SCANCODE_LEFT) code = 8;
 	else if(code == SDL_SCANCODE_RCTRL) code = 16;
+	else if(code == SDL_SCANCODE_RSHIFT) code = 32;
 	else return; // No need to send information, no vital keys changed.
 
 	Uint8 old = myKeys;

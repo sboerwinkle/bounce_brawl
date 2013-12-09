@@ -1,4 +1,4 @@
-#define NUMKEYS 5
+#define NUMKEYS 6
 #define TEXTSIZE 2
 //If these are changed, change gui.c
 
