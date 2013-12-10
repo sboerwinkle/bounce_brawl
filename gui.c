@@ -373,6 +373,10 @@ static void spKeyAction(int bit, Sint8 pressed){
 	}else if(bit==SDL_SCANCODE_EQUALS){
 		if(pressed && zoom > 1) zoom/=2;
 		return;
+	}else if(bit == SDL_SCANCODE_TAB){
+		if(pressed)
+			sloMo = !sloMo;
+		return;
 	}
 
 	if(pIndex[0] != -1){
