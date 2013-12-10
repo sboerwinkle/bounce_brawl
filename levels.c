@@ -76,16 +76,77 @@ void addBlock(int x, int y, int width, int height, double fric, int spacing, dou
 	}
 	newNode(addNode(), X, y, size, mass, 0);
 }
+#define BCS 10
+#define BMCS 14
+#define BNS 8
+#define BRNS 9
+#define BMNS 10
+#define BNM 16
+#define BMNM 24
+#define BCF 0.6
+void addBuilding(double x, double y, int stories){
+	int ix = addNode();
+	int inc = stories%2?-80:80;
+	if(stories%2) x += 80*3;
+	newNode(ix, x, y, BMNS, BMNM, stories?3:1);
+	newNode(addNode(), x+inc, y, BMNS, BMNM, stories?3:1);
+	newNode(addNode(), x+2*inc, y, BMNS, BMNM, stories?3:1);
+	newNode(addNode(), x+3*inc, y, BMNS, BMNM, stories?1:0);
+	newConnection(ix, 0, ix+1, .9, 80, 7, BMCS);
+	newConnection(ix+1, 0, ix+2, .9, 80, 7, BMCS);
+	newConnection(ix+2, 0, ix+3, .9, 80, 7, BMCS);
+
+	newNode(addNode(), x+inc*1.25, y, BNS, BNM, 2);
+	newNode(addNode(), x+inc*1.50, y, BNS, BNM, 1);
+	newNode(addNode(), x+inc*1.75, y, BNS, BNM, 1);
+	newConnection(ix+4, 0, ix+1, BCF, 20, 4, BCS);
+	newConnection(ix+4, 1, ix+5, BCF, 20, 4, BCS);
+	newConnection(ix+5, 0, ix+6, BCF, 20, 4, BCS);
+	newConnection(ix+6, 0, ix+2, BCF, 20, 4, BCS);
+
+	if(stories){
+		newConnection(ix,   1, ix+14, .9, 80, 7, BMCS);
+		newConnection(ix,   2, ix+13, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+
+		newConnection(ix+1, 1, ix+13, .9, 80, 7, BMCS);
+		newConnection(ix+1, 2, ix+12, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+
+		newConnection(ix+2, 1, ix+12, .9, 80, 7, BMCS);
+		newConnection(ix+2, 2, ix+11, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+
+		newConnection(ix+3, 0, ix+11, .9, 80, 7, BMCS);
+
+		newNode(addNode(), x+inc*2.2, y-16, BRNS, BNM, 2);
+		newNode(addNode(), x+inc*2.4, y-32, BRNS, BNM, 1);
+		newNode(addNode(), x+inc*2.6, y-48, BRNS, BNM, 1);
+		newNode(addNode(), x+inc*2.8, y-64, BRNS, BNM, 1);
+		newConnection(ix+7, 0, ix+2, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
+		newConnection(ix+7, 1, ix+8, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
+		newConnection(ix+8, 0, ix+9, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
+		newConnection(ix+9, 0, ix+10, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
+		newConnection(ix+10, 0, ix+11, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
+
+		addBuilding(stories%2?x-80*3:x, y-80, stories-1);
+	}else{
+		newNode(addNode(), x+inc*2.25, y, BNS, BNM, 2);
+		newNode(addNode(), x+inc*2.50, y, BNS, BNM, 1);
+		newNode(addNode(), x+inc*2.75, y, BNS, BNM, 1);
+		newConnection(ix+7, 0, ix+2, BCF, 20, 4, BCS);
+		newConnection(ix+7, 1, ix+8, BCF, 20, 4, BCS);
+		newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
+		newConnection(ix+9, 0, ix+3, BCF, 20, 4, BCS);
+	}
+}
 
 void lvltest(){
 	initField(750, 750);
 	maxZoomIn = 1.5;
-	newNode(addNode(), 250, 4000, 3600, 1000, 0);
-	taskfixedaddLong(0, 248l, 4000l, .4);
+	newNode(addNode(), 247, 4000, 3600, 1000, 0);
+	taskfixedaddLong(0, 247l, 4000l, .4);
 	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
 	taskfixedadd(1, .5);
 	taskfixedadd(33, .5);
-	double factor = players>1?(432.0/(players-1)):0;
+	double factor = players>1?(446.0/(players-1)):0;
 	int i = 0;
 	for(; i < players; i++) taskguycontroladd(14+factor*i, 366);
 	//taskblorbcontrol.add(200, 363, 0);
@@ -95,6 +156,12 @@ void lvltest(){
 	taskgravityadd();
 	//taskasteroids.add(10, 8, 25);
 	taskincineratoradd(410);
+}
+
+void lvlbuilding(){
+	if(players>2) players = 2;
+	lvltest();
+	addBuilding(127, 379, 1);
 }
 
 void lvlsumo(){
@@ -403,8 +470,8 @@ void lvlmech(){
 	if(players > 2) players = 2;
 	initField(750, 750);
 	maxZoomIn = 1.5;
-	newNode(addNode(), 248, 4000, 3600, 1000, 0);
-	taskfixedaddLong(0, 248l, 4000l, .4);
+	newNode(addNode(), 247, 4000, 3600, 1000, 0);
+	taskfixedaddLong(0, 247l, 4000l, .4);
 	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
 	taskfixedadd(1, .5);
 	taskfixedadd(33, .5);
@@ -423,27 +490,7 @@ void lvlmech(){
 }
 
 void lvlsurvive(){
-	if(players > 2) players = 2;
-	initField(750, 750);
-	maxZoomIn = 1.5;
-	newNode(addNode(), 200, 4000, 3600, 1000, 0);
-	taskfixedaddLong(0, 248l, 4000l, .4);
-	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
-	taskfixedadd(1, .5);
-	taskfixedadd(33, .5);
-	if(players > 0){
-		taskguycontroladd(30, 366);
-		taskscoreadd(0);
-	}
-	if(players > 1){
-		taskguycontroladd(446, 366);
-		taskscoreaddLong(1, 670, 20);
-	}
-	//taskblorbcontrol.add(200, 363, 0);
-	//addBlock(30, 336, 6, 7, .9/*fric*/, 12/*spacing*/, 7/*vertspacing*/, 6, 3, 4, 7);
-	//addBlock(300, 336, 6, 7, .9/*fric*/, 12/*spacing*/, 7/*vertspacing*/, 6, 3, 4, 7);
-	//taskguycontrol.addWalker(60, 360);
-	taskgravityadd();
+	lvltest();
+	maxZoomIn = 1.3;
 	taskasteroidsadd(10, 8, 25);
-	taskincineratoradd(410);
 }

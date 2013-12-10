@@ -1,5 +1,7 @@
 extern void lvltest();
 
+extern void lvlbuilding();
+
 extern void lvlsumo();
 
 extern void lvltipsy();

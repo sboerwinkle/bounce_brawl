@@ -403,21 +403,24 @@ int main(int argc, char** argv){
 	menu topMenu;
 	currentMenu = &topMenu;
 	topMenu.parent = NULL;
-	topMenu.numItems = 9;
-	topMenu.items = malloc(9*sizeof(menuItem));
+	topMenu.numItems = 8;
+	topMenu.items = malloc(8*sizeof(menuItem));
 	//menu* asteroidsMenu = addMenuMenu(&topMenu, 0, 2, "ASTEROID SURVIVAL...");
 	menu* planetsMenu = addMenuMenu(&topMenu, 0, 2, "PLANET STAGES...");
-	addMenuLevel(&topMenu, 1, &lvltest, "FLAT STAGE");
+	menu* flatMenu    = addMenuMenu(&topMenu, 1, 3, "FLAT STAGES...");
 	addMenuLevel(&topMenu, 2, &lvlsumo, "SUMO");
 	addMenuLevel(&topMenu, 3, &lvltipsy, "UNSTABLE STAGE");
 	addMenuLevel(&topMenu, 4, &lvltilt, "TILTY STAGE");
 	addMenuLevel(&topMenu, 5, &lvlswing, "WALLED STAGE");
 	addMenuLevel(&topMenu, 6, &lvldrop, "DROPAWAY FLOOR");
 	addMenuLevel(&topMenu, 7, &lvlmech, "MECHS");
-	addMenuLevel(&topMenu, 8, &lvlsurvive, "ASTEROID SURVIVAL");
 
 	addMenuLevel(planetsMenu, 0, &lvlplanet, "SINGLE PLANET");
 	addMenuLevel(planetsMenu, 1, &lvl3rosette, "3-ROSETTE");
+
+	addMenuLevel(flatMenu, 0, &lvltest, "PLAIN STAGE");
+	addMenuLevel(flatMenu, 1, &lvlsurvive, "ASTEROID SURVIVAL");
+	addMenuLevel(flatMenu, 2, &lvlbuilding, "BUILDING STAGE");
 
 	initNetworking();
 
