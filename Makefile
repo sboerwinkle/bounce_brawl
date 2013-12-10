@@ -5,13 +5,13 @@ CFLAGS=-Wall -O2 -c -pthread $(DEBUG)
 .PHONY: debug windows remake clean
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o
-	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game -lSDL2 -lm -pthread $(LFLAGS)
+	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS) -lSDL2 -lm -pthread
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
 	
 windows:
-	$(MAKE) DEBUG="-D WINDOWS" LFLAGS="-ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -LLib/SDL2/x86_64-w64-mingw32/lib -lmingw32 -lSDL2main -mwindows -o game.exe"
+	$(MAKE) DEBUG="-D WINDOWS" LFLAGS="-ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -LLib/SDL2/x86_64-w64-mingw32/lib -lmingw32 -lSDL2main -mwindows -lws2_32 -o game.exe"
 
 remake:
 	$(MAKE) clean

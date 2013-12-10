@@ -1,4 +1,8 @@
 #include <stdlib.h>
+#ifdef WINDOWS
+	#include <stdio.h>
+	#include <string.h>
+#endif
 #include "structs.h"
 #include "gui.h"
 #include "field.h"

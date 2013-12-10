@@ -485,7 +485,7 @@ int main(int argc, char** argv){
 #else
 		largeInt.LowPart = lastTime.dwLowDateTime;
 		largeInt.HighPart = lastTime.dwHighDateTime;
-		largeInt.QuadPart += sloMo?1500000:150000;
+		largeInt.QuadPart += sloMo?2000000:200000;
 		SetWaitableTimer(hTimer, &largeInt, 0, NULL, NULL, 0);
 		WaitForSingleObject(hTimer, INFINITE);
 		GetSystemTimeAsFileTime(&lastTime);
