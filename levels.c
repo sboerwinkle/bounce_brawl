@@ -76,14 +76,15 @@ void addBlock(int x, int y, int width, int height, double fric, int spacing, dou
 	}
 	newNode(addNode(), X, y, size, mass, 0);
 }
-#define BCS 10
-#define BMCS 14
+#define BCS 12.5
+#define BMCS 17.5
 #define BNS 8
-#define BRNS 9
+#define BRNS 8
 #define BMNS 10
-#define BNM 16
-#define BMNM 24
+#define BNM 20
+#define BMNM 30
 #define BCF 0.6
+#define BNUM 13
 void addBuilding(double x, double y, int stories){
 	int ix = addNode();
 	int inc = stories%2?-80:80;
@@ -104,30 +105,6 @@ void addBuilding(double x, double y, int stories){
 	newConnection(ix+5, 0, ix+6, BCF, 20, 4, BCS);
 	newConnection(ix+6, 0, ix+2, BCF, 20, 4, BCS);
 
-	if(stories){
-		newConnection(ix,   1, ix+14, .9, 80, 7, BMCS);
-		newConnection(ix,   2, ix+13, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
-
-		newConnection(ix+1, 1, ix+13, .9, 80, 7, BMCS);
-		newConnection(ix+1, 2, ix+12, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
-
-		newConnection(ix+2, 1, ix+12, .9, 80, 7, BMCS);
-		newConnection(ix+2, 2, ix+11, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
-
-		newConnection(ix+3, 0, ix+11, .9, 80, 7, BMCS);
-
-		newNode(addNode(), x+inc*2.2, y-16, BRNS, BNM, 2);
-		newNode(addNode(), x+inc*2.4, y-32, BRNS, BNM, 1);
-		newNode(addNode(), x+inc*2.6, y-48, BRNS, BNM, 1);
-		newNode(addNode(), x+inc*2.8, y-64, BRNS, BNM, 1);
-		newConnection(ix+7, 0, ix+2, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
-		newConnection(ix+7, 1, ix+8, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
-		newConnection(ix+8, 0, ix+9, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
-		newConnection(ix+9, 0, ix+10, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
-		newConnection(ix+10, 0, ix+11, BCF, 16*M_SQRT2, 4*M_SQRT2, BCS);
-
-		addBuilding(stories%2?x-80*3:x, y-80, stories-1);
-	}else{
 		newNode(addNode(), x+inc*2.25, y, BNS, BNM, 2);
 		newNode(addNode(), x+inc*2.50, y, BNS, BNM, 1);
 		newNode(addNode(), x+inc*2.75, y, BNS, BNM, 1);
@@ -135,6 +112,39 @@ void addBuilding(double x, double y, int stories){
 		newConnection(ix+7, 1, ix+8, BCF, 20, 4, BCS);
 		newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
 		newConnection(ix+9, 0, ix+3, BCF, 20, 4, BCS);
+	if(stories){
+		newConnection(ix,   1, ix+BNUM+3, .9, 80, 7, BMCS);
+		newConnection(ix,   2, ix+BNUM+2, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+
+		newConnection(ix+1, 1, ix+BNUM+2, .9, 80, 7, BMCS);
+		newConnection(ix+1, 2, ix+BNUM+1, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+
+		newConnection(ix+2, 1, ix+BNUM+1, .9, 80, 7, BMCS);
+		newConnection(ix+2, 2, ix+BNUM, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+
+		newConnection(ix+3, 0, ix+BNUM, .9, 80, 7, BMCS);
+
+		newNode(addNode(), x+inc*3, y-20, BNS, BNM, 2);
+		newNode(addNode(), x+inc*3, y-40, BNS, BNM, 2);
+		newNode(addNode(), x+inc*3, y-60, BNS, BNM, 2);
+		newConnection(ix+10, 0, ix+11, BCF, 20, 4, BCS);
+		newConnection(ix+11, 0, ix+12, BCF, 20, 4, BCS);
+		newConnection(ix+12, 0, ix+13, BCF, 20, 4, BCS);
+		newConnection(ix+10, 1, ix+3, BCF, 20, 4, BCS);
+
+/*		newNode(addNode(), x+inc*2.2, y-12, BRNS, BNM, 2);
+		newNode(addNode(), x+inc*2.4, y-24, BRNS, BNM, 1);
+		newNode(addNode(), x+inc*2.6, y-36, BRNS, BNM, 1);
+		newNode(addNode(), x+inc*2.8, y-48, BRNS, BNM, 1);
+		newConnection(ix+7, 0, ix+2, BCF, 20, 4, BCS);
+		newConnection(ix+7, 1, ix+8, BCF, 20, 4, BCS);
+		newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
+		newConnection(ix+9, 0, ix+10, BCF, 20, 4, BCS);
+		newConnection(ix+10, 0, ix+11, BCF, 40, 8, BCS);
+//		newConnection(ix+9, 1, ix+12, BCF, 55, 4*M_SQRT2, BCS);*/
+
+		addBuilding(stories%2?x-80*3:x, y-80, stories-1);
+	}else{
 	}
 }
 
@@ -161,7 +171,7 @@ void lvltest(){
 void lvlbuilding(){
 	if(players>2) players = 2;
 	lvltest();
-	addBuilding(127, 379, 1);
+	addBuilding(127, 379, 3);
 }
 
 void lvlsumo(){
