@@ -1,3 +1,4 @@
+#include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -441,7 +442,8 @@ int main(int argc, char** argv){
 #ifndef WINDOWS
 	struct timespec t;
 	t.tv_sec = 0;
-	time_t lastTime = 0;
+	struct timeval lastTime = {.tv_sec = 0, .tv_usec = 0};
+	struct timeval otherTime = {.tv_sec = 0, .tv_usec = 0};
 #else
 	HANDLE hTimer = CreateWaitableTimer(NULL, 1, NULL);
 	FILETIME lastTime = {.dwLowDateTime = 0, .dwHighDateTime = 0};
@@ -479,13 +481,14 @@ int main(int argc, char** argv){
 		if(netMode) readKeys();
 		paint();//Also runs the thing if relevant.
 #ifndef WINDOWS
-		long int sleep = (sloMo?.15:0.015 - difftime(time(NULL), lastTime))*1000000000;
+		gettimeofday(&otherTime, NULL);
+		long int sleep = ((sloMo?250000:25000) - (otherTime.tv_usec-lastTime.tv_usec+1000000*(otherTime.tv_sec-lastTime.tv_sec)))*1000;
 		if(sleep > 0){
 			frameFlag = 0;
 			t.tv_nsec = sleep;
 			nanosleep(&t, &t);
 		} else frameFlag = 1;
-		time(&lastTime);
+		gettimeofday(&lastTime, NULL);
 #else
 		largeInt.LowPart = lastTime.dwLowDateTime;
 		largeInt.HighPart = lastTime.dwHighDateTime;
