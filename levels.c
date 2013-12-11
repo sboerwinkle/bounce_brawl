@@ -84,7 +84,8 @@ void addBlock(int x, int y, int width, int height, double fric, int spacing, dou
 #define BNM 20
 #define BMNM 30
 #define BCF 0.6
-#define BNUM 13
+#define BNUM 12
+#define BHT 65
 void addBuilding(double x, double y, int stories){
 	int ix = addNode();
 	int inc = stories%2?-80:80;
@@ -105,31 +106,36 @@ void addBuilding(double x, double y, int stories){
 	newConnection(ix+5, 0, ix+6, BCF, 20, 4, BCS);
 	newConnection(ix+6, 0, ix+2, BCF, 20, 4, BCS);
 
-		newNode(addNode(), x+inc*2.25, y, BNS, BNM, 2);
-		newNode(addNode(), x+inc*2.50, y, BNS, BNM, 1);
-		newNode(addNode(), x+inc*2.75, y, BNS, BNM, 1);
-		newConnection(ix+7, 0, ix+2, BCF, 20, 4, BCS);
-		newConnection(ix+7, 1, ix+8, BCF, 20, 4, BCS);
-		newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
-		newConnection(ix+9, 0, ix+3, BCF, 20, 4, BCS);
+	newNode(addNode(), x+inc*2.25, y, BNS, BNM, 2);
+	newNode(addNode(), x+inc*2.50, y, BNS, BNM, 1);
+	newNode(addNode(), x+inc*2.75, y, BNS, BNM, 1);
+	newConnection(ix+7, 0, ix+2, BCF, 20, 4, BCS);
+	newConnection(ix+7, 1, ix+8, BCF, 20, 4, BCS);
+	newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
+	newConnection(ix+9, 0, ix+3, BCF, 20, 4, BCS);
+//	taskguycontroladdToolGrab(ix+1);
+
+	double diag = sqrt(BHT*BHT + 80*80);
+	double diagTol = diag*7/40;
+
 	if(stories){
-		newConnection(ix,   1, ix+BNUM+3, .9, 80, 7, BMCS);
-		newConnection(ix,   2, ix+BNUM+2, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+		newConnection(ix,   1, ix+BNUM+3, .9, BHT, 7, BMCS);
+		newConnection(ix,   2, ix+BNUM+2, .9, diag, diagTol, BMCS);
 
-		newConnection(ix+1, 1, ix+BNUM+2, .9, 80, 7, BMCS);
-		newConnection(ix+1, 2, ix+BNUM+1, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+		newConnection(ix+1, 1, ix+BNUM+2, .9, BHT, 7, BMCS);
+		newConnection(ix+1, 2, ix+BNUM+1, .9, diag, diagTol, BMCS);
 
-		newConnection(ix+2, 1, ix+BNUM+1, .9, 80, 7, BMCS);
-		newConnection(ix+2, 2, ix+BNUM, .9, 80*M_SQRT2, 80*M_SQRT2*7/40, BMCS);
+		newConnection(ix+2, 1, ix+BNUM+1, .9, BHT, 7, BMCS);
+		newConnection(ix+2, 2, ix+BNUM  , .9, diag, diagTol, BMCS);
 
-		newConnection(ix+3, 0, ix+BNUM, .9, 80, 7, BMCS);
+		newConnection(ix+3, 0, ix+BNUM  , .9, BHT, 7, BMCS);
 
-		newNode(addNode(), x+inc*3, y-20, BNS, BNM, 2);
-		newNode(addNode(), x+inc*3, y-40, BNS, BNM, 2);
-		newNode(addNode(), x+inc*3, y-60, BNS, BNM, 2);
+		newNode(addNode(), x+inc*3, y-BHT/3.0, BNS, BNM, 2);
+		newNode(addNode(), x+inc*3, y-BHT*2.0/3, BNS, BNM, 1);
+//		newNode(addNode(), x+inc*3, y-60, BNS, BNM, 2);
 		newConnection(ix+10, 0, ix+11, BCF, 20, 4, BCS);
 		newConnection(ix+11, 0, ix+12, BCF, 20, 4, BCS);
-		newConnection(ix+12, 0, ix+13, BCF, 20, 4, BCS);
+//		newConnection(ix+12, 0, ix+13, BCF, 20, 4, BCS);
 		newConnection(ix+10, 1, ix+3, BCF, 20, 4, BCS);
 
 /*		newNode(addNode(), x+inc*2.2, y-12, BRNS, BNM, 2);
@@ -143,8 +149,7 @@ void addBuilding(double x, double y, int stories){
 		newConnection(ix+10, 0, ix+11, BCF, 40, 8, BCS);
 //		newConnection(ix+9, 1, ix+12, BCF, 55, 4*M_SQRT2, BCS);*/
 
-		addBuilding(stories%2?x-80*3:x, y-80, stories-1);
-	}else{
+		addBuilding(stories%2?x-80*3:x, y-BHT, stories-1);
 	}
 }
 

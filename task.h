@@ -30,6 +30,8 @@ extern void taskguycontroladdToolMech1(int x, int y);
 
 extern void taskguycontroladdToolDestroy(int ix);
 
+extern void taskguycontroladdToolGrab(int ix);
+
 extern void taskincineratoradd(long height);
 
 extern void taskincinerator2add(long height);

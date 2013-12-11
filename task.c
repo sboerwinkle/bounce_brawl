@@ -299,32 +299,29 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 	short nine1 = 20;
 	short nine2 = 28;
 	short eleven0 = 28;
-	short sl = 35;
-	short ll = 49;
-	if(myKeys[5]){
-		ten0 = ten1 = nine0 = nine1 = sl;
-		nine2 = eleven0 = ll;
-	}else{
-		if(myKeys[0]){
-			nine0 = sl;
-			nine1 = sl;
-			nine2 = ll;
-		}
-		if(myKeys[2]){
-			ten0 = sl;
-			ten1 = sl;
-			nine2 = ll;
-		}
-		if(myKeys[3]){
-			ten0 = sl;
-			nine0 = sl;
-			eleven0 = ll;
-		}
-		if(myKeys[1]){
-			ten1 = sl;
-			nine1 = sl;
-			eleven0 = ll;
-		}
+//	short sl = 35;
+//	short ll = 49;
+	short sl = myKeys[5]?28:40;
+	short ll = myKeys[5]?40:56;
+	if(myKeys[0]){
+		nine0 = sl;
+		nine1 = sl;
+		nine2 = ll;
+	}
+	if(myKeys[2]){
+		ten0 = sl;
+		ten1 = sl;
+		nine2 = ll;
+	}
+	if(myKeys[3]){
+		ten0 = sl;
+		nine0 = sl;
+		eleven0 = ll;
+	}
+	if(myKeys[1]){
+		ten1 = sl;
+		nine1 = sl;
+		eleven0 = ll;
 	}
 	if(!nodes[index].connections[1].dead){
 		nodes[index].connections[1].preflength = nine0;
@@ -471,6 +468,7 @@ Sint8 taskguycontrol(void* where){
 	data->lastpress = myKeys[4];
 	switch(data->controltype){
 	case -1:
+	case 1:
 		taskguycontroldoLegs(data);
 		break;
 	case 100:
@@ -512,12 +510,18 @@ void taskguycontroladdLong(int x, int y, Sint8 flipped){
 	nodes[i+1].connections[0].dead = 1;
 	nodes[i+2].connections[0].dead = 1;
 	nodes[i+3].connections[0].dead = 1;
-	newConnectionLong(i+2, 1, i+3, 0.6, 20, 27, 15, .35);
-	newConnectionLong(i+2, 2, i+1, 0.6, 20, 27, 15, .35);
-	newConnectionLong(i,   1, i+3, 0.6, 20, 27, 15, .35);
-	newConnectionLong(i,   2, i+1, 0.6, 20, 27, 15, .35);
-	newConnectionLong(i,   3, i+2, 0.6, 28, 39, 19, .35);
-	newConnectionLong(i+3, 1, i+1, 0.6, 28, 39, 19, .35);
+	newConnectionLong(i+2, 1, i+3, 0.6, 20, 30, 18, .35);
+	newConnectionLong(i+2, 2, i+1, 0.6, 20, 30, 18, .35);
+	newConnectionLong(i,   1, i+3, 0.6, 20, 30, 18, .35);
+	newConnectionLong(i,   2, i+1, 0.6, 20, 30, 18, .35);
+	newConnectionLong(i,   3, i+2, 0.6, 28, 42, 25.2, .35);
+	newConnectionLong(i+3, 1, i+1, 0.6, 28, 42, 25.2, .35);
+//	newConnectionLong(i+2, 1, i+3, 0.6, 20, 27, 15, .35);
+//	newConnectionLong(i+2, 2, i+1, 0.6, 20, 27, 15, .35);
+//	newConnectionLong(i,   1, i+3, 0.6, 20, 27, 15, .35);
+//	newConnectionLong(i,   2, i+1, 0.6, 20, 27, 15, .35);
+//	newConnectionLong(i,   3, i+2, 0.6, 28, 39, 19, .35);
+//	newConnectionLong(i+3, 1, i+1, 0.6, 28, 39, 19, .35);
 }
 void taskguycontroladd(int x, int y){taskguycontroladdLong(x, y, 0);}
 void taskguycontroladdToolMech1(int x, int y){
@@ -539,6 +543,11 @@ void taskguycontroladdToolMech1(int x, int y){
 void taskguycontroladdToolDestroy(int ix){
 	int i = addTool();
 	tools[i].type = 0;
+	tools[i].where = ix;
+}
+void taskguycontroladdToolGrab(int ix){
+	int i = addTool();
+	tools[i].type = 1;
 	tools[i].where = ix;
 }
 
