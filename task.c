@@ -452,14 +452,14 @@ Sint8 taskguycontrol(void* where){
 				data->controlindex = data->controlData->where;
 				newConnection(index+data->connectedLeg, 0, data->controlindex, (double)0.8, (int)nodes[data->controlindex].size+8, 10, 0.8);
 				data->controlData->type = -1;
-				switch(data->controltype){
-					//Things to do on connect
-					case 0:
+				if(data->controltype == 0){
 						killNode(data->controlindex);
 						taskguycontroldisconnect(data);
-						break;
-					default:
-						break;
+				}else if(data->controltype == 2){
+					connection* con = nodes[data->controlindex].connections;
+					if(!con->dead) con->preflength -= 2*(con->preflength - con->midlength);
+					taskguycontroldisconnect(data);
+					nodes[index+data->connectedLeg].connections[0].dead = 1;
 				}
 			}
 		}
@@ -540,15 +540,19 @@ void taskguycontroladdToolMech1(int x, int y){
 		newConnectionLong(ix+i, 0, ix+(i+2)%4+1, .6, i==2?60:105, 82, 45, 1.05);
 	}
 }
-void taskguycontroladdToolDestroy(int ix){
+void taskguycontroladdGenericTool(int ix, int type){
 	int i = addTool();
-	tools[i].type = 0;
+	tools[i].type = type;
 	tools[i].where = ix;
 }
+void taskguycontroladdToolDestroy(int ix){
+	taskguycontroladdGenericTool(ix, 0);
+}
 void taskguycontroladdToolGrab(int ix){
-	int i = addTool();
-	tools[i].type = 1;
-	tools[i].where = ix;
+	taskguycontroladdGenericTool(ix, 1);
+}
+void taskguycontroladdToolToggle(int ix){
+	taskguycontroladdGenericTool(ix, 2);
 }
 
 Sint8 taskincinerator(void* where){

@@ -28,9 +28,13 @@ extern void taskguycontroladd(int x, int y);
 
 extern void taskguycontroladdToolMech1(int x, int y);
 
+extern void taskguycontroladdGenericTool(int ix, int type);
+
 extern void taskguycontroladdToolDestroy(int ix);
 
 extern void taskguycontroladdToolGrab(int ix);
+
+extern void taskguycontroladdToolToggle(int ix);
 
 extern void taskincineratoradd(long height);
 
