@@ -121,10 +121,10 @@ void addBuilding(double x, double y, int stories){
 
 	newNode(addNode(), x+inc*1.0/3, y, BMNS, BNM/4.0, 2);
 	newNode(addNode(), x+inc*2.0/3, y, BMNS, BNM/4.0, 1);
-	newConnection(ix+10, 1, ix, BCF, 80.0/3, 4, BCS/4);
-	newConnection(ix+11, 0, ix+1, BCF, 80.0/3, 4, BCS/4);
-	newConnectionLong(ix+10, 0, ix+11, BCF, 80.0/3, (80.0*1/2+80.0*7/10)/2, 40, BCS/30);
-	taskguycontroladdToolToggle(ix+10);
+	newConnection(ix+10, 1, ix, BCF, 80.0/3, 7, BCS/3);
+	newConnection(ix+10, 0, ix+11, BCF, 80.0/3, 7, BCS/3);
+	newConnectionLong(ix+11, 0, ix+1, BCF, 80.0/3, (80.0*1/2+80.0*.65)/2, 40, BCS/35);
+	taskguycontroladdToolToggle(ix+11);
 
 	if(stories){
 		newConnection(ix,   1, ix+BNUM+3, .9, BHT, 7, BMCS);
@@ -460,11 +460,11 @@ void lvlplanet(){
 #define rosetteSpeed 3
 void lvl3rosette(){
 	initField(750, 750);
-	maxZoomIn = 1.6;
+	maxZoomIn = 1.4;
 	double rads = players == 0?0:M_PI*2/players;
 	register int i = 0;
 	for(; i < players; i++){
-		taskguycontroladd(240+130*cos(i*rads), 240+130*sin(i*rads));
+		taskguycontroladd(240-130*cos(i*rads), 240-130*sin(i*rads));
 	}
 	int indexes[3];
 	indexes[0] = addPlanet(250, 250);
