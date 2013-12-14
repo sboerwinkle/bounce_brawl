@@ -78,14 +78,14 @@ void addBlock(int x, int y, int width, int height, double fric, int spacing, dou
 }
 #define BCS 12.5
 #define BMCS 17.5
-#define BNS 8
-#define BRNS 8
+#define BNS 9
+#define BRNS 11
 #define BMNS 10
 #define BNM 20
 #define BMNM 30
 #define BCF 0.6
 #define BNUM 12
-#define BHT 70
+#define BHT 75
 void addBuilding(double x, double y, int stories){
 	int ix = addNode();
 	int inc = stories%2?-80:80;
@@ -119,11 +119,11 @@ void addBuilding(double x, double y, int stories){
 		newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
 		newConnection(ix+9, 0, ix+3, BCF, 20, 4, BCS);
 
-	newNode(addNode(), x+inc*1.0/3, y, BMNS, BNM/4.0, 2);
-	newNode(addNode(), x+inc*2.0/3, y, BMNS, BNM/4.0, 1);
+	newNode(addNode(), x+inc*1.0/3, y, BRNS, BNM/4.0, 2);
+	newNode(addNode(), x+inc*2.0/3, y, BRNS, BNM/4.0, 1);
 	newConnection(ix+10, 1, ix, BCF, 80.0/3, 7, BCS/3);
 	newConnection(ix+10, 0, ix+11, BCF, 80.0/3, 7, BCS/3);
-	newConnectionLong(ix+11, 0, ix+1, BCF, 80.0/3, (80.0*1/2+80.0*.65)/2, 40, BCS/35);
+	newConnectionLong(ix+11, 0, ix+1, BCF, 80.0/3, (80.0*1/2+80.0*.75)/2, 40, BCS/35);
 	taskguycontroladdToolToggle(ix+11);
 
 	if(stories){
@@ -279,84 +279,85 @@ static void make(){
 	double size = 5;
 	double mass = 9;
 	double str = 6.76;
+	double tol = 6.3;
 newNodeLong(addNode(), 152, 308, -0.332000, 0.142000, -.574, -1.763, size, mass, 1);
-newConnectionLong(8, 0, 9, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(8, 0, 9, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 154, 321, 0.637000, -0.785000, .072, .061, size, mass, 1);
-newConnectionLong(9, 0, 10, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(9, 0, 10, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 157, 333, -0.274000, -0.623000, .157, .071, size, mass, 1);
-newConnectionLong(10, 0, 11, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(10, 0, 11, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 159, 345, 0.101000, -0.654000, .042, .154, size, mass, 1);
-newConnectionLong(11, 0, 12, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(11, 0, 12, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 162, 356, -0.169000, 0.051000, .010, .114, size, mass, 1);
-newConnectionLong(12, 0, 13, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(12, 0, 13, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 165, 368, 0.062000, -0.416000, -.042, .238, size, mass, 1);
-newConnectionLong(13, 0, 14, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(13, 0, 14, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 168, 379, 0.352000, -0.081000, -.098, .207, size, mass, 1);
-newConnectionLong(14, 0, 15, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(14, 0, 15, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 172, 391, -0.265000, -0.839000, .063, -.009, size, mass, 2);
-newConnectionLong(15, 0, 16, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(15, 0, 16, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 175, 402, -0.122000, -0.528000, .162, -.041, size, mass, 1);
-newConnectionLong(16, 0, 17, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(16, 0, 17, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 179, 413, -0.787000, -0.378000, -.146, -.002, size, mass, 1);
-newConnectionLong(17, 0, 18, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(17, 0, 18, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 183, 424, -0.055000, -0.814000, -.096, .023, size, mass, 1);
-newConnectionLong(18, 0, 19, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(18, 0, 19, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 188, 434, -0.581000, -0.284000, -.089, .060, size, mass, 1);
-newConnectionLong(19, 0, 20, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(19, 0, 20, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 192, 444, 0.295000, -0.016000, .070, -.013, size, mass, 1);
-newConnectionLong(20, 0, 21, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(20, 0, 21, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 198, 454, -0.812000, 0.222000, .073, .148, size, mass, 1);
-newConnectionLong(21, 0, 22, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(21, 0, 22, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 204, 463, -0.601000, 0.513000, -.069, .226, size, mass, 1);
-newConnectionLong(22, 0, 23, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(22, 0, 23, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 210, 472, 0.334000, 0.045000, -.081, .065, size, mass, 1);
-newConnectionLong(23, 0, 24, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(23, 0, 24, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 217, 480, 0.640000, 0.203000, .068, -.039, size, mass, 1);
-newConnectionLong(24, 0, 25, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(24, 0, 25, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 226, 486, 0.281000, 0.705000, -.008, .294, size, mass, 1);
-newConnectionLong(25, 0, 26, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(25, 0, 26, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 235, 491, 0.782000, 0.534000, .175, .034, size, mass, 1);
-newConnectionLong(26, 0, 27, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(26, 0, 27, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 246, 493, 0.027000, 0.782000, .077, .071, size, mass, 1);
-newConnectionLong(27, 0, 28, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(27, 0, 28, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 256, 494, 0.469000, -0.583000, .057, .090, size, mass, 1);
-newConnectionLong(28, 0, 29, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(28, 0, 29, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 266, 491, 0.430000, -0.597000, -.057, -.043, size, mass, 1);
-newConnectionLong(29, 0, 30, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(29, 0, 30, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 275, 486, 0.546000, -0.632000, .007, .191, size, mass, 1);
-newConnectionLong(30, 0, 31, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(30, 0, 31, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 284, 479, -0.100000, -0.102000, -.129, -.060, size, mass, 1);
-newConnectionLong(31, 0, 32, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(31, 0, 32, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 291, 471, -0.127000, -0.070000, -.013, .165, size, mass, 1);
-newConnectionLong(32, 0, 33, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(32, 0, 33, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 298, 463, -0.408000, -0.432000, .034, .172, size, mass, 1);
-newConnectionLong(33, 0, 34, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(33, 0, 34, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 303, 454, 0.231000, -0.749000, -.160, -.002, size, mass, 1);
-newConnectionLong(34, 0, 35, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(34, 0, 35, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 309, 444, -0.625000, -0.387000, .047, .257, size, mass, 1);
-newConnectionLong(35, 0, 36, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(35, 0, 36, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 313, 434, 0.558000, -0.253000, .150, .178, size, mass, 1);
-newConnectionLong(36, 0, 37, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(36, 0, 37, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 318, 423, -0.151000, 0.384000, -.145, .028, size, mass, 1);
-newConnectionLong(37, 0, 38, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(37, 0, 38, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 322, 413, -0.663000, -0.387000, -.111, .065, size, mass, 1);
-newConnectionLong(38, 0, 39, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(38, 0, 39, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 325, 402, 0.496000, -0.102000, .170, .126, size, mass, 1);
-newConnectionLong(39, 0, 40, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(39, 0, 40, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 329, 391, 0.177000, -0.046000, .119, .088, size, mass, 2);
-newConnectionLong(40, 0, 41, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(40, 0, 41, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 332, 379, 0.235000, 0.727000, -.110, -.029, size, mass, 1);
-newConnectionLong(41, 0, 42, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(41, 0, 42, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 335, 368, -0.289000, 0.256000, -.179, .054, size, mass, 1);
-newConnectionLong(42, 0, 43, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(42, 0, 43, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 338, 356, -0.297000, 0.713000, .019, .144, size, mass, 1);
-newConnectionLong(43, 0, 44, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(43, 0, 44, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 341, 345, -0.218000, 0.056000, .136, .274, size, mass, 1);
-newConnectionLong(44, 0, 45, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(44, 0, 45, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 344, 333, -0.164000, 0.218000, .068, .282, size, mass, 1);
-newConnectionLong(45, 0, 46, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(45, 0, 46, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 346, 321, 0.088000, 0.082000, -.155, .184, size, mass, 1);
-newConnectionLong(46, 0, 47, 1.000000, 10, 10, 10.000000, str);
+newConnectionLong(46, 0, 47, 1.000000, 10, 10, tol, str);
 newNodeLong(addNode(), 349, 308, -0.983000, 0.827000, .123, -1.702, size, mass, 0);
 }
 void lvlswing(){
