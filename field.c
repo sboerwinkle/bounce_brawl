@@ -133,7 +133,7 @@ int addTool(){
 	for(; i < numTools; i++){
 		if(tools[i].where == -1) return i;
 	}
-	printf("Expanding tool capacity to %d\n",numTools++);
+	printf("Expanding tool capacity to %d\n",++numTools);
 	tools = (tool*)realloc(tools, numTools*sizeof(tool));
 	return i;
 }								//Lyrics played from the shower:
