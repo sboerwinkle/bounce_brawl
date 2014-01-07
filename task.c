@@ -187,6 +187,10 @@ void taskcenteradd(int i){
 //Not gonna bother to typedef another struct, but data is 2 ints for this guy. time is first, followed by index.
 Sint8 taskdestroy(void* where){
 	int* data = (int*)where;
+	if(nodes[data[1]].dead){
+		free(data);
+		return 1;
+	}
 	if(*data > 0){
 		(*data)--;
 		return 0;
@@ -322,12 +326,22 @@ static inline void taskguycontroldisconnect(taskguycontroldata* data){
 	data->controltype = -1;
 }
 static void taskguycontroldoGun(taskguycontroldata* data){
-	if(data->lastpressAction ||
-		nodes[data->controlindex].size < 1.5 ||
-		!data->exists[(data->connectedLeg+2)%4]) return;
+	if(data->lastpressAction || nodes[data->controlindex].size < 1.5) return;
+	int aimingLeg = -1;
+	int i = 0;
+	for(; i < 4; i++){
+		if(data->myKeys[i]){
+			if(aimingLeg == -1) aimingLeg = i;
+			else{
+				aimingLeg = data->connectedLeg;
+				break;
+			}
+		}
+	}
+	if(!data->exists[(aimingLeg+2)%4]) return;
 	nodes[data->controlindex].size -= 1;
-	node* one = nodes + data->index+data->connectedLeg;
-	node* two = nodes + data->index+(data->connectedLeg+2)%4;
+	node* one = nodes + data->index+aimingLeg;
+	node* two = nodes + data->index+(aimingLeg+2)%4;
 	double dx = one->x - two->x + one->px - two->px;
 	double dy = one->y - two->y + one->py - two->py;
 	double dist = sqrt(dx*dx + dy*dy) / 10.0; // Velocity of the bullet
@@ -339,7 +353,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 		dy /= dist;
 	}
 	int ix = addNode();
-	newNodeLong(ix, one->x, one->y, one->px, one->py, one->xmom+dx, one->ymom+dy, 2, 2, 0);
+	newNodeLong(ix, one->x, one->y, one->px, one->py, one->xmom+dx, one->ymom+dy, 2, 4, 0);
 	taskdestroyadd(ix, 100);
 }
 static void taskguycontroldoLegs(taskguycontroldata* data){
