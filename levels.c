@@ -178,6 +178,7 @@ void lvltest(){
 	//addBlock(300, 336, 6, 7, .9/*fric*/, 12/*spacing*/, 7/*vertspacing*/, 6, 3, 4, 7);
 	//taskguycontrol.addWalker(60, 360);
 	taskgravityadd();
+	taskguycontroladdToolGun(247, -600);
 	//taskasteroids.add(10, 8, 25);
 	taskincineratoradd(410);
 }
@@ -456,6 +457,8 @@ void lvlplanet(){
 	}
 	taskcenteradd(addPlanet(250, 250));
 	taskuniversalgravityadd(0.02);
+	taskguycontroladdToolGun(250, 250-130);
+	taskguycontroladdToolGun(250, 250+130);
 	taskincinerator2add(1000);
 }
 #define rosetteSpeed 3

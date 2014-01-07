@@ -18,6 +18,8 @@ extern void taskfixedaddLong(int i, long x, long y, double s);
 
 extern void taskfixedadd(int i, double s);
 
+extern void taskinflateadd(int i, double step, double max);
+
 extern void taskfrictionadd();
 
 extern void taskgravityadd();
@@ -29,6 +31,8 @@ extern void taskguycontroladd(int x, int y);
 extern void taskguycontroladdToolMech1(int x, int y);
 
 extern void taskguycontroladdGenericTool(int ix, int type);
+
+extern void taskguycontroladdToolGun(double x, double y);
 
 extern void taskguycontroladdToolDestroy(int ix);
 

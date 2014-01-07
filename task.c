@@ -242,6 +242,36 @@ void taskfixedadd(int i, double s){
 	taskfixedaddLong(i, nodes[i].x, nodes[i].y, s);
 }
 
+typedef struct{
+	int index;
+	double step, max;
+}taskinflatedata;
+
+Sint8 taskinflate(void* where){
+	taskinflatedata* data = (taskinflatedata*)where;
+	node* mine = nodes+data->index;
+	if(mine->dead){
+		free(where);
+		return 1;
+	}
+	if(mine->size < data->max){
+		mine->size += data->step;
+		if(mine->size > data->max) mine->size = data->max;
+	}
+	return 0;
+}
+void taskinflateadd(int i, double step, double max){
+	task* current = malloc(sizeof(task));
+	current->func = &taskinflate;
+	taskinflatedata* data = malloc(sizeof(taskinflatedata));
+	current->dataUsed = 1;
+	current->data = data;
+	data->index = i;
+	data->step = step;
+	data->max = max;
+	addTask(current);
+}
+
 Sint8 taskfriction(void* where){
 	register int i = 0;
 	for(; i < numNodes; i++){
@@ -278,7 +308,8 @@ typedef struct{
 	int controltype;
 	int controlindex;
 	//int controlvar;//Currently unused, but intended as a multi-purpose variable for the current tool.
-	Sint8 lastpress;
+	Sint8 lastpress; // If the connect key was pressed last time
+	Sint8 lastpressAction; // ditto for action key
 	Sint8* myKeys;
 	int num;
 	tool* controlData;
@@ -286,9 +317,30 @@ typedef struct{
 	Sint8 exists[4];
 }taskguycontroldata;
 
-inline void taskguycontroldisconnect(taskguycontroldata* data){
+static inline void taskguycontroldisconnect(taskguycontroldata* data){
 	data->controlData->type = data->controltype;
 	data->controltype = -1;
+}
+static void taskguycontroldoGun(taskguycontroldata* data){
+	if(data->lastpressAction ||
+		nodes[data->controlindex].size < 1.5 ||
+		!data->exists[(data->connectedLeg+2)%4]) return;
+	nodes[data->controlindex].size -= 1;
+	node* one = nodes + data->index+data->connectedLeg;
+	node* two = nodes + data->index+(data->connectedLeg+2)%4;
+	double dx = one->x - two->x + one->px - two->px;
+	double dy = one->y - two->y + one->py - two->py;
+	double dist = sqrt(dx*dx + dy*dy) / 10.0; // Velocity of the bullet
+	if(dist == 0){
+		dx = 0;
+		dy = 0;
+	}else{
+		dx /= dist;
+		dy /= dist;
+	}
+	int ix = addNode();
+	newNodeLong(ix, one->x, one->y, one->px, one->py, one->xmom+dx, one->ymom+dy, 2, 2, 0);
+	taskdestroyadd(ix, 100);
 }
 static void taskguycontroldoLegs(taskguycontroldata* data){
 	int index = data->index;
@@ -301,8 +353,18 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 	short eleven0 = 28;
 //	short sl = 35;
 //	short ll = 49;
-	short sl = myKeys[5]?28:40;
-	short ll = myKeys[5]?40:56;
+	short sl = 40;
+	short ll = 56;
+	if(myKeys[5]){
+		switch(data->controltype){
+			case 10:
+				taskguycontroldoGun(data);
+				break;
+			default:
+				sl=28;
+				ll=40;
+		}
+	}
 	if(myKeys[0]){
 		nine0 = sl;
 		nine1 = sl;
@@ -465,19 +527,20 @@ Sint8 taskguycontrol(void* where){
 		}
 	}
 	else if(data->controltype != -1 && (nodes[index+data->connectedLeg].connections[0].dead || nodes[data->controlindex].dead)){taskguycontroldisconnect(data);}
-	data->lastpress = myKeys[4];
 	switch(data->controltype){
-	case -1:
-	case 1:
-		taskguycontroldoLegs(data);
-		break;
 	case 100:
 		taskguycontroldoBigLegs(data);
+		break;
+	default:
+		taskguycontroldoLegs(data); // Also handles some tools (gun)
 		break;
 	}
 	if(netMode)
 		addNetPlayerCircle(index, requests[data->num].color);
 	ellipseColor(screen, getScreenX(nodes[index].x*maxZoomIn-centerx), getScreenY(nodes[index].y*maxZoomIn-centery), markSize/2, markSize/2, requests[data->num].color);
+
+	data->lastpressAction = myKeys[5];
+	data->lastpress = myKeys[4];
 	return 0;
 }
 void taskguycontroladdLong(int x, int y, Sint8 flipped){
@@ -510,12 +573,12 @@ void taskguycontroladdLong(int x, int y, Sint8 flipped){
 	nodes[i+1].connections[0].dead = 1;
 	nodes[i+2].connections[0].dead = 1;
 	nodes[i+3].connections[0].dead = 1;
-	newConnectionLong(i+2, 1, i+3, 0.6, 20, 30, 18, .35);
-	newConnectionLong(i+2, 2, i+1, 0.6, 20, 30, 18, .35);
-	newConnectionLong(i,   1, i+3, 0.6, 20, 30, 18, .35);
-	newConnectionLong(i,   2, i+1, 0.6, 20, 30, 18, .35);
-	newConnectionLong(i,   3, i+2, 0.6, 28, 42, 25.2, .35);
-	newConnectionLong(i+3, 1, i+1, 0.6, 28, 42, 25.2, .35);
+	newConnectionLong(i+2, 1, i+3, 0.6, 20, 35, 23, .35);
+	newConnectionLong(i+2, 2, i+1, 0.6, 20, 35, 23, .35);
+	newConnectionLong(i,   1, i+3, 0.6, 20, 35, 23, .35);
+	newConnectionLong(i,   2, i+1, 0.6, 20, 35, 23, .35);
+	newConnectionLong(i,   3, i+2, 0.6, 28, 49, 32.2, .35);
+	newConnectionLong(i+3, 1, i+1, 0.6, 28, 49, 32.2, .35);
 //	newConnectionLong(i+2, 1, i+3, 0.6, 20, 27, 15, .35);
 //	newConnectionLong(i+2, 2, i+1, 0.6, 20, 27, 15, .35);
 //	newConnectionLong(i,   1, i+3, 0.6, 20, 27, 15, .35);
@@ -544,6 +607,12 @@ void taskguycontroladdGenericTool(int ix, int type){
 	int i = addTool();
 	tools[i].type = type;
 	tools[i].where = ix;
+}
+void taskguycontroladdToolGun(double x, double y){
+	int ix = addNode();
+	newNode(ix, x, y, 3, 1, 0);
+	taskguycontroladdGenericTool(ix, 10);
+	taskinflateadd(ix, .1, 3);
 }
 void taskguycontroladdToolDestroy(int ix){
 	taskguycontroladdGenericTool(ix, 0);
