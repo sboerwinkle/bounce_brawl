@@ -1,4 +1,3 @@
-#include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -442,8 +441,8 @@ int main(int argc, char** argv){
 #ifndef WINDOWS
 	struct timespec t;
 	t.tv_sec = 0;
-	struct timeval lastTime = {.tv_sec = 0, .tv_usec = 0};
-	struct timeval otherTime = {.tv_sec = 0, .tv_usec = 0};
+	struct timespec lastTime = {.tv_sec = 0, .tv_nsec = 0};
+	struct timespec otherTime = {.tv_sec = 0, .tv_nsec = 0};
 #else
 	HANDLE hTimer = CreateWaitableTimer(NULL, 1, NULL);
 	FILETIME lastTime = {.dwLowDateTime = 0, .dwHighDateTime = 0};
@@ -481,14 +480,14 @@ int main(int argc, char** argv){
 		if(netMode) readKeys();
 		paint();//Also runs the thing if relevant.
 #ifndef WINDOWS
-		gettimeofday(&otherTime, NULL);
-		long int sleep = ((sloMo?250000:25000) - (otherTime.tv_usec-lastTime.tv_usec+1000000*(otherTime.tv_sec-lastTime.tv_sec)))*1000;
+		clock_gettime(CLOCK_MONOTONIC, &otherTime);
+		long int sleep = (sloMo?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
 		if(sleep > 0){
 			frameFlag = 0;
 			t.tv_nsec = sleep;
 			nanosleep(&t, &t);
 		} else frameFlag = 1;
-		gettimeofday(&lastTime, NULL);
+		clock_gettime(CLOCK_MONOTONIC, &lastTime);
 #else
 		largeInt.LowPart = lastTime.dwLowDateTime;
 		largeInt.HighPart = lastTime.dwHighDateTime;

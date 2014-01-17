@@ -5,7 +5,7 @@ CFLAGS=-Wall -O2 -c -pthread $(DEBUG)
 .PHONY: debug windows remake clean
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o
-	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS) -lSDL2 -lm -pthread
+	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS) -lSDL2 -lm -lrt -pthread
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
