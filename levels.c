@@ -11,7 +11,56 @@ static int dist(node* a, node* b){
 	int dy = (int)(a->y - b->y);
 	return (int)sqrt(dx*dx + dy*dy);
 }
-void addLoop(int centerX, int centerY, double radius, int num, double omega, double size, double mass, double fric, double tol, double str){
+#define sqrt3 1.732050808
+#define H 1
+//Makes arrays created for this method easier to visualize, especially w/ syntax highlighting
+static void addHex(double x, double y, int width, int height, int* map, double fric, double spacing, double tolerance, double str, double size, double mass){
+	double placeX;
+	double placeY = y;
+	int tmp;
+	int i, j;
+	for(j = 0; j < height; j++){
+		placeX = x + j*spacing/2;
+		for(i = 0; i < width; i++){
+			if(map[j*width + i]){
+				tmp = addNode();
+				newNode(tmp, (int)placeX, (int)placeY, size, mass, 0);
+				map[j*width + i] = tmp+1; // index is stored so later nodes can connect to it
+				//Initialize connections
+				int subI, subJ;
+				double mySpacing = spacing;
+				for(subI = i-1; subI >= 0; subI--){
+					if(map[j*width+subI]){
+						newConnection(tmp, createConnection(tmp), map[j*width+subI]-1, fric, mySpacing, tolerance, str);
+						break;
+					}
+					mySpacing += spacing;
+				}
+				mySpacing = spacing;
+				for(subJ = j-1; subJ >= 0; subJ--){
+					if(map[subJ*width+i]){
+						newConnection(tmp, createConnection(tmp), map[subJ*width+i]-1, fric, mySpacing, tolerance, str);
+						break;
+					}
+					mySpacing += spacing;
+				}
+				mySpacing = spacing;
+				subI = i+1;
+				for(subJ = j-1; subJ >= 0 && subI < width; subJ--){
+					if(map[subJ*width+subI]){
+						newConnection(tmp, createConnection(tmp), map[subJ*width+subI]-1, fric, mySpacing, tolerance, str);
+						break;
+					}
+					subI++;
+					mySpacing += spacing;
+				}
+			}
+			placeX += spacing;
+		}
+		placeY += spacing*sqrt3/2;
+	}
+}
+static void addLoop(int centerX, int centerY, double radius, int num, double omega, double size, double mass, double fric, double tol, double str){
 	double angleInc = M_PI*2/num;
 	int ix = 0;
 	double xpart, ypart;
@@ -28,7 +77,7 @@ void addLoop(int centerX, int centerY, double radius, int num, double omega, dou
 	}
 	nodes[ix].connections[0].id = ix-num+1;
 }
-void addBlock(int x, int y, int width, int height, double fric, int spacing, double heightSpacing, double tolerance, double str, double size, double mass){
+static void addBlock(int x, int y, int width, int height, double fric, int spacing, double heightSpacing, double tolerance, double str, double size, double mass){
 	int ix;
 	Sint8 indented = 1;
 	int X;
@@ -86,7 +135,7 @@ void addBlock(int x, int y, int width, int height, double fric, int spacing, dou
 #define BCF 0.6
 #define BNUM 12
 #define BHT 75
-void addBuilding(double x, double y, int stories){
+static void addBuilding(double x, double y, int stories){
 	int ix = addNode();
 	int inc = stories%2?-80:80;
 	if(stories%2) x += 80*3;
@@ -181,6 +230,16 @@ void lvltest(){
 	taskguycontroladdToolGun(247, -600);
 	//taskasteroids.add(10, 8, 25);
 	taskincineratoradd(410);
+}
+
+void lvlexperiment(){
+	lvltest();
+	int hexArg[] = {0,0,0,H,0,\
+			 0,H,H,H,H,\
+			  0,H,H,H,0,\
+			   H,H,H,H,0,\
+			    0,H,0,0,0};
+	addHex(247-15*3, 330, 5, 5, hexArg, 0.80, 15, 4, 1.3, 6, 3);
 }
 
 void lvlbuilding(){
@@ -379,7 +438,7 @@ void lvlswing(){
 	int x1 = (int)nodes[15].x;
 	int x2 = (int)nodes[40].x;
 	double dx = (x2-x1)/13.0;
-	addBlock((int)(x1+dx/2), (int)nodes[15].y, 12, 2, .9/*fric*/, (int)dx, -dx/sqrt(3), 5, 2.4/*str*/, dx*.5, 6);
+	addBlock((int)(x1+dx/2), (int)nodes[15].y, 12, 2, .9/*fric*/, (int)dx, -dx/sqrt3, 5, 2.4/*str*/, dx*.5, 6);
 	newConnection(15, 1, 48, 1, (int)dx, 5, 2.4);
 	newConnection(40, 1, 59, 1, (int)dx, 5, 2.4);
 	for(i = 0; i <= 11; i++){
@@ -475,7 +534,7 @@ void lvl3rosette(){
 	indexes[1] = addPlanet(-250, 250);
 	indexes[2] = addPlanet(0, -183);
 	double xmom = rosetteSpeed/2;
-	double ymom = -sqrt(3)/2*rosetteSpeed;
+	double ymom = -sqrt3/2*rosetteSpeed;
 	for(i = 0; i < players*4+85; i++){
 		nodes[i].xmom = xmom;
 		nodes[i].ymom = ymom;

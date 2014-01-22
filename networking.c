@@ -423,7 +423,7 @@ void myConnect(Uint32 color){ // Entered by pressing 'c', not exited until you p
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr=addr;
-	servaddr.sin_port=htons(8080);//Here: convert all the '8080's to 'port's : 8080 is just for testing porpoises on the same computer.
+	servaddr.sin_port=htons(port);
 
 	zoom = 1;
 
@@ -468,7 +468,7 @@ void myHost(int max, int* playerNumbers){
 	memset(&myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family = AF_INET;
 	myaddr.sin_addr.s_addr=htonl(INADDR_ANY);
-	myaddr.sin_port=htons(8080);
+	myaddr.sin_port=htons(port);
 	
 	if(0 > bind(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr))){
 		close(sockfd);

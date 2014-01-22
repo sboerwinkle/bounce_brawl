@@ -338,6 +338,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 			}
 		}
 	}
+	if(aimingLeg == -1) aimingLeg = data->connectedLeg;
 	if(!data->exists[(aimingLeg+2)%4]) return;
 	nodes[data->controlindex].size -= 1;
 	node* one = nodes + data->index+aimingLeg;
