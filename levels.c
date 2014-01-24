@@ -242,6 +242,41 @@ void lvlexperiment(){
 	addHex(247-15*3, 330, 5, 5, hexArg, 0.80, 15, 4, 1.3, 6, 3);
 }
 
+void lvlcave(){
+#define lvlcavesize 25
+	initField(750, 750);
+	maxZoomIn = 1.5;
+	if(players > 3) players = 3;
+	int hexArg[] = {0,0,0,0,0,0,0,0,0,0,0,H,H,H,H,H,H,H,H,H,H,H,H,H,H,\
+			 0,0,0,0,0,0,0,0,0,0,H,H,0,0,0,0,0,0,0,0,0,0,0,H,H,\
+			  0,0,0,0,0,0,0,0,0,H,0,0,0,0,0,0,0,0,0,0,0,0,0,0,H,\
+			   0,0,0,0,0,0,0,0,H,0,0,0,0,0,H,H,H,H,H,0,0,0,0,0,H,\
+			    0,0,0,0,0,0,0,H,0,0,H,H,H,H,H,H,H,H,H,H,H,H,0,0,H,\
+			     0,0,0,0,0,0,H,H,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,H,H,\
+			      0,0,0,0,0,H,H,H,0,0,0,0,0,0,0,0,0,0,0,0,0,0,H,H,H,\
+			       0,0,0,0,H,H,H,H,H,H,0,0,0,0,0,0,0,0,0,H,H,H,H,H,H,\
+			        0,0,0,H,H,0,H,H,H,H,0,0,0,H,H,0,0,0,H,H,H,H,0,H,H,\
+			         0,0,H,H,0,0,0,0,0,0,0,H,H,H,H,H,0,0,0,0,0,0,0,H,H,\
+			          0,H,H,H,0,0,0,0,0,0,H,H,H,H,H,H,0,0,0,0,0,0,H,H,H,\
+			           H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H};
+	addHex(-5*lvlcavesize, 0, 25, 12, hexArg, 0.9, lvlcavesize, 5, 3, lvlcavesize*.45, 8);
+	int ix = addNode();
+	newNode(ix, 0, 0, 1, 1, 0);
+	killNode(ix);//We just want the index
+	int i = ix - 1;
+	for(; i >= ix-25; i--){
+		taskfixedadd(i, 1);
+	}
+	taskgravityadd();
+	taskincineratoradd(300);
+	if(players < 1) return;
+	taskguycontroladd(lvlcavesize*4.5, 9*sqrt3/2*lvlcavesize);
+	if(players < 2) return;
+	taskguycontroladd(lvlcavesize*19.5+1, 9*sqrt3/2*lvlcavesize);
+	if(players < 3) return;
+	taskguycontroladd(lvlcavesize*12, sqrt3/2*lvlcavesize);
+}
+
 void lvlbuilding(){
 	if(players>2) players = 2;
 	lvltest();

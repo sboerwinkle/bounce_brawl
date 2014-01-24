@@ -281,7 +281,7 @@ static void spKeyAction(int bit, Sint8 pressed){
 				pIndex[0] = -1;
 				pIndex[1] = -1;
 				int i = 0;
-				for(; i < 10; i++){
+				for(; i < numRequests; i++){
 					if(requests[i].controlMode == 0){
 						if(pIndex[0] == -1) pIndex[0] = i;
 						else requests[i].controlMode = 2;
@@ -407,8 +407,8 @@ int main(int argc, char** argv){
 	menu topMenu;
 	currentMenu = &topMenu;
 	topMenu.parent = NULL;
-	topMenu.numItems = 8;
-	topMenu.items = malloc(8*sizeof(menuItem));
+	topMenu.numItems = 9;
+	topMenu.items = malloc(9*sizeof(menuItem));
 	//menu* asteroidsMenu = addMenuMenu(&topMenu, 0, 2, "ASTEROID SURVIVAL...");
 	menu* planetsMenu = addMenuMenu(&topMenu, 0, 2, "PLANET STAGES...");
 	menu* flatMenu    = addMenuMenu(&topMenu, 1, 4, "FLAT STAGES...");
@@ -418,6 +418,7 @@ int main(int argc, char** argv){
 	addMenuLevel(&topMenu, 5, &lvlswing, "WALLED STAGE");
 	addMenuLevel(&topMenu, 6, &lvldrop, "DROPAWAY FLOOR");
 	addMenuLevel(&topMenu, 7, &lvlmech, "MECHS");
+	addMenuLevel(&topMenu, 8, &lvlcave, "CAVE");
 
 	addMenuLevel(planetsMenu, 0, &lvlplanet, "SINGLE PLANET");
 	addMenuLevel(planetsMenu, 1, &lvl3rosette, "3-ROSETTE");
