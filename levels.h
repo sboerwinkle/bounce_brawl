@@ -1,5 +1,7 @@
 extern void lvltest();
 
+extern void lvltutorial();
+
 extern void lvlexperiment();
 
 extern void lvlcave();

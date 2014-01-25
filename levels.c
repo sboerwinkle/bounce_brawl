@@ -232,6 +232,23 @@ void lvltest(){
 	taskincineratoradd(410);
 }
 
+void lvltutorial(){
+	initField(750, 750);
+	maxZoomIn = 2.0;
+	players = 1;
+	addBlock(0, 0, 60, 3, .95, 12, 8, 3, 5, 5, 10);
+	int i = 121;
+	for(; i < 121+60; i++) taskfixedadd(i, .4);
+	taskguycontroladd(10*11, -30);
+	taskgravityadd();
+	taskincineratoradd(60);
+	tasktextadd(0, -360, "Press 'esc' at any time to return to main menu.");
+	tasktextadd(-60, -180, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
+	tasktextadd(460, -180, "Try holding '1' for\nsmaller movements.");
+	tasktextadd(1000, -180, "Press Q to interact with objects\nmarked with squares.\nSome of these change\nthe functions of your keys.");
+	taskguycontroladdToolGun(550, -90);
+}
+
 void lvlexperiment(){
 	lvltest();
 	int hexArg[] = {0,0,0,H,0,\

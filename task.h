@@ -51,3 +51,5 @@ extern void taskuniversalgravityadd(double gravity);
 extern void taskscoreaddLong(int ix, int x, int y);
 
 extern void taskscoreadd(int ix);
+
+extern void tasktextadd(int x, int y, char* text);

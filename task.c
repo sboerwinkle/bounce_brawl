@@ -797,3 +797,24 @@ void taskscoreaddLong(int ix, int x, int y){
 void taskscoreadd(int ix){
 	taskscoreaddLong(ix, 8, 20);
 }
+
+typedef struct{
+	int x, y;
+	char* text;
+} tasktextdata;
+
+Sint8 tasktext(void* where){
+	tasktextdata* data = (tasktextdata*)where;
+	drawText(screen, getScreenX(data->x - centerx), getScreenY(data->y - centery), 0xFFFFFFFF, 1.0*maxZoomIn/zoom, data->text);
+	return 0;
+}
+
+void tasktextadd(int x, int y, char* text){
+	task* current = (task*)malloc(sizeof(task));
+	current->func = &tasktext;
+	tasktextdata* data = malloc(sizeof(tasktextdata));
+	data->x = x; data->y = y; data->text = text;
+	current->dataUsed = 1;
+	current->data = data;
+	addTask(current);
+}
