@@ -296,7 +296,7 @@ void run(){
 	int i, j;
 	int count = 0;
 	for(i = 0; i < 2; i++){
-		if(pIndex[i] != -1 && alives[pIndex[i]]){
+		if(pIndex[i] != -1 && pIndex[i] < players && alives[pIndex[i]]){
 			count++;
 			centerx += centers[pIndex[i]].x;
 			centery += centers[pIndex[i]].y;
