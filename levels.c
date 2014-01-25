@@ -498,6 +498,7 @@ void lvlswing(){
 void lvldrop(){
 	if(players > 2) players = 2;
 	initField(750, 750);
+	maxZoomIn = 1.5;
 	addBlock(30, 280, 43, 2, 1, 10, 7, 4, 6, 4.5, 10);
 	//f.addBlock(
 	int n, i = 0;
