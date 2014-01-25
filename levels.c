@@ -236,16 +236,32 @@ void lvltutorial(){
 	initField(750, 750);
 	maxZoomIn = 2.0;
 	players = 1;
-	addBlock(0, 0, 60, 3, .95, 12, 8, 3, 5, 5, 10);
-	int i = 121;
-	for(; i < 121+60; i++) taskfixedadd(i, .4);
-	taskguycontroladd(10*11, -30);
+	addBlock(0, 0, 60, 2, .95, 12, 8, 3, 5, 5, 10);
+	int i = 60;
+	for(; i < 121; i++) taskfixedadd(i, .4);
 	taskgravityadd();
-	taskincineratoradd(60);
-	tasktextadd(0, -360, "Press 'esc' at any time to return to main menu.");
-	tasktextadd(-60, -180, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
-	tasktextadd(460, -180, "Try holding '1' for\nsmaller movements.");
-	tasktextadd(1000, -180, "Press Q to interact with objects\nmarked with squares.\nSome of these change\nthe functions of your keys.");
+	taskincineratoradd(360);
+	tasktextadd(0, -180, "Press 'esc' at any time to return to main menu.");
+	tasktextadd(-30, -90, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
+	tasktextadd(230, -90, "Try holding '1' for\nsmaller movements.");
+	tasktextadd(500, -90, "Press Q to interact with objects\nmarked with squares.\nSome of these change\nthe functions of your keys.");
+	newNode(addNode(), 650, 140+20*sqrt3*2, 16, 150, 4);
+	int hexArg[] = {H,0,0,0,H,0,0,\
+			 H,0,0,0,H,H,H,\
+			  H,0,0,0,0,0,H,\
+			   H,0,0,0,0,0,H,\
+			    H,H,H,H,H,H,0};
+	addHex(750, 140, 7, 5, hexArg, 0.90, 20, 5, 4.1, 8, 6);
+	newConnection(i, 0, i+1, .8, dist(nodes+i, nodes+i+1), 15, 10);
+	newConnection(i, 1, i-1, .8, dist(nodes+i, nodes+i-1), 15, 10);
+	newConnection(i, 2, i+11, .8, dist(nodes+i, nodes+i+11), 15, 10);
+	newConnection(i, 3, i+10, .8, dist(nodes+i, nodes+i+10), 15, 10);
+	newConnection(i-1, createConnection(i-1), i+1, .8, dist(nodes+i-1, nodes+i+1), 15, 10);
+	nodes[i-1].mass = 100;
+	tasktextadd(730, -20, "Try falling off\nthis edge.\nHold the SAD keys\nto soften your\nlanding.");
+	tasktextadd(680, 240, "If you've gotten into the stocking\nwithout breaking any limbs, congrats!\nYou can use +/- to admire your\
+\nsurroundings.\n\n'esc' for main menu");
+	taskguycontroladd(10*11, -30);
 	taskguycontroladdToolGun(550, -90);
 }
 

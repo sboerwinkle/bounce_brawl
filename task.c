@@ -805,7 +805,7 @@ typedef struct{
 
 Sint8 tasktext(void* where){
 	tasktextdata* data = (tasktextdata*)where;
-	drawText(screen, getScreenX(data->x - centerx), getScreenY(data->y - centery), 0xFFFFFFFF, 1.0*maxZoomIn/zoom, data->text);
+	drawText(screen, getScreenX(data->x*maxZoomIn - centerx), getScreenY(data->y*maxZoomIn - centery), 0xFFFFFFFF, 1.0*maxZoomIn/zoom, data->text);
 	return 0;
 }
 
