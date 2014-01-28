@@ -1,19 +1,9 @@
 Player management:
 	keyboard 2 net control?
 
-windows port:
-	http://msdn.microsoft.com/en-us/library/windows/desktop/ms724397(v=vs.85).aspx
-	http://msdn.microsoft.com/en-us/library/windows/desktop/ms724284(v=vs.85).aspx
-	http://msdn.microsoft.com/en-us/library/windows/desktop/aa383742(v=vs.85).aspx
-
-source forge
+5. source forge
 grabber device - warehouse style
-buildings - three vertical columns: blank, floor, ramp
-cave - some form of editor
-text task
-tutorials
-weaker, stronger enemies
-mech ais
-missions - high scores
-guns
-parajet
+1. tutorials
+2. weaker, stronger enemies
+3. space ais?
+4. missions - high scores
