@@ -359,17 +359,22 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 		short x, y;
 		Uint16 radius;
 		int i = 0;
+		char flag = 0;
 		for(; i < size; i++){
 			radius = ntohs(*((Uint16*)(pointer+4)));
 			x = ( *(Uint16*)pointer = (ntohs(*(Uint16*)pointer)-locX)/zoom+375 );
 			y = ( *(Uint16*)(pointer+2) = (ntohs(*(Uint16*)(pointer+2))-locY)/zoom+375 );
 			if(radius & 32768){
 				radius ^= 32768;
-				rectangleColor(screen, x-myMarkSize/2, y-myMarkSize/2, myMarkSize, myMarkSize, getToolColor(*(toolColors++)));
+				flag = 1;
 			}
 			radius /= zoom;
 			if(radius > 0)
 				ellipseColor(screen, x, y, radius, radius, 0xFFFFFFFF);
+			if(flag){
+				flag = 0;
+				rectangleColor(screen, x-myMarkSize/2, y-myMarkSize/2, myMarkSize, myMarkSize, getToolColor(*(toolColors++)));
+			}
 			pointer += 6;
 		}
 		size = ntohs(*(Uint16*)pointer);
@@ -409,7 +414,7 @@ void myConnect(Uint32 color){ // Entered by pressing 'c', not exited until you p
 	memset(&myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family = AF_INET;
 	myaddr.sin_addr.s_addr=htonl(INADDR_ANY);
-	myaddr.sin_port=htons(port);
+	myaddr.sin_port=htons(port);//8080);
 	
 	if(0 > bind(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr))){
 		close(sockfd);

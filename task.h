@@ -30,9 +30,9 @@ extern void taskguycontroladd(int x, int y);
 
 extern Uint32 getToolColor(int type);
 
-extern void addToolMech1(int x, int y);
-
 extern void addGenericTool(int ix, int type);
+
+extern void addToolMech1(int x, int y);
 
 extern void addToolGun(double x, double y);
 

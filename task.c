@@ -322,7 +322,7 @@ typedef struct{
 }taskguycontroldata;
 
 static inline void taskguycontroldisconnect(taskguycontroldata* data){
-	data->controlData->type = data->controltype;
+	data->controlData->inUse = 0;
 	data->controltype = -1;
 }
 static void taskguycontroldoGun(taskguycontroldata* data){
@@ -513,7 +513,7 @@ Sint8 taskguycontrol(void* where){
 				int mx = (int)nodes[index+leg].x;
 				int my = (int)nodes[index+leg].y;
 				for(i = 0; i < numTools; i++){
-					if(tools[i].where==-1 || tools[i].type==-1 || nodes[tools[i].where].dead) continue;
+					if(tools[i].where==-1 || tools[i].inUse || nodes[tools[i].where].dead) continue;
 					deltax = (int)(mx - nodes[tools[i].where].x);
 					deltay = (int)(my - nodes[tools[i].where].y);
 					current = (int)sqrt(deltax*deltax + deltay*deltay);
@@ -528,7 +528,7 @@ Sint8 taskguycontrol(void* where){
 				data->controltype = data->controlData->type;
 				data->controlindex = data->controlData->where;
 				newConnection(index+data->connectedLeg, 0, data->controlindex, (double)0.8, (int)nodes[data->controlindex].size+8, 10, 0.8);
-				data->controlData->type = -1;
+				data->controlData->inUse = 1;
 				if(data->controltype == 0){
 						killNode(data->controlindex);
 						taskguycontroldisconnect(data);
@@ -605,7 +605,7 @@ void taskguycontroladd(int x, int y){taskguycontroladdLong(x, y, 0);}
 Uint32 getToolColor(int type){
 	switch(type){
 		case 0:
-			return 0x00FFFFFF;
+			return 0xFFFF00FF;
 		case 1:
 			return 0x000000FF;
 		case 2:
@@ -613,17 +613,21 @@ Uint32 getToolColor(int type){
 		case 10:
 			return 0xFF0000FF;
 		case 100:
-			return 0x8080FFFF;
+			return 0x800000FF;
 		default:
 			return 0xFF00FFFF;
 	}
 }
+void addGenericTool(int ix, int type){
+	int i = addTool();
+	tools[i].type = type;
+	tools[i].where = ix;
+	tools[i].inUse = 0;
+}
 void addToolMech1(int x, int y){
 	int ix = addNode();
 	newNode(ix, x, y, 6, 18, 4);
-	int tix = addTool();
-	tools[tix].type = 100;
-	tools[tix].where = ix;
+	addGenericTool(ix, 100);
 	newNode(addNode(), x-30, y-30, 10, 18, 1);
 	newNode(addNode(), x+30, y-30, 10, 18, 1);
 	newNode(addNode(), x+30, y+30, 10, 18, 1);
@@ -633,11 +637,6 @@ void addToolMech1(int x, int y){
 		newConnectionLong(ix, i-1, ix+i, .6, i>2?74:42, 58, 34, 1.05);
 		newConnectionLong(ix+i, 0, ix+(i+2)%4+1, .6, i==2?60:105, 82, 45, 1.05);
 	}
-}
-void addGenericTool(int ix, int type){
-	int i = addTool();
-	tools[i].type = type;
-	tools[i].where = ix;
 }
 void addToolGun(double x, double y){
 	int ix = addNode();
