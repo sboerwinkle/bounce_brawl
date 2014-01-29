@@ -1,5 +1,3 @@
-0. Different color boxes for different tools
-
 Player management:
 	keyboard 2 net control?
 
