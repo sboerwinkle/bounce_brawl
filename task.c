@@ -613,7 +613,7 @@ Uint32 getToolColor(int type){
 		case 10:
 			return 0xFF0000FF;
 		case 100:
-			return 0x800000FF;
+			return 0xC04040FF;
 		default:
 			return 0xFF00FFFF;
 	}

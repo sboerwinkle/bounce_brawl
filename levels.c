@@ -543,11 +543,11 @@ void lvldrop(){
 		taskfixedadd(n, .3);
 	}
 	if(players > 0){
-		taskguycontroladd(90, 250);
+		taskguycontroladd(92, 250);
 		taskscoreadd(0);
 	}
 	if(players > 1){
-		taskguycontroladdLong(400, 250, 1);
+		taskguycontroladdLong(398, 250, 1);
 		taskscoreaddLong(1, 670, 20);
 	}
 	taskgravityadd();
