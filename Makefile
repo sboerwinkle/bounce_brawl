@@ -38,7 +38,7 @@ task.o: task.c structs.h gui.h field.h node.h font.h gfx.h networking.h
 gfx.o: gfx.c gfx.h
 	$(CC) $(CFLAGS) gfx.c
 
-networking.o: networking.c structs.h font.h gfx.h gui.h field.h
+networking.o: networking.c structs.h font.h gfx.h gui.h field.h task.h
 	$(CC) $(CFLAGS) networking.c
 
 clean:

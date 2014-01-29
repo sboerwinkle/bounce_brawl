@@ -353,8 +353,8 @@ void run(){
 		}else{
 			x = getScreenX((tool->x-3)*maxZoomIn - centerx);
 			y = getScreenY((tool->y-3)*maxZoomIn - centery);
-			rectangleColor(screen, x, y, markSize, markSize, 0xFFFFFFFF);
-			if(netMode) addNetTool(tool->netIndex);
+			rectangleColor(screen, x, y, markSize, markSize, getToolColor(tools[i].type));
+			if(netMode) addNetTool(tool->netIndex, tools[i].type);
 		}
 	}
 	runTask(&firstTask);//A linked list. This function runs them in order and snips out dead ones, freeing them.

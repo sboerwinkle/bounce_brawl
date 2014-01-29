@@ -28,17 +28,19 @@ extern void taskguycontroladdLong(int x, int y, Sint8 flipped);
 
 extern void taskguycontroladd(int x, int y);
 
-extern void taskguycontroladdToolMech1(int x, int y);
+extern Uint32 getToolColor(int type);
 
-extern void taskguycontroladdGenericTool(int ix, int type);
+extern void addToolMech1(int x, int y);
 
-extern void taskguycontroladdToolGun(double x, double y);
+extern void addGenericTool(int ix, int type);
 
-extern void taskguycontroladdToolDestroy(int ix);
+extern void addToolGun(double x, double y);
 
-extern void taskguycontroladdToolGrab(int ix);
+extern void addToolDestroy(int ix);
 
-extern void taskguycontroladdToolToggle(int ix);
+extern void addToolGrab(int ix);
+
+extern void addToolToggle(int ix);
 
 extern void taskincineratoradd(long height);
 

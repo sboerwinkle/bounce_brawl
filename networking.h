@@ -16,6 +16,6 @@ extern void addNetLine(Uint16 dest, Uint8 hue);
 extern int  addNetLineCircle(Uint16 ix);
 extern void setNetLineCircleNumber(int pos, Uint8 num);
 extern void addNetPlayerCircle(Uint16 ix, Uint32 color);
-extern void addNetTool(int ix);
+extern void addNetTool(int ix, int color);
 extern void removeNetLineCircle();
 extern void writeImgs();

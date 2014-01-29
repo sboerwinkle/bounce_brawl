@@ -3,7 +3,7 @@
 	#include <arpa/inet.h>
 	#include <sys/socket.h>
 	#include <sys/select.h>
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #else
 	#ifndef UNICODE
 	#define UNICODE
@@ -25,6 +25,7 @@
 #include "gui.h"
 #include "gfx.h"
 #include "font.h"
+#include "task.h"
 #include "field.h"
 
 int port = 4659;
@@ -45,10 +46,10 @@ static Sint8 netListenKill = 0;
 
 static char myKeys; // We could use the arrays defined in gui.h, but this way is more condusive to networking.
 
-static Uint16 numLineBytes = 0, numCircles = 0, numPlayerCircles = 0;
-static Uint16 maxLineBytes = 0, maxCircles = 0, maxPlayerCircles = 0;
+static Uint16 numLineBytes = 0, numCircles = 0, numPlayerCircles = 0, numToolMarks = 0;
+static Uint16 maxLineBytes = 0, maxCircles = 0, maxPlayerCircles = 0, maxToolMarks = 0;
 static Uint16 numLines = 0;
-static Uint8 *lines = NULL, *circles = NULL, *playerCircles = NULL;
+static Uint8 *lines = NULL, *circles = NULL, *playerCircles = NULL, *toolMarks = NULL;
 static Uint8 numClients, maxClients;
 
 static pthread_mutex_t myMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -102,8 +103,13 @@ void removeNetLineCircle(){//Undoes the indiscretions of youth
 	numLineBytes -= 3;
 	numLines--;
 }
-void addNetTool(int ix){
+void addNetTool(int ix, int color){
 	*((Uint16*)(circles+6*ix+4)) |= htons(32768);
+	if(numToolMarks == maxToolMarks){
+		maxToolMarks++;
+		toolMarks = realloc(toolMarks, maxToolMarks);
+	}
+	toolMarks[numToolMarks++] = color;
 }
 /*void addLine(Uint8 hue, short x1, short y1, short x2, short y2){
 	if(numLines == maxLines){
@@ -170,11 +176,13 @@ static void sendImgs(void* derp){
 
 void writeImgs(){
 	if(numClients && !pthread_mutex_trylock(&myMutex)){//If trylock doesn't fail, the other thread is waiting on a condition.
-		Uint16 size = 4+4+6*numCircles+2+numLineBytes+2+6*numPlayerCircles;
+		Uint16 size = 4+2+numToolMarks+4+6*numCircles+2+numLineBytes+2+6*numPlayerCircles;
 		Uint16 sizeData = htons(size);
 		Uint8* realData = malloc(size);
 		Uint8* data = realData+4;
-		*((short*)data) = htons(numCircles);
+		*((short*)data) = htons(numToolMarks);
+		memcpy(data+=2, tools, numToolMarks);
+		*((short*)(data+=numToolMarks)) = htons(numCircles);
 		*((short*)(data+=2)) = htons(6*maxZoomIn);
 		memcpy(data+=2, circles, 6*numCircles);
 		*((short*)(data+=6*numCircles)) = htons(numLines);
@@ -341,10 +349,12 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 		memset(screen, 0, 750*750*4);
 		Uint16 locX = ntohs(*(Uint16*)data);
 		Uint16 locY = ntohs(*(Uint16*)(data+2));
-		size = ntohs(*(Uint16*)(data+4));
-		Uint16 myMarkSize = ntohs(*((Uint16*)(data+6)))/zoom;
+		Uint8* pointer = data + 6 + ntohs(*(Uint16*)(data+4));
+		Uint8* toolColors = data+6;
+		size = ntohs(*(Uint16*)pointer);
+		Uint16 myMarkSize = ntohs(*((Uint16*)(pointer+2)))/zoom;
 		if(myMarkSize < 2) myMarkSize = 2;
-		Uint8* pointer = data + 8;
+		pointer += 4;
 		Uint16* circlePointer = (Uint16*)pointer;
 		short x, y;
 		Uint16 radius;
@@ -355,7 +365,7 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 			y = ( *(Uint16*)(pointer+2) = (ntohs(*(Uint16*)(pointer+2))-locY)/zoom+375 );
 			if(radius & 32768){
 				radius ^= 32768;
-				rectangleColor(screen, x-myMarkSize/2, y-myMarkSize/2, myMarkSize, myMarkSize, 0xFFFFFFFF);
+				rectangleColor(screen, x-myMarkSize/2, y-myMarkSize/2, myMarkSize, myMarkSize, getToolColor(*(toolColors++)));
 			}
 			radius /= zoom;
 			if(radius > 0)

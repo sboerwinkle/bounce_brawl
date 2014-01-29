@@ -602,7 +602,23 @@ void taskguycontroladdLong(int x, int y, Sint8 flipped){
 //	newConnectionLong(i+3, 1, i+1, 0.6, 28, 39, 19, .35);
 }
 void taskguycontroladd(int x, int y){taskguycontroladdLong(x, y, 0);}
-void taskguycontroladdToolMech1(int x, int y){
+Uint32 getToolColor(int type){
+	switch(type){
+		case 0:
+			return 0x00FFFFFF;
+		case 1:
+			return 0x000000FF;
+		case 2:
+			return 0x00FF00FF;
+		case 10:
+			return 0xFF0000FF;
+		case 100:
+			return 0x8080FFFF;
+		default:
+			return 0xFF00FFFF;
+	}
+}
+void addToolMech1(int x, int y){
 	int ix = addNode();
 	newNode(ix, x, y, 6, 18, 4);
 	int tix = addTool();
@@ -618,25 +634,25 @@ void taskguycontroladdToolMech1(int x, int y){
 		newConnectionLong(ix+i, 0, ix+(i+2)%4+1, .6, i==2?60:105, 82, 45, 1.05);
 	}
 }
-void taskguycontroladdGenericTool(int ix, int type){
+void addGenericTool(int ix, int type){
 	int i = addTool();
 	tools[i].type = type;
 	tools[i].where = ix;
 }
-void taskguycontroladdToolGun(double x, double y){
+void addToolGun(double x, double y){
 	int ix = addNode();
 	newNode(ix, x, y, 3, 1, 0);
-	taskguycontroladdGenericTool(ix, 10);
+	addGenericTool(ix, 10);
 	taskinflateadd(ix, .1, 3);
 }
-void taskguycontroladdToolDestroy(int ix){
-	taskguycontroladdGenericTool(ix, 0);
+void addToolDestroy(int ix){
+	addGenericTool(ix, 0);
 }
-void taskguycontroladdToolGrab(int ix){
-	taskguycontroladdGenericTool(ix, 1);
+void addToolGrab(int ix){
+	addGenericTool(ix, 1);
 }
-void taskguycontroladdToolToggle(int ix){
-	taskguycontroladdGenericTool(ix, 2);
+void addToolToggle(int ix){
+	addGenericTool(ix, 2);
 }
 
 Sint8 taskincinerator(void* where){

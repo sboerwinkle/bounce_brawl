@@ -155,7 +155,7 @@ static void addBuilding(double x, double y, int stories){
 	newConnection(ix+5, 0, ix+6, BCF, 20, 4, BCS);
 	newConnection(ix+6, 0, ix+2, BCF, 20, 4, BCS);
 
-//	taskguycontroladdToolGrab(ix+1);
+//	addToolGrab(ix+1);
 
 	double diag = sqrt(BHT*BHT + 80*80);
 	double diagTol = diag*7/40;
@@ -173,7 +173,7 @@ static void addBuilding(double x, double y, int stories){
 	newConnection(ix+10, 1, ix, BCF, 80.0/3, 7, BCS/3);
 	newConnection(ix+10, 0, ix+11, BCF, 80.0/3, 7, BCS/3);
 	newConnectionLong(ix+11, 0, ix+1, BCF, 80.0/3, (80.0*1/2+80.0*.75)/2, 40, BCS/35);
-	taskguycontroladdToolToggle(ix+11);
+	addToolToggle(ix+11);
 
 	if(stories){
 		newConnection(ix,   1, ix+BNUM+3, .9, BHT, 7, BMCS);
@@ -227,7 +227,7 @@ void lvltest(){
 	//addBlock(300, 336, 6, 7, .9/*fric*/, 12/*spacing*/, 7/*vertspacing*/, 6, 3, 4, 7);
 	//taskguycontrol.addWalker(60, 360);
 	taskgravityadd();
-	taskguycontroladdToolGun(247, -600);
+	addToolGun(247, -600);
 	//taskasteroids.add(10, 8, 25);
 	taskincineratoradd(410);
 }
@@ -262,7 +262,7 @@ void lvltutorial(){
 	tasktextadd(680, 240, "If you've gotten into the stocking\nwithout breaking any limbs, congrats!\nYou can use +/- to admire your\
 \nsurroundings.\n\n'esc' for main menu");
 	taskguycontroladd(10*11, -30);
-	taskguycontroladdToolGun(550, -90);
+	addToolGun(550, -90);
 }
 
 void lvlexperiment(){
@@ -536,7 +536,7 @@ void lvldrop(){
 	//f.addBlock(
 	int n, i = 0;
 	for(; i < 43; i += 6){
-		taskguycontroladdToolDestroy(i);
+		addToolDestroy(i);
 		n = addNode();
 		newNode(n, (int)nodes[i].x, 100, 10, 20, 1);
 		newConnection(n, 0, i, .5, 180, 10, 3);
@@ -585,8 +585,8 @@ void lvlplanet(){
 	}
 	taskcenteradd(addPlanet(250, 250));
 	taskuniversalgravityadd(0.02);
-	taskguycontroladdToolGun(250, 250-130);
-	taskguycontroladdToolGun(250, 250+130);
+	addToolGun(250, 250-130);
+	addToolGun(250, 250+130);
 	taskincinerator2add(1000);
 }
 #define rosetteSpeed 3
@@ -639,8 +639,8 @@ void lvlmech(){
 		taskguycontroladd(446, 366);
 		taskscoreaddLong(1, 670, 20);
 	}
-	taskguycontroladdToolMech1(386, 326);
-	taskguycontroladdToolMech1(109, 326);
+	addToolMech1(371, 326);
+	addToolMech1(124, 326);
 	taskgravityadd();
 	taskincineratoradd(410);
 }
