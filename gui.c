@@ -69,7 +69,9 @@ static int numRequests;
 playerRequest requests[10];
 
 Sint8 masterKeys[NUMKEYS*10];
-int pIndex[] = {1, 0};
+int pIndex[] = {0, 1};
+int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_q, SDLK_1},\
+	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
 
 Sint8 mode = 0;
 static Sint8 inputMode = 0;
@@ -89,14 +91,18 @@ static char* modeToString(int ix){
 		case -1:
 			return "NETWORKED PLAYER";
 		case 0:
-			return "ARROW KEYS, RIGHT CTRL, RIGHT SHIFT";
+			return "PLAYER 1";
 		case 1:
-			return "WASD, Q, 1";
+			return "PLAYER 2";
 		case 2:
 			return "COMBAT AI";
 		default:
 			return "Error! Danger! Augh!";
 	}
+}
+
+static inline void simpleDrawText(int line, char* text){
+	drawText(screen, 20, 20+TEXTSIZE*9*line, 0xFFFFFFFF, TEXTSIZE, text);
 }
 
 static void paint(){
@@ -112,36 +118,48 @@ static void paint(){
 			int i = 0;
 			for(; i < currentMenu->numItems; i++){
 				sprintf(line, " %d : %s", i+1, currentMenu->items[i].text);
-				drawText(screen, 20, 20+9*TEXTSIZE*i, 0xFFFFFFFF, TEXTSIZE, line);
+				simpleDrawText(i, line);
 			}
 //			drawText(render, 20, 20, 0xFFFFFFFF, TEXTSIZE, " 0 : FLAT STAGE\n 1 : SUMO COMBAT\n 2 : GEOLOGICALLY ACTIVE PVP COMBAT\n 3 : TILTY PVP COMBAT\n 4 : WALLED PVP COMBAT\n 5 : DROPAWAY FLOOR COMBAT\n 6 : PLANET COMBAT\n 7 : MECH COMBAT\n 8 : 1 PLAYER ASTEROID SURVIVAL\n 9 : 2 PLAYER ASTEROID SURVIVAL\n\n");
-			drawText(screen, 20, 20+9*TEXTSIZE*11, 0xFFFFFFFF, TEXTSIZE, " M : MANAGE PLAYERS");
-			if(sloMo) drawText(screen, 20, 20+9*TEXTSIZE*14, 0xFF0000FF, TEXTSIZE, "TAB: SECRET SLOW STYLE ON!");
-			drawText(screen, 20, 20+9*TEXTSIZE*16, 0xFFFFFFFF, TEXTSIZE, netMode?(netMode==2?"CONNECTING":"LISTENING"):"NETWORK INACTIVE");
-			drawText(screen, 20, 20+9*TEXTSIZE*17, 0xFFFFFFFF, TEXTSIZE, " H : HOST A GAME");
-			if(pIndex[0] != -1) drawText(screen, 20, 20+9*TEXTSIZE*18, 0xFFFFFFFF, TEXTSIZE, " C : CONNECT");
+			simpleDrawText(11, " M : MANAGE PLAYERS");
+			simpleDrawText(12, " K : MANAGE KEYS");
+			if(sloMo) simpleDrawText(14, "TAB: SECRET SLOW STYLE ON!");
+			simpleDrawText(16, netMode?(netMode==2?"CONNECTING":"LISTENING"):"NETWORK INACTIVE");
+			simpleDrawText(17, " H : HOST A GAME");
+			if(pIndex[0] != -1) simpleDrawText(18, " C : CONNECT");
 			sprintf(line, " P : PORT : %d", port);
-			drawText(screen, 20, 20+9*TEXTSIZE*19, 0xFFFFFFFF, TEXTSIZE, line);
+			simpleDrawText(19, line);
 			sprintf(line, " A : ADDR : %s", addressString);
-			drawText(screen, 20, 20+9*TEXTSIZE*20, 0xFFFFFFFF, TEXTSIZE, line);
+			simpleDrawText(20, line);
 		}else if(inputMode == 1){
 			sprintf(line, "PORT : %d", port);
-			drawText(screen, 20, 20, 0xFFFFFFFF, TEXTSIZE, line);
+			simpleDrawText(0, line);
 		}else if(inputMode == 2){
 			sprintf(line, "DESTINATION ADDRESS : %s", addressString);
-			drawText(screen, 20, 20, 0xFFFFFFFF, TEXTSIZE, line);
+			simpleDrawText(0, line);
 		}else if(inputMode == 3){
 			if(netMode){
-				drawText(screen, 20, 20, 0xFFFFFFFF, TEXTSIZE, "NO EDITTING ALLOWED WHILE HOSTING");
+				simpleDrawText(0, "NO EDITTING ALLOWED WHILE HOSTING");
 			}else{
-				drawText(screen, 20, 20, 0xFFFFFFFF, TEXTSIZE, "ARROW KEYS TO CHANGE SELECTION");
-				drawText(screen, 20, 20+9*TEXTSIZE, 0xFFFFFFFF, TEXTSIZE, "W AND S TO CHANGE COLOR");
-				drawText(screen, 20, 20+9*TEXTSIZE*2, 0xFFFFFFFF, TEXTSIZE, "+ AND - TO CHANGE NUMBER");
+				simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
+				simpleDrawText(1, "W AND S TO CHANGE COLOR");
+				simpleDrawText(2, "+ AND - TO CHANGE NUMBER");
 			}
 			int i = 0;
 			for(; i < numRequests; i++)
 				drawText(screen, 20+TEXTSIZE*9, 20+9*TEXTSIZE*4+9*TEXTSIZE*i, requests[i].color, TEXTSIZE, modeToString(i));
-			if(!netMode) drawText(screen, 20, 20+9*TEXTSIZE*4+9*TEXTSIZE*players, 0xFFFFFFFF, TEXTSIZE, ">");
+			if(!netMode) simpleDrawText(4+players, ">");
+		}else if(inputMode == 4){
+			simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
+			simpleDrawText(1, "SPACE OR ENTER TO SET KEY");
+			char *(text[NUMKEYS]) = {"UP      ", "RIGHT   ", "DOWN    ", "LEFT    ", "INTERACT", "ACTION  "};
+			int i, j;
+			for(j = 0; j < 2; j++)
+				for(i = 0; i < NUMKEYS; i++){
+					sprintf(line, "P%d %s (%d)", j+1, text[i], (Uint16)pKeys[j][i]);
+					drawText(screen, 20+TEXTSIZE*9, 20+TEXTSIZE*9*(3+i+j*NUMKEYS), getColorFromHue(20*i), TEXTSIZE, line);
+				}
+			simpleDrawText(3+(players&(~1024)), (players&1024)?"=":">");
 		}
 		free(line);
 		nothingChanged = 1;
@@ -152,12 +170,12 @@ static void paint(){
 }
 
 static int getDigit(int code){
-	if(code == SDL_SCANCODE_0 || code == SDL_SCANCODE_KP_0) return 0;
-	if(code >= SDL_SCANCODE_1 && code <= SDL_SCANCODE_9){
-		return code-SDL_SCANCODE_1 + 1;
+	if(code == SDLK_0 || code == SDLK_KP_0) return 0;
+	if(code >= SDLK_1 && code <= SDLK_9){
+		return code-SDLK_1 + 1;
 	}
-	if(code >= SDL_SCANCODE_KP_1 && code <= SDL_SCANCODE_KP_9){
-		return code-SDL_SCANCODE_KP_1 + 1;
+	if(code >= SDLK_KP_1 && code <= SDLK_KP_9){
+		return code-SDLK_KP_1 + 1;
 	}
 	return -1;
 }
@@ -166,12 +184,12 @@ static void spKeyAction(int bit, Sint8 pressed){
 	if(mode == 0){
 		if(!pressed) return;
 		if(inputMode == 0){
-			if(bit == SDL_SCANCODE_TAB){
+			if(bit == SDLK_TAB){
 				sloMo = !sloMo;
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_ESCAPE){
+			if(bit == SDLK_ESCAPE){
 				if(currentMenu->parent==NULL){
 					if(netMode){
 						stopHosting();
@@ -183,29 +201,35 @@ static void spKeyAction(int bit, Sint8 pressed){
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_P){
+			if(bit == SDLK_p){
 				inputMode = 1;
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_A){
+			if(bit == SDLK_a){
 				inputMode = 2;
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_M){
+			if(bit == SDLK_m){
 				inputMode = 3;
 				players = 0;
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_C){
+			if(bit == SDLK_k){
+				inputMode = 4;
+				players = 0;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_c){
 				if(pIndex[0] == -1) return;
 				myConnect(requests[pIndex[0]].color);
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_H){
+			if(bit == SDLK_h){
 				int playerNumbers[10];
 				int numNet = 0;
 				int i = 0;
@@ -234,12 +258,12 @@ static void spKeyAction(int bit, Sint8 pressed){
 				return;
 			}
 		} else if (inputMode == 1){
-			if(bit == SDL_SCANCODE_BACKSPACE){
+			if(bit == SDLK_BACKSPACE){
 				port /= 10;
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_RETURN || bit == SDL_SCANCODE_KP_ENTER || bit == SDL_SCANCODE_ESCAPE){
+			if(bit == SDLK_RETURN || bit == SDLK_KP_ENTER || bit == SDLK_ESCAPE){
 				inputMode = 0;
 				nothingChanged = 0;
 				return;
@@ -252,18 +276,18 @@ static void spKeyAction(int bit, Sint8 pressed){
 			}
 		} else if (inputMode == 2){
 			int len = strlen(addressString);
-			if(bit == SDL_SCANCODE_BACKSPACE && len!=0){
+			if(bit == SDLK_BACKSPACE && len!=0){
 				addressString[len-1] = '\0';
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_RETURN || bit == SDL_SCANCODE_KP_ENTER || bit == SDL_SCANCODE_ESCAPE){
+			if(bit == SDLK_RETURN || bit == SDLK_KP_ENTER || bit == SDLK_ESCAPE){
 				inputMode = 0;
 				nothingChanged = 0;
 				return;
 			}
 			if(len >= 15) return;
-			if(bit == SDL_SCANCODE_PERIOD || bit == SDL_SCANCODE_KP_PERIOD){
+			if(bit == SDLK_PERIOD || bit == SDLK_KP_PERIOD){
 				addressString[len] = '.';
 				addressString[len+1] = '\0';
 				nothingChanged = 0;
@@ -277,7 +301,7 @@ static void spKeyAction(int bit, Sint8 pressed){
 				return;
 			}
 		} else if (inputMode == 3){
-			if(bit == SDL_SCANCODE_ESCAPE || bit == SDL_SCANCODE_RETURN || bit == SDL_SCANCODE_KP_ENTER){
+			if(bit == SDLK_ESCAPE || bit == SDLK_RETURN || bit == SDLK_KP_ENTER){
 				pIndex[0] = -1;
 				pIndex[1] = -1;
 				int i = 0;
@@ -295,14 +319,14 @@ static void spKeyAction(int bit, Sint8 pressed){
 				return;
 			}
 			if(netMode) return;
-			if(bit == SDL_SCANCODE_EQUALS || bit == SDL_SCANCODE_KP_PLUS){
+			if(bit == SDLK_EQUALS || bit == SDLK_KP_PLUS){
 				if(numRequests < 10){
 					numRequests++;
 					nothingChanged = 0;
 				}
 				return;
 			}
-			if(bit == SDL_SCANCODE_MINUS || bit == SDL_SCANCODE_KP_MINUS){
+			if(bit == SDLK_MINUS || bit == SDLK_KP_MINUS){
 				if(numRequests > 0){
 					numRequests--;
 					nothingChanged = 0;
@@ -310,19 +334,19 @@ static void spKeyAction(int bit, Sint8 pressed){
 				}
 				return;
 			}
-			if(bit == SDL_SCANCODE_UP){
+			if(bit == SDLK_UP){
 				if(players > 0) players--;
 				else players = numRequests-1;
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_DOWN){
+			if(bit == SDLK_DOWN){
 				if(players < numRequests-1) players++;
 				else players = 0;
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_LEFT){
+			if(bit == SDLK_LEFT){
 				if(requests[players].controlMode > -1){
 					if(--requests[players].controlMode == -1) requests[players].color = 0x606060FF;
 				}else{
@@ -332,7 +356,7 @@ static void spKeyAction(int bit, Sint8 pressed){
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_RIGHT){
+			if(bit == SDLK_RIGHT){
 				if(requests[players].controlMode < 2){
 					if(requests[players].controlMode++ == -1) requests[players].color = getColorFromHue(requests[players].hue);
 				}else{
@@ -343,63 +367,80 @@ static void spKeyAction(int bit, Sint8 pressed){
 				return;
 			}
 			if(requests[players].controlMode == -1) return;//Aren't allowed to edit hue of network players.
-			if(bit == SDL_SCANCODE_W){
+			if(bit == SDLK_w){
 				if(requests[players].hue < 372) requests[players].hue+=12;
 				else requests[players].hue = 0;
 				requests[players].color = getColorFromHue(requests[players].hue);
 				nothingChanged = 0;
 				return;
 			}
-			if(bit == SDL_SCANCODE_S){
+			if(bit == SDLK_s){
 				if(requests[players].hue > 0) requests[players].hue-=12;
 				else requests[players].hue = 372;
 				requests[players].color = getColorFromHue(requests[players].hue);
 				nothingChanged = 0;
 				return;
 			}
+		} else if (inputMode == 4){
+			if(players&1024){
+				players &= ~1024;
+				if(bit != SDLK_ESCAPE)
+					pKeys[players/NUMKEYS][players%NUMKEYS] = bit;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_KP_ENTER || bit == SDLK_RETURN || bit == SDLK_SPACE){
+				players |= 1024;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_ESCAPE){
+				inputMode = 0;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_UP){
+				if(players > 0) players--;
+				else players = NUMKEYS*2-1;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_DOWN){
+				if(players < NUMKEYS*2-1) players++;
+				else players = 0;
+				nothingChanged = 0;
+				return;
+			}
 		}
 		return;
 	}
-	if(bit == SDL_SCANCODE_ESCAPE){
+	if(bit == SDLK_ESCAPE){
 		if(!pressed) return;
 		stopField();
 		if(netMode) stopHosting();
 		mode = 0;
 		nothingChanged = 0;
 		return;
-	}else if(bit==SDL_SCANCODE_MINUS){
+	}else if(bit==SDLK_MINUS){
 		if(pressed && zoom<32768) zoom*=2;
 		return;
-	}else if(bit==SDL_SCANCODE_EQUALS){
+	}else if(bit==SDLK_EQUALS){
 		if(pressed && zoom > 1) zoom/=2;
 		return;
-	}else if(bit == SDL_SCANCODE_TAB){
+	}else if(bit == SDLK_TAB){
 		if(pressed)
 			sloMo = !sloMo;
 		return;
 	}
 
-	if(pIndex[0] != -1){
-		switch(bit){
-			case SDL_SCANCODE_LEFT:		masterKeys[pIndex[0]*NUMKEYS + 3] = pressed; return;
-			case SDL_SCANCODE_UP:		masterKeys[pIndex[0]*NUMKEYS + 0] = pressed; return;
-			case SDL_SCANCODE_RIGHT:	masterKeys[pIndex[0]*NUMKEYS + 1] = pressed; return;
-			case SDL_SCANCODE_DOWN:		masterKeys[pIndex[0]*NUMKEYS + 2] = pressed; return;
-			case SDL_SCANCODE_RCTRL:	masterKeys[pIndex[0]*NUMKEYS + 4] = pressed; return;
-			case SDL_SCANCODE_RSHIFT:	masterKeys[pIndex[0]*NUMKEYS + 5] = pressed; return;
-			default: break;
-		}
-	}
-	if(pIndex[1] != -1){
-		switch(bit){
-			case SDL_SCANCODE_A:		masterKeys[pIndex[1]*NUMKEYS + 3] = pressed; return;
-			case SDL_SCANCODE_W:		masterKeys[pIndex[1]*NUMKEYS + 0] = pressed; return;
-			case SDL_SCANCODE_D:		masterKeys[pIndex[1]*NUMKEYS + 1] = pressed; return;
-			case SDL_SCANCODE_S:		masterKeys[pIndex[1]*NUMKEYS + 2] = pressed; return;
-			case SDL_SCANCODE_Q:		masterKeys[pIndex[1]*NUMKEYS + 4] = pressed; return;
-			case SDL_SCANCODE_1:		masterKeys[pIndex[1]*NUMKEYS + 5] = pressed; return;
-			default: return;
-		}
+	int i, j;
+	for(j=0; j < 2; j++){
+		if(pIndex[j] == -1) continue;
+		for(i=0; i<NUMKEYS; i++)
+			if(pKeys[j][i]==bit){
+				masterKeys[pIndex[j]*NUMKEYS + i] = pressed;
+				return;
+			}
 	}
 }
 
@@ -439,8 +480,8 @@ int main(int argc, char** argv){
 		requests[i].color=getColorFromHue(requests[i].hue);
 		requests[i].controlMode = 2;
 	}
-	requests[0].controlMode = 1;
-	requests[1].controlMode = 0;
+	requests[0].controlMode = 0;
+	requests[1].controlMode = 1;
 #ifndef WINDOWS
 	struct timespec t;
 	t.tv_sec = 0;
@@ -503,8 +544,8 @@ int main(int argc, char** argv){
 		SDL_Event evnt;
 		while(SDL_PollEvent(&evnt)){
 			if(evnt.type == SDL_QUIT)		running = 0;
-			else if(evnt.type == SDL_KEYDOWN)	spKeyAction(evnt.key.keysym.scancode, 1);
-			else if (evnt.type == SDL_KEYUP)	spKeyAction(evnt.key.keysym.scancode, 0);
+			else if(evnt.type == SDL_KEYDOWN)	spKeyAction(evnt.key.keysym.sym, 1);
+			else if (evnt.type == SDL_KEYUP)	spKeyAction(evnt.key.keysym.sym, 0);
 			else if (evnt.type == SDL_WINDOWEVENT)	nothingChanged = 0;//Just to be safe, in case something was occluded.
 		}
 	}
