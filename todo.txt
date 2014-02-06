@@ -7,3 +7,6 @@ grabber device - warehouse style
 2. weaker, stronger enemies
 3. space ais?
 4. missions - high scores
+
+http://slabode.exofire.net/circle_draw.shtml
+http://ogldev.atspace.co.uk/www/tutorial03/tutorial03.html
