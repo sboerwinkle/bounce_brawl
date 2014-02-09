@@ -1,10 +1,11 @@
 #include <SDL2/SDL.h>//So everything gets SDL
+#include <stdint.h>
 
 struct task{
         struct task *next;
         void *data;
-	Sint8 dataUsed;
-        Sint8 (*func) (void *where);
+	char dataUsed;
+        char (*func) (void *where);
 };
 typedef struct task task;
 
@@ -15,19 +16,19 @@ typedef struct {
 } tool;//A tool just labels a particular node (where) as being central to a configuration of nodes and connections which the taskguycontrol can recognize and manipulate for fun and profit
 
 typedef struct {
-	Sint8 dead;
+	char dead;
 	int id;
 	double preflength;
 	double midlength;
 	double tolerance;
 	double friction;
 	double force;
-	Uint8 hue;
+	uint8_t hue;
 } connection;
 
 typedef struct {
 	int netIndex;//The index with null nodes not counted. Used for networking.
-	Sint8 dead;
+	char dead;
 	long int x;
 	long int y;
 	double px;
@@ -41,7 +42,7 @@ typedef struct {
 } node;
 
 typedef struct{
-	Uint16 hue;
-	Uint32 color;
+	uint16_t hue;
+	uint32_t color;
 	int controlMode;
 }playerRequest;

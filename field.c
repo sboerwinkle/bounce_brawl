@@ -14,11 +14,11 @@ typedef struct{
 }orderedPair;
 node* nodes;
 orderedPair *centers;
-Sint8* alives;
-Sint8* injured;
+char* alives;
+char* injured;
 static task* firstTask;
 int numNodes;
-static Sint8 *corpses;//prevents a node from being placed in the spot of a recently slain node, preventing confusion.
+static char *corpses;//prevents a node from being placed in the spot of a recently slain node, preventing confusion.
 tool *tools;
 int numTools;
 static node *current;//All these are global so they aren't reallocated every tick. Not sure how useful that is, but whatever.
@@ -33,8 +33,6 @@ double maxZoomIn;
 int zoom;
 static int width;
 static int height;
-static int width2;
-static int height2;
 
 int playerNum;
 int centerx;
@@ -44,8 +42,6 @@ int markSize;//Invented for networking, but also used by task.c to do player mar
 void initField(int xsize, int ysize){// Here: init taskguycontrolindexes, alives, centers to proper number of players
 	width = xsize;
 	height = ysize;
-	width2 = width/2;
-	height2 = height/2;
 	numNodes = 100;
 	nodes = (node*)malloc(numNodes*sizeof(node));
 	int i = 0;
@@ -53,7 +49,7 @@ void initField(int xsize, int ysize){// Here: init taskguycontrolindexes, alives
 		nodes[i].dead = 1;
 		nodes[i].netIndex = -1;
 	}
-	corpses = (Sint8*)calloc(numNodes, sizeof(Sint8));
+	corpses = (char*)calloc(numNodes, sizeof(char));
 	firstTask = NULL;
 	tools = NULL;
 	numTools = 0;
@@ -110,7 +106,7 @@ int addNode(){
 	}
 	printf("Expanding capacity to %d\n",numNodes+=25);
 	nodes = realloc(nodes, numNodes*sizeof(node));
-	corpses = realloc(corpses, numNodes*sizeof(Sint8));
+	corpses = realloc(corpses, numNodes*sizeof(char));
 	corpses[i] = 0;
 	int j = i + 1;
 	for(; j < numNodes; j++){
@@ -142,7 +138,7 @@ void ensureCapacity(int index){					//Just gonna stand there and watch me burn
 	if(index < numNodes) return;				//That's alright because I like the way it hurts
 	index++;						//Just gonna stand there and hear me cry
 	nodes = realloc(nodes, index*sizeof(node));		//That's alright because I love the way you lie
-	corpses = realloc(corpses, index*sizeof(Sint8));	//I love the way you lie
+	corpses = realloc(corpses, index*sizeof(char));	//I love the way you lie
 	int i = numNodes;					//Ohhh
 	for(; i < index; i++){					//I love the way you lie
 		nodes[i].dead = 1;
@@ -159,30 +155,14 @@ void addTask(task* addme){
 	firstTask = addme;
 }
 
-int getScreenX(int x){
-	return x/zoom + width2;
+float getScreenX(int x){
+	return (float)x/zoom/width2;
 }
-int getScreenY(int y){
-	return y/zoom + height2;
-}
-
-Uint32 getColorFromHue(Uint16 hue){
-	if(hue < 64)
-		return 0x0000FFFF+((int)( hue     *4))*0x00010000;
-	if(hue < 128)
-		return 0x00FFFFFF-((int)((hue- 64)*4))*0x00000100;
-	if(hue < 192)
-		return 0x00FF00FF+((int)((hue-128)*4))*0x01000000;
-	if(hue < 256)
-		return 0xFFFF00FF-((int)((hue-192)*4))*0x00010000;
-	if(hue < 320)
-		return 0xFF0000FF+((int)((hue-256)*4))*0x00000100;
-	else
-		return 0xFF00FFFF-((int)((hue-320)*4))*0x01000000;
+float getScreenY(int y){
+	return (float)y/zoom/height2;
 }
 
 void run(){
-	memset(screen, 0, 750*750*4);
 //	SDL_SetRenderDrawColor(screen, 0, 0, 0, 255);
 //	SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
 //	SDL_RenderFillRect(screen, &a);
@@ -213,7 +193,7 @@ void run(){
 					current->connections[j].dead = 1;
 					continue;
 				}
-				current->connections[j].hue = (Uint8)(fabs(currlengthNewX - current->connections[j].midlength)/current->connections[j].tolerance*256);
+				current->connections[j].hue = (uint8_t)(fabs(currlengthNewX - current->connections[j].midlength)/current->connections[j].tolerance*256);
 				unx = deltaX / currlengthNewX;
 				uny = deltaY / currlengthNewX;
 				deltaY = current->connections[j].friction*((current->xmom - current2->xmom)*unx + (current->ymom - current2->ymom)*uny);
@@ -239,11 +219,11 @@ void run(){
 		free(frictionXs);
 		free(frictionYs);
 		//collision detection (technically flawed)
-		Sint8* check = calloc(numNodes, sizeof(Sint8));
-		Sint8* checkNext = calloc(numNodes, sizeof(Sint8));
-		Sint8 firstTime = 1;
-		Sint8 collided;
-		Sint8 checkall;
+		char* check = calloc(numNodes, sizeof(char));
+		char* checkNext = calloc(numNodes, sizeof(char));
+		char firstTime = 1;
+		char collided;
+		char checkall;
 		node *he;
 		node *I;
 		int loopcounter = 0;
@@ -281,7 +261,7 @@ void run(){
 			firstTime = 0;
 			free(check);
 			check = checkNext;
-			checkNext = calloc(numNodes, sizeof(Sint8));
+			checkNext = calloc(numNodes, sizeof(char));
 		}
 		free(check);
 		free(checkNext);
@@ -318,14 +298,11 @@ void run(){
 		current = &nodes[i];
 		int size = (int)(current->size*maxZoomIn);
 		if(size != 0){
-			if(netMode){
-				x = current->x*maxZoomIn;
-				y = current->y*maxZoomIn;
-				if(size>=zoom)
-					ellipseColor(screen, getScreenX(x-centerx), getScreenY(y-centery), size/zoom, size/zoom, 0xFFFFFFFF);//white
-				addNetCircle(x, y, size);
-			} else if(size >= zoom)
-				ellipseColor(screen, getScreenX(current->x*maxZoomIn-centerx), getScreenY(current->y*maxZoomIn-centery), size/zoom, size/zoom, 0xFFFFFFFF);//white
+			setColorWhite();
+			x = current->x*maxZoomIn;
+			y = current->y*maxZoomIn;
+			drawCircle(getScreenX(x-centerx), getScreenY(y-centery), (float)size/zoom/width2);
+			addNetCircle(x, y, size);
 		}
 		if(netMode && current->numConnections != 0){
 			numActiveCons = 0;
@@ -337,14 +314,18 @@ void run(){
 				numActiveCons++;
 				addNetLine(nodes[current->connections[j].id].netIndex, current->connections[j].hue);
 			}
-			lineColor(screen, getScreenX(current->x*maxZoomIn-centerx), getScreenY(current->y*maxZoomIn-centery), getScreenX(nodes[current->connections[j].id].x*maxZoomIn-centerx), getScreenY(nodes[current->connections[j].id].y*maxZoomIn-centery), getColorFromHue(current->connections[j].hue));
+			setColorFromHue(current->connections[j].hue);
+			drawLine(getScreenX(current->x*maxZoomIn-centerx), getScreenY(current->y*maxZoomIn-centery), getScreenX(nodes[current->connections[j].id].x*maxZoomIn-centerx), getScreenY(nodes[current->connections[j].id].y*maxZoomIn-centery));
 		}
 		if(netMode && current->numConnections != 0){
 			if(numActiveCons) setNetLineCircleNumber(netNumCons, numActiveCons);
 			else removeNetLineCircle();
 		}
 	}
+	setColorWhite();
+	float a, b, c;
 	markSize = (int)(maxZoomIn*6)/zoom;
+	c = (float)markSize/width2/2;
 	if(markSize < 2) markSize = 2;
 	for(i = 0; i < numTools; i++){
 		if(tools[i].where == -1) continue;
@@ -352,9 +333,10 @@ void run(){
 		if(tool->dead){
 			tools[i].where = -1;
 		}else{
-			x = getScreenX((tool->x-3)*maxZoomIn - centerx);
-			y = getScreenY((tool->y-3)*maxZoomIn - centery);
-			rectangleColor(screen, x, y, markSize, markSize, getToolColor(tools[i].type));
+			a = getScreenX((tool->x)*maxZoomIn - centerx);
+			b = getScreenY((tool->y)*maxZoomIn - centery);
+			setColorFromHex(getToolColor(tools[i].type));
+			drawRectangle(a-c, b+c, a+c, b-c);
 			if(netMode) addNetTool(tool->netIndex, tools[i].type);
 		}
 	}

@@ -1,11 +1,11 @@
 #CC=i686-pc-mingw32-gcc
 CC=gcc
-CFLAGS=-Wall -O2 -c -pthread $(DEBUG)
+CFLAGS=-Wall -Wno-char-subscripts -O2 -c -pthread $(DEBUG)
 
 .PHONY: debug windows remake clean
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o
-	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS) -lSDL2 -lm -lrt -pthread
+	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS) -lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
@@ -38,7 +38,7 @@ task.o: task.c structs.h gui.h field.h node.h font.h gfx.h networking.h
 gfx.o: gfx.c gfx.h
 	$(CC) $(CFLAGS) gfx.c
 
-networking.o: networking.c structs.h font.h gfx.h gui.h field.h task.h
+networking.o: networking.c structs.h font.h gfx.h gui.h task.h field.h
 	$(CC) $(CFLAGS) networking.c
 
 clean:

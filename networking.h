@@ -1,21 +1,21 @@
-extern Sint8 netMode;
+extern char netMode;
 extern int port;
 extern char* addressString;
 
 extern void initNetworking();
 extern void stopNetworking();
 
-extern void myConnect(Uint32 color);
+extern void myConnect(uint32_t color);
 extern void myHost(int max, int* playerNumbers);
 extern void kickNoRoom();
 extern void readKeys();
 extern void stopHosting();
 
 extern void addNetCircle(short x, short y, int r);
-extern void addNetLine(Uint16 dest, Uint8 hue);
-extern int  addNetLineCircle(Uint16 ix);
-extern void setNetLineCircleNumber(int pos, Uint8 num);
-extern void addNetPlayerCircle(Uint16 ix, Uint32 color);
+extern void addNetLine(uint16_t dest, uint8_t hue);
+extern int  addNetLineCircle(uint16_t ix);
+extern void setNetLineCircleNumber(int pos, uint8_t num);
+extern void addNetPlayerCircle(uint16_t ix, uint32_t color);
 extern void addNetTool(int ix, int color);
 extern void removeNetLineCircle();
 extern void writeImgs();

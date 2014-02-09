@@ -38,12 +38,12 @@ typedef struct {
 	int target;
 	int player;
 	int index;
-	Sint8 mode;
+	char mode;
 	int cycle;
-	Sint8* myKeys;
+	char* myKeys;
 } taskaicombatdata;
 
-Sint8 taskaicombat(void* where){
+char taskaicombat(void* where){
 	taskaicombatdata* data = (taskaicombatdata*)where;
 	if(nodes[data->index].dead){
 		free(data);
@@ -68,7 +68,7 @@ Sint8 taskaicombat(void* where){
 				data->target = targets[(long int)rand()*numTargets/RAND_MAX];
 			}
 			int target = taskguycontrolindexes[data->target];
-			Sint8 dir = nodes[target].x > nodes[index].x;
+			char dir = nodes[target].x > nodes[index].x;
 			long maxHeight = 0;
 			int ix = -1;
 			int i = 0;
@@ -109,7 +109,7 @@ typedef struct {
 	int cool;
 	int maxcool;
 } taskasteroidsdata;
-Sint8 taskasteroids(void* where){
+char taskasteroids(void* where){
 	taskasteroidsdata* data = (taskasteroidsdata*)where;
 	if(data->cool-- <= 0){
 		newNodeLong(addNode(), (float)rand()/RAND_MAX*400, 0, 0, 0, (float)rand()/RAND_MAX*4-2, 0, data->size, data->mass, 0);
@@ -130,7 +130,7 @@ void taskasteroidsadd(int s, int m, int c){
 	addTask(current);
 }
 
-Sint8 taskcenter(void* where){
+char taskcenter(void* where){
 	int* index = (int*)where;//'*index' is the size, index[n] is the nth element, 1 indexed.
 	register int i = 1;
 	long dx = 0;
@@ -185,7 +185,7 @@ void taskcenteradd(int i){
 }
 
 //Not gonna bother to typedef another struct, but data is 2 ints for this guy. time is first, followed by index.
-Sint8 taskdestroy(void* where){
+char taskdestroy(void* where){
 	int* data = (int*)where;
 	if(nodes[data[1]].dead){
 		free(data);
@@ -217,7 +217,7 @@ typedef struct{
 	int index;
 	double speed;
 }taskfixeddata;
-Sint8 taskfixed(void* where){
+char taskfixed(void* where){
 	taskfixeddata* data = (taskfixeddata*)where;
 	int index = data->index;
 	if(nodes[index].dead){
@@ -251,7 +251,7 @@ typedef struct{
 	double step, max;
 }taskinflatedata;
 
-Sint8 taskinflate(void* where){
+char taskinflate(void* where){
 	taskinflatedata* data = (taskinflatedata*)where;
 	node* mine = nodes+data->index;
 	if(mine->dead){
@@ -276,7 +276,7 @@ void taskinflateadd(int i, double step, double max){
 	addTask(current);
 }
 
-Sint8 taskfriction(void* where){
+char taskfriction(void* where){
 	register int i = 0;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
@@ -292,7 +292,7 @@ void taskfrictionadd(){
 	addTask(current);
 }
 
-Sint8 taskgravity(void* where){
+char taskgravity(void* where){
 	register int i = 0;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
@@ -312,13 +312,13 @@ typedef struct{
 	int controltype;
 	int controlindex;
 	//int controlvar;//Currently unused, but intended as a multi-purpose variable for the current tool.
-	Sint8 lastpress; // If the connect key was pressed last time
-	Sint8 lastpressAction; // ditto for action key
-	Sint8* myKeys;
+	char lastpress; // If the connect key was pressed last time
+	char lastpressAction; // ditto for action key
+	char* myKeys;
 	int num;
 	tool* controlData;
 	int connectedLeg;
-	Sint8 exists[4];
+	char exists[4];
 }taskguycontroldata;
 
 static inline void taskguycontroldisconnect(taskguycontroldata* data){
@@ -359,7 +359,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 }
 static void taskguycontroldoLegs(taskguycontroldata* data){
 	int index = data->index;
-	Sint8* myKeys = data->myKeys;
+	char* myKeys = data->myKeys;
 	short ten0 = 20;
 	short ten1 = 20;
 	short nine0 = 20;
@@ -424,7 +424,7 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 	}
 }
 inline void taskguycontroldoBigLegs(taskguycontroldata* data){
-	Sint8* myKeys = data->myKeys;
+	char* myKeys = data->myKeys;
 	int centerDists[4] = {42, 42, 42, 42};
 	int edgeLengths[4] = {60, 60, 60, 60};
 	int i = 0;
@@ -453,11 +453,10 @@ inline void taskguycontroldoBigLegs(taskguycontroldata* data){
 	int x = nodes[controlindex+1].x*maxZoomIn;
 	int y = nodes[controlindex+1].y*maxZoomIn;
 	if(netMode) addNetCircle(x, y, size);
-	size /= zoom;
-	if(size < 1) size = 1;
-	ellipseColor(screen, getScreenX(x-centerx), getScreenY(y-centery), size, size, 0xFFFFFFFF);
+	setColorWhite();
+	drawCircle(getScreenX(x-centerx), getScreenY(y-centery), (double)size/zoom/width2);
 }
-Sint8 taskguycontrol(void* where){
+char taskguycontrol(void* where){
 	taskguycontroldata* data = (taskguycontroldata*)where;
 	int num = data->num;
 	int index = data->index;
@@ -495,7 +494,7 @@ Sint8 taskguycontrol(void* where){
 		centers[num].x = myCenters[0]/counter;
 		centers[num].y = myCenters[1]/counter;
 	}
-	Sint8* myKeys = data->myKeys;
+	char* myKeys = data->myKeys;
 	if(!data->lastpress&&myKeys[4]){
 		if(data->controltype != -1){
 			nodes[index+data->connectedLeg].connections[0].dead = 1;
@@ -552,13 +551,14 @@ Sint8 taskguycontrol(void* where){
 	}
 	if(netMode)
 		addNetPlayerCircle(index, requests[data->num].color);
-	ellipseColor(screen, getScreenX(nodes[index].x*maxZoomIn-centerx), getScreenY(nodes[index].y*maxZoomIn-centery), markSize/2, markSize/2, requests[data->num].color);
+	setColorFromHex(requests[data->num].color);
+	drawCircle(getScreenX(nodes[index].x*maxZoomIn-centerx), getScreenY(nodes[index].y*maxZoomIn-centery), (float)markSize/2/width2);
 
 	data->lastpressAction = myKeys[5];
 	data->lastpress = myKeys[4];
 	return 0;
 }
-void taskguycontroladdLong(int x, int y, Sint8 flipped){
+void taskguycontroladdLong(int x, int y, char flipped){
 	int i = addNode();
 	newNode(i, x, y, 6, 2, 4);
 	task* current = (task*)malloc(sizeof(task));
@@ -602,7 +602,7 @@ void taskguycontroladdLong(int x, int y, Sint8 flipped){
 //	newConnectionLong(i+3, 1, i+1, 0.6, 28, 39, 19, .35);
 }
 void taskguycontroladd(int x, int y){taskguycontroladdLong(x, y, 0);}
-Uint32 getToolColor(int type){
+uint32_t getToolColor(int type){
 	switch(type){
 		case 0:
 			return 0xFFFF00FF;
@@ -654,7 +654,7 @@ void addToolToggle(int ix){
 	addGenericTool(ix, 2);
 }
 
-Sint8 taskincinerator(void* where){
+char taskincinerator(void* where){
 	register int i = 0;
 	long l = *(long*)where;
 	for(; i < numNodes; i++){
@@ -673,7 +673,7 @@ void taskincineratoradd(long height){
 	addTask(current);
 }
 
-Sint8 taskincinerator2(void* where){
+char taskincinerator2(void* where){
 	register int i = 0;
 	long height = *(long*)where;
 	for(; i < numNodes; i++){
@@ -697,7 +697,7 @@ typedef struct{
 	double gravity;
 } taskpointgravitydata;
 
-Sint8 taskpointgravity(void* where){
+char taskpointgravity(void* where){
 	taskpointgravitydata* data = (taskpointgravitydata*)where;
 	if(nodes[data->ix].dead){
 		free(data);
@@ -731,7 +731,7 @@ void taskpointgravityadd(int ix, double gravity){
 	current->data = data;
 	addTask(current);
 }
-Sint8 taskuniversalgravity(void* where){
+char taskuniversalgravity(void* where){
 	double G = *(double*)where;
 	register int i = 0;
 	register int j = 0;
@@ -778,10 +778,10 @@ typedef struct{
 	int index;
 	int score;
 	int x, y;
-	Sint8 done;
+	char done;
 } taskscoredata;
 
-Sint8 taskscore(void* where){
+char taskscore(void* where){
 	taskscoredata* data = (taskscoredata*)where;
 	if(!data->done){
 		if(injured[data->index]) data->done = 1;
@@ -792,7 +792,8 @@ Sint8 taskscore(void* where){
 	}
 	char* text = malloc(sizeof(char)*7);
 	sprintf(text, "%d", data->score);
-	drawText(screen, data->x, data->y, 0xFFFFFFFF, 1.5, text);
+	setColorWhite();
+	drawText(data->x, data->y, 1.5, text);
 	free(text);
 	return 0;
 }
@@ -802,8 +803,8 @@ void taskscoreaddLong(int ix, int x, int y){
 	taskscoredata* data = malloc(sizeof(taskscoredata));
 	data->index = ix;
 	data->score = 0;
-	data->x = x;
-	data->y = y;
+	data->x = x-width2;
+	data->y = y+height2;
 	data->done = 0;
 	current->dataUsed = 1;
 	current->data = data;
@@ -818,9 +819,10 @@ typedef struct{
 	char* text;
 } tasktextdata;
 
-Sint8 tasktext(void* where){
+char tasktext(void* where){
 	tasktextdata* data = (tasktextdata*)where;
-	drawText(screen, getScreenX(data->x*maxZoomIn - centerx), getScreenY(data->y*maxZoomIn - centery), 0xFFFFFFFF, 1.0*maxZoomIn/zoom, data->text);
+	setColorWhite();
+	drawText(getScreenX(data->x*maxZoomIn - centerx), getScreenY(data->y*maxZoomIn - centery), 1.0*maxZoomIn/zoom, data->text);
 	return 0;
 }
 

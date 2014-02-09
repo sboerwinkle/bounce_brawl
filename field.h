@@ -3,12 +3,12 @@ typedef struct{
 }orderedPair;
 extern node* nodes;
 extern orderedPair *centers;
-extern Sint8* alives;
-extern Sint8* injured;
+extern char* alives;
+extern char* injured;
 extern int numNodes;
 extern tool* tools;
 extern int numTools;
-extern double maxZoomIn;//Didn't #define or make this constant since some levels might alter this value.
+extern double maxZoomIn;
 extern int zoom;
 extern int centerx;
 extern int centery;
@@ -35,10 +35,8 @@ extern void ensureCapacity(int index);
 
 extern void addTask(task* addme);
 
-/*inline?*/ extern int getScreenX(int x);
+/*inline?*/ extern float getScreenX(int x);
 
-/*inline?*/ extern int getScreenY(int y);
-
-extern Uint32 getColorFromHue(Uint16 hue);
+/*inline?*/ extern float getScreenY(int y);
 
 extern void run();

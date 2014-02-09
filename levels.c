@@ -79,7 +79,7 @@ static void addLoop(int centerX, int centerY, double radius, int num, double ome
 }
 static void addBlock(int x, int y, int width, int height, double fric, int spacing, double heightSpacing, double tolerance, double str, double size, double mass){
 	int ix;
-	Sint8 indented = 1;
+	char indented = 1;
 	int X;
 	double Y = y;
 	register int i = 0;

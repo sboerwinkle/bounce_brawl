@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <GL/gl.h>
 #include "gui.h"
 #include "gfx.h"
 #include "font.h"
@@ -29,7 +30,7 @@
 #include "field.h"
 
 int port = 4659;
-Sint8 netMode = 0;
+char netMode = 0;
 char* addressString;
 
 static int sockfd;
@@ -37,20 +38,20 @@ static struct sockaddr_in servaddr, myaddr;
 typedef struct{
 	struct sockaddr_in addr;
 	char dead;
-	Sint8 playerNum;
+	char playerNum;
 } client;
 static client *clients;
 
 static int running; // So keypresses can stop the connect function
-static Sint8 netListenKill = 0;
+static char netListenKill = 0;
 
 static char myKeys; // We could use the arrays defined in gui.h, but this way is more condusive to networking.
 
-static Uint16 numLineBytes = 0, numCircles = 0, numPlayerCircles = 0, numToolMarks = 0;
-static Uint16 maxLineBytes = 0, maxCircles = 0, maxPlayerCircles = 0, maxToolMarks = 0;
-static Uint16 numLines = 0;
-static Uint8 *lines = NULL, *circles = NULL, *playerCircles = NULL, *toolMarks = NULL;
-static Uint8 numClients, maxClients;
+static uint16_t numLineBytes = 0, numCircles = 0, numPlayerCircles = 0, numToolMarks = 0;
+static uint16_t maxLineBytes = 0, maxCircles = 0, maxPlayerCircles = 0, maxToolMarks = 0;
+static uint16_t numLines = 0;
+static uint8_t *lines = NULL, *circles = NULL, *playerCircles = NULL, *toolMarks = NULL;
+static uint8_t numClients, maxClients;
 
 static pthread_mutex_t myMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t myCond = PTHREAD_COND_INITIALIZER;
@@ -61,19 +62,19 @@ void addNetCircle(short x, short y, unsigned int r){
 		maxCircles += 5;
 		circles = realloc(circles, maxCircles*6);
 	}
-	Uint16* data = (Uint16*)(circles+6*numCircles++);
+	uint16_t* data = (uint16_t*)(circles+6*numCircles++);
 	*data = htons(x);
 	*(data+1) = htons(y);
 	*(data+2) = htons(r);
 }
-void addNetPlayerCircle(Uint16 ix, Uint32 color){
+void addNetPlayerCircle(uint16_t ix, uint32_t color){
 	if(numPlayerCircles == maxPlayerCircles){
 		maxPlayerCircles++;
 		playerCircles = realloc(playerCircles, 6*maxPlayerCircles);
 	}
-	Uint16* data = (Uint16*)(playerCircles + 6*numPlayerCircles++);
+	uint16_t* data = (uint16_t*)(playerCircles + 6*numPlayerCircles++);
 	*data = htons(ix);
-	*(Uint32*)(data+1) = htonl(color);
+	*(uint32_t*)(data+1) = htonl(color);
 }
 static void addNetLineSomething(){
 	if(numLineBytes == maxLineBytes){
@@ -81,22 +82,22 @@ static void addNetLineSomething(){
 		lines = realloc(lines, maxLineBytes);
 	}
 }
-void addNetLine(Uint16 dest, Uint8 hue){//This function works whether adding a new circle or a new line. Incrementing of numLines must be handled by the caller for this reason, though numLineBytes and maxLineBytes are handled in here
+void addNetLine(uint16_t dest, uint8_t hue){//This function works whether adding a new circle or a new line. Incrementing of numLines must be handled by the caller for this reason, though numLineBytes and maxLineBytes are handled in here
 	addNetLineSomething();
-	Uint8* data = lines + numLineBytes;
-	*((Uint16*)data) = htons(dest);
+	uint8_t* data = lines + numLineBytes;
+	*((uint16_t*)data) = htons(dest);
 	*(data+2) = hue;
 	numLineBytes += 3;
 	return;
 }
-int addNetLineCircle(Uint16 ix){
+int addNetLineCircle(uint16_t ix){
 	addNetLineSomething();
-	*((Uint16*)(lines+numLineBytes)) = htons(ix);
+	*((uint16_t*)(lines+numLineBytes)) = htons(ix);
 	numLines++;
 	numLineBytes += 3;
 	return numLineBytes-1;//This is done so the number of connected lines can be changed later.
 }
-void setNetLineCircleNumber(int pos, Uint8 num){
+void setNetLineCircleNumber(int pos, uint8_t num){
 	lines[pos] = num;
 }
 void removeNetLineCircle(){//Undoes the indiscretions of youth
@@ -104,19 +105,19 @@ void removeNetLineCircle(){//Undoes the indiscretions of youth
 	numLines--;
 }
 void addNetTool(int ix, int color){
-	*((Uint16*)(circles+6*ix+4)) |= htons(32768);
+	*((uint16_t*)(circles+6*ix+4)) |= htons(32768);
 	if(numToolMarks == maxToolMarks){
 		maxToolMarks++;
 		toolMarks = realloc(toolMarks, maxToolMarks);
 	}
 	toolMarks[numToolMarks++] = color;
 }
-/*void addLine(Uint8 hue, short x1, short y1, short x2, short y2){
+/*void addLine(uint8_t hue, short x1, short y1, short x2, short y2){
 	if(numLines == maxLines){
 		maxLines += 5;
 		lines = realloc(lines, maxLines*9);
 	}
-	Uint8* data = lines+9*numLines++;
+	uint8_t* data = lines+9*numLines++;
 	*data = hue;
 	*((short*)(data+1)) = htons(x1);
 	*((short*)(data+3)) = htons(y1);
@@ -125,10 +126,10 @@ void addNetTool(int ix, int color){
 }*/
 
 struct imgData{
-	Uint16 sizeData;
+	uint16_t sizeData;
 	char* data;
-	Uint16 size;
-	Uint16* centers;
+	uint16_t size;
+	uint16_t* centers;
 };
 
 static void sendImgs(void* derp){
@@ -162,7 +163,7 @@ static void sendImgs(void* derp){
 		int i = 0;
 		for(; i < numClients; i++){
 			if(!clients[i].dead){
-				memcpy((Uint8*)dataToSend->data, (Uint8*)(dataToSend->centers+2*i), 4);
+				memcpy((uint8_t*)dataToSend->data, (uint8_t*)(dataToSend->centers+2*i), 4);
 				sendto(sockfd, (char*)&dataToSend->sizeData, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 				sendto(sockfd, dataToSend->data, dataToSend->size, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 			}
@@ -176,10 +177,10 @@ static void sendImgs(void* derp){
 
 void writeImgs(){
 	if(numClients && !pthread_mutex_trylock(&myMutex)){//If trylock doesn't fail, the other thread is waiting on a condition.
-		Uint16 size = 4+2+numToolMarks+4+6*numCircles+2+numLineBytes+2+6*numPlayerCircles;
-		Uint16 sizeData = htons(size);
-		Uint8* realData = malloc(size);
-		Uint8* data = realData+4;
+		uint16_t size = 4+2+numToolMarks+4+6*numCircles+2+numLineBytes+2+6*numPlayerCircles;
+		uint16_t sizeData = htons(size);
+		uint8_t* realData = malloc(size);
+		uint8_t* data = realData+4;
 		*((short*)data) = htons(numToolMarks);
 		memcpy(data+=2, tools, numToolMarks);
 		*((short*)(data+=numToolMarks)) = htons(numCircles);
@@ -190,7 +191,7 @@ void writeImgs(){
 		*((short*)(data+=numLineBytes)) = htons(numPlayerCircles);
 		memcpy(data+=2, playerCircles, 6*numPlayerCircles);
 
-		Uint16* netCenters = malloc(2*2*numClients);
+		uint16_t* netCenters = malloc(2*2*numClients);
 		int i = 0;
 		for(; i < numClients; i++){
 			if(clients[i].dead) continue;
@@ -256,19 +257,19 @@ static void keyAction(int code, char pressed){
 }
 
 static void netListen(void* color){ // Helper to myConnect. Listens for frames and draws them. Kills itself when netListenKill is set
-	Uint32 Color = htonl(*(Uint32*)color);
+	uint32_t Color = htonl(*(uint32_t*)color);
 	sendto(sockfd, (char*)&Color, 4, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
 	struct timeval wait, waitClone = {.tv_sec = 1, .tv_usec = 0};
 	fd_set* fdSet = malloc(sizeof(fd_set));
 	FD_ZERO(fdSet);
-	Uint8* sizeData = malloc(3);
-	Uint8*  data = NULL;
-	Uint16 size = 0;
+	uint8_t* sizeData = malloc(3);
+	uint8_t*  data = NULL;
+	uint16_t size = 0;
 	int msgSize;
 	struct sockaddr_in sender;
 	socklen_t addrSize = sizeof(struct sockaddr_in);
 	SDL_Event e = {.type = SDL_WINDOWEVENT}; //Since only the main thread can manipulate the window, thie event is our way of signalling a screen update.
-	memset(screen, 0, 750*750*4);
+	glClear(GL_COLOR_BUFFER_BIT);
 	SDL_PushEvent(&e); 
 	do{
 		if(netListenKill){
@@ -282,10 +283,13 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 		wait = waitClone;
 	}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
 	{
-		Uint8 code;
+		uint8_t code;
 		recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize);
 		if(code) running = 0;
-		else drawText(screen, 20, 20, 0x00FF00FF, TEXTSIZE, "ACKNOWLEDGED");
+		else{
+			setColorFromHex(0x00FF00FF);
+			drawText(20-width2, 20-height2, TEXTSIZE, "ACKNOWLEDGED");
+		}
 	}
 	SDL_PushEvent(&e);
 	while(1){
@@ -310,7 +314,7 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 				puts("E: Read frame as length data");
 				continue;//That was a frame, but we only got the first 2 bytes...
 			}
-			size = ntohs(*((Uint16*)sizeData));
+			size = ntohs(*((uint16_t*)sizeData));
 			if(size == 0){//Don't return, because we still need to flip netListenKill back to 0 and perform cleanup whenever main thread figures out what's going on and tries to kill us.
 				running = 0;
 				SDL_PushEvent(&e);//Gives it an event so it notices running is now 0.
@@ -337,7 +341,7 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 		}
 		if(msgSize == 2){
 			puts("E: Read length data as frame");
-			size = ntohs(*((Uint16*)data));
+			size = ntohs(*((uint16_t*)data));
 			if(size == 0){
 				running = 0;
 				SDL_PushEvent(&e);//Gives it an event so it notices running is now 0.
@@ -346,58 +350,64 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 			data = malloc(size);
 			continue;
 		}
-		memset(screen, 0, 750*750*4);
-		Uint16 locX = ntohs(*(Uint16*)data);
-		Uint16 locY = ntohs(*(Uint16*)(data+2));
-		Uint8* pointer = data + 6 + ntohs(*(Uint16*)(data+4));
-		Uint8* toolColors = data+6;
-		size = ntohs(*(Uint16*)pointer);
-		Uint16 myMarkSize = ntohs(*((Uint16*)(pointer+2)))/zoom;
-		if(myMarkSize < 2) myMarkSize = 2;
+		uint16_t locX = ntohs(*(uint16_t*)data);
+		uint16_t locY = ntohs(*(uint16_t*)(data+2));
+		uint8_t* pointer = data + 6 + ntohs(*(uint16_t*)(data+4));
+		uint8_t* toolColors = data+6;
+		size = ntohs(*(uint16_t*)pointer);
+		float myMarkSizef = (float)(ntohs(*((uint16_t*)(pointer+2)))/zoom)/width2/2;
 		pointer += 4;
-		Uint16* circlePointer = (Uint16*)pointer;
+		uint16_t* circlePointer = (uint16_t*)pointer;
 		short x, y;
-		Uint16 radius;
+		float xf, yf;
+		uint16_t radius;
 		int i = 0;
 		char flag = 0;
+		setColorWhite();
 		for(; i < size; i++){
-			radius = ntohs(*((Uint16*)(pointer+4)));
-			x = ( *(Uint16*)pointer = (ntohs(*(Uint16*)pointer)-locX)/zoom+375 );
-			y = ( *(Uint16*)(pointer+2) = (ntohs(*(Uint16*)(pointer+2))-locY)/zoom+375 );
+			radius = ntohs(*((uint16_t*)(pointer+4)));
+			x = ( *(uint16_t*)pointer = (ntohs(*(uint16_t*)pointer)-locX)/zoom );
+			y = ( *(uint16_t*)(pointer+2) = (ntohs(*(uint16_t*)(pointer+2))-locY)/zoom );
+			xf = (float)x/width2;
+			yf = (float)y/height2;
 			if(radius & 32768){
 				radius ^= 32768;
 				flag = 1;
 			}
 			radius /= zoom;
 			if(radius > 0)
-				ellipseColor(screen, x, y, radius, radius, 0xFFFFFFFF);
+				drawCircle(xf, yf, (float)radius/width2);
 			if(flag){
 				flag = 0;
-				rectangleColor(screen, x-myMarkSize/2, y-myMarkSize/2, myMarkSize, myMarkSize, getToolColor(*(toolColors++)));
+				setColorFromHex(getToolColor(*(toolColors++)));
+				drawRectangle(xf-myMarkSizef, yf-myMarkSizef, xf+myMarkSizef, yf+myMarkSizef);
+				setColorWhite();
 			}
 			pointer += 6;
 		}
-		size = ntohs(*(Uint16*)pointer);
+		size = ntohs(*(uint16_t*)pointer);
 		pointer += 2;
 		int j;
 		int ix;
 		for(i = 0; i < size; i++){
-			ix = 3*ntohs(*(Uint16*)pointer);
+			ix = 3*ntohs(*(uint16_t*)pointer);
 			msgSize = *(pointer+=2);
 			pointer++;
-			x = *(circlePointer+ix);
-			y = *(circlePointer+ix+1);
+			xf = (float)*(circlePointer+ix)/width2;
+			yf = (float)*(circlePointer+ix+1)/height2;
 			for(j = 0; j < msgSize; j++){
-				ix = 3*ntohs(*((Uint16*)pointer));
-				lineColor(screen, x, y, *(circlePointer+ix), *(circlePointer+ix+1), getColorFromHue(*(pointer+=2)));
+				ix = 3*ntohs(*((uint16_t*)pointer));
+				setColorFromHex(getColorFromHue(*(pointer+=2)));
+				drawLine(xf, yf, (float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2);
 				pointer++;
 			}
 		}
-		size = ntohs(*(Uint16*)pointer);
+		size = ntohs(*(uint16_t*)pointer);
 		pointer+=2;
 		for(i = 0; i < size; i++){
-			ix = 3*ntohs(*(Uint16*)pointer);
-			ellipseColor(screen, *(circlePointer+ix), *(circlePointer+ix+1), myMarkSize/2, myMarkSize/2, ntohl(*(Uint32*)(pointer+2)));
+			ix = 3*ntohs(*(uint16_t*)pointer);
+			setColorFromHex(ntohl(*(uint32_t*)(pointer+2)));
+			drawCircle((float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2, myMarkSizef);
 			pointer+=6;
 		}
 		size = 0;//since we use 'size' to determine which variety of packet to read next, this says we just read a screenshot.
@@ -406,11 +416,11 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 	}
 }
 
-void myConnect(Uint32 color){ // Entered by pressing 'c', not exited until you push 'esc'.
+void myConnect(uint32_t color){ // Entered by pressing 'c', not exited until you push 'esc'.
 	if(netListenKill) return; // The last one hasn't finished exitting.
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sockfd < 0) return;
-	
+
 	memset(&myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family = AF_INET;
 	myaddr.sin_addr.s_addr=htonl(INADDR_ANY);
@@ -504,7 +514,7 @@ void stopHosting(){
 	pthread_cond_signal(&myCond);
 	pthread_mutex_unlock(&myMutex);
 	int i = 0;
-	Uint16 size = htons(0);
+	uint16_t size = htons(0);
 	for(; i < numClients; i++){
 		if(clients[i].dead) continue;
 		requests[clients[i].playerNum].color = 0x606060FF;
@@ -517,7 +527,7 @@ void stopHosting(){
 
 void kickNoRoom(){ // When the game begins, kick any players whose space was requested but didn't fit in the map
 	int i = numClients-1;
-	Uint16 size = htons(0);
+	uint16_t size = htons(0);
 	for(; i >= 0; i--){
 		if(clients[i].playerNum < players) return; // 'playerNum's are in descending order, so if one has is still in the game, all the rest will be, too.
 		if(clients[i].dead) continue;
@@ -533,7 +543,7 @@ void readKeys(){
 	FD_ZERO(fdSet);
 	FD_SET(sockfd, fdSet);
 
-	Uint8* data;
+	uint8_t* data;
 	struct sockaddr_in sender;
 	socklen_t size = sizeof(sender);
 	client* current;
@@ -596,7 +606,7 @@ void readKeys(){
 			if(target){
 				target->addr = sender;
 				target->dead = 0;
-				requests[target->playerNum].color = ntohl(*(Uint32*)data);
+				requests[target->playerNum].color = ntohl(*(uint32_t*)data);
 				puts("Stored him.");
 				numClients++;
 				*data = 0;

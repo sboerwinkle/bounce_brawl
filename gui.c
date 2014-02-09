@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-//#include <SDL2/SDL2_gfxPrimitives.h>
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include "gfx.h"
 #include "structs.h"
 #include "font.h"
 #include "levels.h"
@@ -24,7 +26,7 @@ typedef struct{
 } level;
 
 typedef struct{
-	Sint8 menu;
+	char menu;
 	void* target;
 	char* text;
 } menuItem;
@@ -60,30 +62,32 @@ void addMenuLevel(menu* where, int ix, void (*func)(), char* text){
 menu* currentMenu;
 
 static SDL_Window* window;
-static SDL_Renderer* render;
-static SDL_Texture* texture;
-Uint32 *screen;
+//static SDL_Renderer* render;
+//static SDL_Texture* texture;
+//uint32_t *screen;
 
 int players = 0;
 static int numRequests;
 playerRequest requests[10];
 
-Sint8 masterKeys[NUMKEYS*10];
+char masterKeys[NUMKEYS*10];
 int pIndex[] = {0, 1};
 int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_q, SDLK_1},\
 	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
 
-Sint8 mode = 0;
-static Sint8 inputMode = 0;
-static Sint8 nothingChanged = 0;
-static Sint8 sloMo = 0;
+char mode = 0;
+static char inputMode = 0;
+static char nothingChanged = 0;
+static char sloMo = 0;
 static char frameFlag = 0;
 
 void myDrawScreen(){
-	if(SDL_UpdateTexture(texture, NULL, screen, 750*4) < 0) puts(SDL_GetError());
-	if(SDL_RenderClear(render) < 0) puts(SDL_GetError());
-	if(SDL_RenderCopy(render, texture, NULL, NULL) < 0) puts(SDL_GetError());
-	SDL_RenderPresent(render);
+//	if(SDL_UpdateTexture(texture, NULL, screen, 750*4) < 0) puts(SDL_GetError());
+//	if(SDL_RenderClear(render) < 0) puts(SDL_GetError());
+//	if(SDL_RenderCopy(render, texture, NULL, NULL) < 0) puts(SDL_GetError());
+//	SDL_RenderPresent(render);
+	SDL_GL_SwapWindow(window);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 static char* modeToString(int ix){
@@ -102,14 +106,15 @@ static char* modeToString(int ix){
 }
 
 static inline void simpleDrawText(int line, char* text){
-	drawText(screen, 20, 20+TEXTSIZE*9*line, 0xFFFFFFFF, TEXTSIZE, text);
+	setColorWhite();
+	drawText(20-width2, 20+TEXTSIZE*9*line+height2, TEXTSIZE, text);
 }
 
 static void paint(){
 	if(mode == 0){
 		if(nothingChanged) return;
 //		boxColor(render, 0, 0, 500, 500, 0x000000FF);
-		memset(screen, 0, 750*750*4);
+//		memset(screen, 0, 750*750*4);
 //		SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
 //		SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
 //		SDL_RenderFillRect(render, &a);
@@ -120,7 +125,6 @@ static void paint(){
 				sprintf(line, " %d : %s", i+1, currentMenu->items[i].text);
 				simpleDrawText(i, line);
 			}
-//			drawText(render, 20, 20, 0xFFFFFFFF, TEXTSIZE, " 0 : FLAT STAGE\n 1 : SUMO COMBAT\n 2 : GEOLOGICALLY ACTIVE PVP COMBAT\n 3 : TILTY PVP COMBAT\n 4 : WALLED PVP COMBAT\n 5 : DROPAWAY FLOOR COMBAT\n 6 : PLANET COMBAT\n 7 : MECH COMBAT\n 8 : 1 PLAYER ASTEROID SURVIVAL\n 9 : 2 PLAYER ASTEROID SURVIVAL\n\n");
 			simpleDrawText(11, " M : MANAGE PLAYERS");
 			simpleDrawText(12, " K : MANAGE KEYS");
 			if(sloMo) simpleDrawText(14, "TAB: SECRET SLOW STYLE ON!");
@@ -146,8 +150,10 @@ static void paint(){
 				simpleDrawText(2, "+ AND - TO CHANGE NUMBER");
 			}
 			int i = 0;
-			for(; i < numRequests; i++)
-				drawText(screen, 20+TEXTSIZE*9, 20+9*TEXTSIZE*4+9*TEXTSIZE*i, requests[i].color, TEXTSIZE, modeToString(i));
+			for(; i < numRequests; i++){
+				setColorFromHex(requests[i].color);
+				drawText(20+TEXTSIZE*9-width2, 20+9*TEXTSIZE*4+9*TEXTSIZE*i+height2, TEXTSIZE, modeToString(i));
+			}
 			if(!netMode) simpleDrawText(4+players, ">");
 		}else if(inputMode == 4){
 			simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
@@ -156,8 +162,9 @@ static void paint(){
 			int i, j;
 			for(j = 0; j < 2; j++)
 				for(i = 0; i < NUMKEYS; i++){
-					sprintf(line, "P%d %s (%d)", j+1, text[i], (Uint16)pKeys[j][i]);
-					drawText(screen, 20+TEXTSIZE*9, 20+TEXTSIZE*9*(3+i+j*NUMKEYS), getColorFromHue(20*i), TEXTSIZE, line);
+					sprintf(line, "P%d %s (%d)", j+1, text[i], (uint16_t)pKeys[j][i]);
+					setColorFromHue(20*i);
+					drawText(20+TEXTSIZE*9-width2, 20+TEXTSIZE*9*(3+i+j*NUMKEYS)+height2, TEXTSIZE, line);
 				}
 			simpleDrawText(3+(players&(~1024)), (players&1024)?"=":">");
 		}
@@ -165,7 +172,7 @@ static void paint(){
 		nothingChanged = 1;
 	}else run();
 	if(mode && netMode) writeImgs();
-	if(frameFlag) *screen = 0xFF8000FF;//Sort of orangy.
+//	if(frameFlag) *screen = 0xFF8000FF;//Sort of orangy.
 	myDrawScreen();
 }
 
@@ -180,7 +187,7 @@ static int getDigit(int code){
 	return -1;
 }
 
-static void spKeyAction(int bit, Sint8 pressed){
+static void spKeyAction(int bit, char pressed){
 	if(mode == 0){
 		if(!pressed) return;
 		if(inputMode == 0){
@@ -493,14 +500,24 @@ int main(int argc, char** argv){
 	LARGE_INTEGER largeInt;
 #endif
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-	window = SDL_CreateWindow("Bounce Brawl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 750, 750, 0);
+	SDL_ClearError();
+//	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+//	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+//	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	puts(SDL_GetError());
+	SDL_ClearError();
+	window = SDL_CreateWindow("Bounce Brawl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 750, 750, SDL_WINDOW_OPENGL);
+	puts(SDL_GetError());
+	SDL_ClearError();
 	if(window == NULL){
 		fputs("No SDL2 window.\n", stderr);
 		fputs(SDL_GetError(), stderr);
 		SDL_Quit();
 		return 1;
 	}
-	render = SDL_CreateRenderer(window, -1, 0);
+	width2 = 350;
+	height2 = -350;
+/*	render = SDL_CreateRenderer(window, -1, 0);
 	if(render == NULL){
 		fputs("No SDL2 renderer.\n", stderr);
 		fputs(SDL_GetError(), stderr);
@@ -518,7 +535,12 @@ int main(int argc, char** argv){
 	}
 	screen = malloc(750*750*4);
 	//screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 500, 500, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);*/
+	SDL_GLContext context = SDL_GL_CreateContext(window);
+	puts(SDL_GetError());
+	SDL_ClearError();
+	initGfx();
+	glClearColor(0, 0, 0, 1);
 	int running=1;
 	while(running){
 		if(netMode) readKeys();
@@ -555,6 +577,7 @@ int main(int argc, char** argv){
 #ifdef WINDOWS
 	CloseHandle(hTimer);
 #endif
+	SDL_GL_DeleteContext(context);
 	SDL_Quit();
 	return 0;
 }
