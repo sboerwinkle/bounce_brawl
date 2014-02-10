@@ -334,7 +334,7 @@ void lvlsumo(){
 	}
 	if(players > 1){
 		taskguycontroladd(280, 270);
-		taskscoreaddLong(1, 670, 20);
+		taskscoreaddLong(1, 650, 20);
 	}
 
 	taskgravityadd();
@@ -358,7 +358,7 @@ void lvltipsy(){
 	}
 	if(players > 1){
 		taskguycontroladd(280, 270);
-		taskscoreaddLong(1, 670, 20);
+		taskscoreaddLong(1, 650, 20);
 	}
 
 	taskgravityadd();
@@ -396,7 +396,7 @@ void lvltilt(){
 	}
 	if(players > 1){
 		taskguycontroladd(275, 270);
-		taskscoreaddLong(1, 670, 20);
+		taskscoreaddLong(1, 650, 20);
 	}
 	taskgravityadd();
 	taskfrictionadd();
@@ -522,7 +522,7 @@ void lvlswing(){
 	}
 	if(players > 1){
 		taskguycontroladd(280, 240);
-		taskscoreaddLong(1, 670, 20);
+		taskscoreaddLong(1, 650, 20);
 	}
 	taskgravityadd();
 	taskincineratoradd(510);
@@ -548,7 +548,7 @@ void lvldrop(){
 	}
 	if(players > 1){
 		taskguycontroladdLong(398, 250, 1);
-		taskscoreaddLong(1, 670, 20);
+		taskscoreaddLong(1, 650, 20);
 	}
 	taskgravityadd();
 	taskincineratoradd(500);
@@ -637,7 +637,7 @@ void lvlmech(){
 	}
 	if(players > 1){
 		taskguycontroladd(446, 366);
-		taskscoreaddLong(1, 670, 20);
+		taskscoreaddLong(1, 650, 20);
 	}
 	addToolMech1(371, 326);
 	addToolMech1(124, 326);
