@@ -302,7 +302,8 @@ void run(){
 			x = current->x*maxZoomIn;
 			y = current->y*maxZoomIn;
 			drawCircle(getScreenX(x-centerx), getScreenY(y-centery), (float)size/zoom/width2);
-			addNetCircle(x, y, size);
+			if(netMode)
+				addNetCircle(x, y, size);
 		}
 		if(netMode && current->numConnections != 0){
 			numActiveCons = 0;

@@ -151,7 +151,6 @@ void setColorWhite(){glUniform3f(uniColorId, 1.0, 1.0, 1.0);}
 
 void setColorFromHex(uint32_t color){
 	glUniform3f(uniColorId, (float)(color&0xFF000000)/0xFF000000, (float)(color&0xFF0000)/0xFF0000, (float)(color&0xFF00)/0xFF00);
-//	glUniform3f(uniColorId, 1.0, 0, 0);
 }
 
 void drawBox(float x1, float y1, float x2, float y2){
@@ -199,4 +198,5 @@ void drawCircle(float cx, float cy, float r){
 	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*numSegments, points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, numSegments);
+	free(points);
 }

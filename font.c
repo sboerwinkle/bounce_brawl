@@ -17,7 +17,7 @@ void drawText(int X, int Y, float size, char* string){
 		i++;
 		if(string[j] == '\n'){
 			i = -1;
-			y+=size*9;
+			y-=size*9;
 			continue;
 		}
 		tempy = y;

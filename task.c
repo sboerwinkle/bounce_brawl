@@ -354,6 +354,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 		dy /= dist;
 	}
 	int ix = addNode();
+	one = nodes + data->index+aimingLeg;//addNode can reassign nodes, so this needs to be recomputed.
 	newNodeLong(ix, one->x, one->y, one->px, one->py, one->xmom+dx, one->ymom+dy, 2, 4, 0);
 	taskdestroyadd(ix, 100);
 }
@@ -822,7 +823,7 @@ typedef struct{
 char tasktext(void* where){
 	tasktextdata* data = (tasktextdata*)where;
 	setColorWhite();
-	drawText(getScreenX(data->x*maxZoomIn - centerx), getScreenY(data->y*maxZoomIn - centery), 1.0*maxZoomIn/zoom, data->text);
+	drawText((data->x*maxZoomIn - centerx)/zoom, (data->y*maxZoomIn - centery)/zoom, 1.0*maxZoomIn/zoom, data->text);
 	return 0;
 }
 
