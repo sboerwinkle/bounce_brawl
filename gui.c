@@ -128,7 +128,11 @@ static void paint(){
 			}
 			simpleDrawText(11, " M : MANAGE PLAYERS");
 			simpleDrawText(12, " K : SET KEYS");
-			if(sloMo) simpleDrawText(14, "TAB: SECRET SLOW STYLE ON!");
+			if(sloMo){
+				setColorFromHue(256);
+				simpleDrawText(23, "TAB: SECRET SLOW STYLE ON!");
+				setColorWhite();
+			}
 			simpleDrawText(16, netMode?(netMode==2?"CONNECTING":"LISTENING"):"NETWORK INACTIVE");
 			simpleDrawText(17, " H : HOST A GAME");
 			if(pIndex[0] != -1) simpleDrawText(18, " C : CONNECT");
