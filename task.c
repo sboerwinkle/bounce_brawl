@@ -361,13 +361,15 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 static void taskguycontroldoRoll(taskguycontroldata* data){
 	double rollAmt = 0;
 	int index = data->index;
-	if(data->myKeys[3]) rollAmt += 0.04;
-	if(data->myKeys[1]) rollAmt -= 0.04;
+	if(data->myKeys[3]) rollAmt += .03;
+	if(data->myKeys[1]) rollAmt -= .03;
+//	if(data->myKeys[3]) rollAmt += 600;
+//	if(data->myKeys[1]) rollAmt -= 600;
 	if(!rollAmt) return;
 	int i, j;
 	node *me, *him;
 	double dx, dy, dist;
-	for(i=0; i < 3; i++){
+	for(i=0; i < 4; i++){
 		if(!data->exists[i]) continue;
 		me = nodes+index+i;
 		for(j=me->numConnections-1; j > 0; j--){

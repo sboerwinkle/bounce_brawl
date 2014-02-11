@@ -12,7 +12,7 @@ static GLuint uniColorId;
 int width2, height2;
 
 void initGfx(){
-	GLuint vbo, vao;
+	GLuint vbo;
 	glewExperimental = GL_TRUE;
 GLenum err = glewInit();
 if (GLEW_OK != err)
@@ -20,9 +20,6 @@ if (GLEW_OK != err)
 	/* Problem: glewInit failed, something is seriously wrong. */
 	fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 }
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
