@@ -74,6 +74,7 @@ char masterKeys[NUMKEYS*10];
 int pIndex[] = {0, 1};
 int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_q, SDLK_1},\
 	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
+int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 
 char mode = 0;
 static char inputMode = 0;
@@ -93,20 +94,19 @@ void myDrawScreen(){
 static char* modeToString(int ix){
 	switch(requests[ix].controlMode){
 		case -1:
-			return "NETWORKED PLAYER";
+			return " NETWORKED PLAYER";
 		case 0:
-			return "PLAYER 1";
+			return " PLAYER 1";
 		case 1:
-			return "PLAYER 2";
+			return " PLAYER 2";
 		case 2:
-			return "COMBAT AI";
+			return " COMBAT AI";
 		default:
-			return "Error! Danger! Augh!";
+			return " Error! Danger! Augh!";
 	}
 }
 
 static inline void simpleDrawText(int line, char* text){
-	setColorWhite();
 	drawText(20-width2, 20+TEXTSIZE*9*line+height2, TEXTSIZE, text);
 }
 
@@ -119,6 +119,7 @@ static void paint(){
 //		SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
 //		SDL_RenderFillRect(render, &a);
 		char* line = malloc(40*sizeof(char));
+		setColorWhite();
 		if(inputMode == 0){
 			int i = 0;
 			for(; i < currentMenu->numItems; i++){
@@ -152,9 +153,12 @@ static void paint(){
 			int i = 0;
 			for(; i < numRequests; i++){
 				setColorFromHex(requests[i].color);
-				drawText(20+TEXTSIZE*9-width2, 20+9*TEXTSIZE*4+9*TEXTSIZE*i+height2, TEXTSIZE, modeToString(i));
+				simpleDrawText(4+i, modeToString(i));
 			}
-			if(!netMode) simpleDrawText(4+players, ">");
+			if(!netMode){
+				setColorWhite();
+				simpleDrawText(4+players, ">");
+			}
 		}else if(inputMode == 4){
 			simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
 			simpleDrawText(1, "SPACE OR ENTER TO SET KEY");
@@ -162,10 +166,17 @@ static void paint(){
 			int i, j;
 			for(j = 0; j < 2; j++)
 				for(i = 0; i < NUMKEYS; i++){
-					sprintf(line, "P%d %s %s", j+1, text[i], SDL_GetKeyName((uint16_t)pKeys[j][i]));
+					sprintf(line, " P%d %s %s", j+1, text[i], SDL_GetKeyName(pKeys[j][i]));
 					setColorFromHue(20*i);
-					drawText(20+TEXTSIZE*9-width2, 20+TEXTSIZE*9*(3+i+j*NUMKEYS)+height2, TEXTSIZE, line);
+					simpleDrawText(3+i+j*NUMKEYS, line);
 				}
+			setColorFromHue(0);
+			sprintf(line, " ZOOM IN:     %s", SDL_GetKeyName(otherKeys[0]));
+			simpleDrawText(3+2*NUMKEYS, line);
+			setColorFromHue(20);
+			sprintf(line, " ZOOM OUT:    %s", SDL_GetKeyName(otherKeys[1]));
+			simpleDrawText(3+2*NUMKEYS+1, line);
+			setColorWhite();
 			simpleDrawText(3+(players&(~1024)), (players&1024)?"=":">");
 		}
 		free(line);
@@ -391,8 +402,12 @@ static void spKeyAction(int bit, char pressed){
 		} else if (inputMode == 4){
 			if(players&1024){
 				players &= ~1024;
-				if(bit != SDLK_ESCAPE)
-					pKeys[players/NUMKEYS][players%NUMKEYS] = bit;
+				if(bit != SDLK_ESCAPE){
+					if(players<2*NUMKEYS)
+						pKeys[players/NUMKEYS][players%NUMKEYS] = bit;
+					else
+						otherKeys[players-2*NUMKEYS] = bit;
+				}
 				nothingChanged = 0;
 				return;
 			}
@@ -408,12 +423,12 @@ static void spKeyAction(int bit, char pressed){
 			}
 			if(bit == SDLK_UP){
 				if(players > 0) players--;
-				else players = NUMKEYS*2-1;
+				else players = NUMKEYS*2+2-1;
 				nothingChanged = 0;
 				return;
 			}
 			if(bit == SDLK_DOWN){
-				if(players < NUMKEYS*2-1) players++;
+				if(players < NUMKEYS*2+2-1) players++;
 				else players = 0;
 				nothingChanged = 0;
 				return;
@@ -428,10 +443,10 @@ static void spKeyAction(int bit, char pressed){
 		mode = 0;
 		nothingChanged = 0;
 		return;
-	}else if(bit==SDLK_MINUS){
+	}else if(bit==otherKeys[1]){
 		if(pressed && zoom<32768) zoom*=2;
 		return;
-	}else if(bit==SDLK_EQUALS){
+	}else if(bit==otherKeys[0]){
 		if(pressed && zoom > 1) zoom/=2;
 		return;
 	}else if(bit == SDLK_TAB){
