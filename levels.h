@@ -24,4 +24,8 @@ extern void lvl3rosette();
 
 extern void lvlmech();
 
+extern void lvlmechmech();
+
+extern void lvlmechgun();
+
 extern void lvlsurvive();

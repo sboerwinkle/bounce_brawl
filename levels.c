@@ -581,7 +581,7 @@ void lvlplanet(){
 	double rads = players == 0?0:M_PI*2/players;
 	register int i = 0;
 	for(; i < players; i++){
-		taskguycontroladd(240+130*cos(i*rads), 240+130*sin(i*rads));
+		taskguycontroladd(240-130*cos(i*rads), 240+130*sin(i*rads));
 	}
 	taskcenteradd(addPlanet(250, 250));
 	taskuniversalgravityadd(0.02);
@@ -639,10 +639,19 @@ void lvlmech(){
 		taskguycontroladd(446, 366);
 		taskscoreaddLong(1, 650, 20);
 	}
-	addToolMech1(371, 326);
-	addToolMech1(124, 326);
 	taskgravityadd();
 	taskincineratoradd(410);
+	addToolMech1(371, 326);
+}
+
+void lvlmechmech(){
+	lvlmech();
+	addToolMech1(124, 326);
+}
+
+void lvlmechgun(){
+	lvlmech();
+	addToolGun(124, 326);
 }
 
 void lvlsurvive(){

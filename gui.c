@@ -465,7 +465,7 @@ int main(int argc, char** argv){
 //	addMenuLevel(&topMenu, 4, &lvltilt, "TILTY STAGE");
 	addMenuLevel(&topMenu, 3, &lvlswing, "WALLED STAGE");
 	addMenuLevel(&topMenu, 4, &lvldrop, "DROPAWAY FLOOR");
-	addMenuLevel(&topMenu, 5, &lvlmech, "MECHS");
+	menu* mechMenu    = addMenuMenu(&topMenu, 5, 3, "MECHS...");
 	addMenuLevel(&topMenu, 6, &lvlcave, "CAVE");
 	addMenuLevel(&topMenu, 7, &lvltutorial, "TUTORIAL");
 
@@ -476,6 +476,10 @@ int main(int argc, char** argv){
 	addMenuLevel(flatMenu, 1, &lvlsurvive, "ASTEROID SURVIVAL");
 	addMenuLevel(flatMenu, 2, &lvlbuilding, "BUILDING STAGE");
 	addMenuLevel(flatMenu, 3, &lvlexperiment, "EXPERIMENTAL STAGE");
+
+	addMenuLevel(mechMenu, 0, &lvlmech, "MAN VS MECH");
+	addMenuLevel(mechMenu, 1, &lvlmechmech, "MECH VS MECH");
+	addMenuLevel(mechMenu, 2, &lvlmechgun, "GUN VS MECH");
 
 	initNetworking();
 

@@ -358,6 +358,33 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 	newNodeLong(ix, one->x, one->y, one->px, one->py, one->xmom+dx, one->ymom+dy, 2, 4, 0);
 	taskdestroyadd(ix, 100);
 }
+static void taskguycontroldoRoll(taskguycontroldata* data){
+	double rollAmt = 0;
+	int index = data->index;
+	if(data->myKeys[3]) rollAmt += 0.04;
+	if(data->myKeys[1]) rollAmt -= 0.04;
+	if(!rollAmt) return;
+	int i, j;
+	node *me, *him;
+	double dx, dy, dist;
+	for(i=0; i < 3; i++){
+		if(!data->exists[i]) continue;
+		me = nodes+index+i;
+		for(j=me->numConnections-1; j > 0; j--){
+			if(me->connections[j].dead) continue;
+			him = nodes+me->connections[j].id;
+			dx = him->x - me->x;
+			dy = him->y - me->y;
+			dist = sqrt(dx*dx+dy*dy);
+			dx *= rollAmt/dist;
+			dy *= rollAmt/dist;
+			me->xmom -= dy;
+			me->ymom += dx;
+			him->xmom += dy;
+			him->ymom -= dx;
+		}
+	}
+}
 static void taskguycontroldoLegs(taskguycontroldata* data){
 	int index = data->index;
 	char* myKeys = data->myKeys;
@@ -377,6 +404,8 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 				taskguycontroldoGun(data);
 				break;
 			default:
+				taskguycontroldoRoll(data);
+				return;
 				sl=28;
 				ll=40;
 		}
