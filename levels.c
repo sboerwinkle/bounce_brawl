@@ -243,7 +243,7 @@ void lvltutorial(){
 	taskincineratoradd(360);
 	tasktextadd(0, -180, "Press 'esc' at any time to return to main menu.");
 	tasktextadd(-30, -90, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
-	tasktextadd(230, -90, "Try holding '1' for\nsmaller movements.");
+	tasktextadd(230, -90, "Try holding '1' with\n'A' or 'D' to\nroll.");
 	tasktextadd(500, -90, "Press Q to interact with objects\nmarked with squares.\nSome of these change\nthe functions of your keys.");
 	newNode(addNode(), 650, 140+20*sqrt3*2, 16, 150, 4);
 	int hexArg[] = {H,0,0,0,H,0,0,\

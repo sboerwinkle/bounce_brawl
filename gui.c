@@ -158,11 +158,11 @@ static void paint(){
 		}else if(inputMode == 4){
 			simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
 			simpleDrawText(1, "SPACE OR ENTER TO SET KEY");
-			char *(text[NUMKEYS]) = {"UP      ", "RIGHT   ", "DOWN    ", "LEFT    ", "INTERACT", "ACTION  "};
+			char *(text[NUMKEYS]) = {"UP:      ", "RIGHT:   ", "DOWN:    ", "LEFT:    ", "INTERACT:", "ACTION:  "};
 			int i, j;
 			for(j = 0; j < 2; j++)
 				for(i = 0; i < NUMKEYS; i++){
-					sprintf(line, "P%d %s (%d)", j+1, text[i], (uint16_t)pKeys[j][i]);
+					sprintf(line, "P%d %s %s", j+1, text[i], SDL_GetKeyName((uint16_t)pKeys[j][i]));
 					setColorFromHue(20*i);
 					drawText(20+TEXTSIZE*9-width2, 20+TEXTSIZE*9*(3+i+j*NUMKEYS)+height2, TEXTSIZE, line);
 				}
