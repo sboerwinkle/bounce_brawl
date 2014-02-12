@@ -2,16 +2,18 @@
 CC=gcc
 CFLAGS=-Wall -Wno-char-subscripts -O2 -c -pthread $(DEBUG)
 
+LFLAGS=-lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
+
 .PHONY: debug windows remake clean
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o
-	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS) -lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
+	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS)
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
 	
 windows:
-	$(MAKE) DEBUG="-D WINDOWS" LFLAGS="-ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -LLib/SDL2/x86_64-w64-mingw32/lib -lmingw32 -lSDL2main -mwindows -lws2_32 -o game.exe"
+	$(MAKE) DEBUG="-D WINDOWS" LFLAGS="-ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -o game.exe -LLib/SDL2/x86_64-w64-mingw32/lib -lSDL2 -lm -lglu32 -lopengl32 -lglew32 -lglu32 -lopengl32 -lglew32 -pthread -lmingw32 -lSDL2main -mwindows -lws2_32 -lSDL2"
 
 remake:
 	$(MAKE) clean
