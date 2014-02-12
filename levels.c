@@ -529,7 +529,6 @@ void lvlswing(){
 }
 
 void lvldrop(){
-	if(players > 2) players = 2;
 	initField(750, 750);
 	maxZoomIn = 1.5;
 	addBlock(30, 280, 43, 2, 1, 10, 7, 4, 6, 4.5, 10);
@@ -542,13 +541,15 @@ void lvldrop(){
 		newConnection(n, 0, i, .5, 180, 10, 3);
 		taskfixedadd(n, .3);
 	}
-	if(players > 0){
-		taskguycontroladd(92, 250);
-		taskscoreadd(0);
-	}
-	if(players > 1){
-		taskguycontroladdLong(398, 250, 1);
-		taskscoreaddLong(1, 650, 20);
+	double playerInc;
+	double scoreInc;
+	if(players>1){
+		playerInc = 306.0/(players-1);
+		scoreInc = 642.0/(players-1);
+	}else playerInc=scoreInc=0;
+	for(i=0; i < players; i++){
+		taskguycontroladd(92+i*playerInc, 250);
+		taskscoreaddLong(i, 20+i*scoreInc, 20);
 	}
 	taskgravityadd();
 	taskincineratoradd(500);
