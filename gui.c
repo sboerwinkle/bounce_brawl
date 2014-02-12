@@ -38,6 +38,29 @@ struct menu{
 };
 typedef struct menu menu;
 
+menu* currentMenu;
+
+static SDL_Window* window;
+//static SDL_Renderer* render;
+//static SDL_Texture* texture;
+//uint32_t *screen;
+
+int players = 0;
+static int numRequests;
+playerRequest requests[10];
+
+char masterKeys[NUMKEYS*10];
+int pIndex[] = {0, 1};
+int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_q, SDLK_1},\
+	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
+int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
+
+char mode = 0, cheats = 0;
+static char inputMode = 0;
+static char nothingChanged = 0;
+static char sloMo = 0;
+static char frameFlag = 0;
+
 menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
 	ret->parent = parent;
@@ -58,29 +81,6 @@ void addMenuLevel(menu* where, int ix, void (*func)(), char* text){
 	((level*)item->target)->highscore = 0;
 	item->text = text;
 }
-
-menu* currentMenu;
-
-static SDL_Window* window;
-//static SDL_Renderer* render;
-//static SDL_Texture* texture;
-//uint32_t *screen;
-
-int players = 0;
-static int numRequests;
-playerRequest requests[10];
-
-char masterKeys[NUMKEYS*10];
-int pIndex[] = {0, 1};
-int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_q, SDLK_1},\
-	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
-int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
-
-char mode = 0;
-static char inputMode = 0;
-static char nothingChanged = 0;
-static char sloMo = 0;
-static char frameFlag = 0;
 
 void myDrawScreen(){
 //	if(SDL_UpdateTexture(texture, NULL, screen, 750*4) < 0) puts(SDL_GetError());
@@ -131,11 +131,6 @@ static void paint(){
 			}
 			simpleDrawText(11, " M : MANAGE PLAYERS");
 			simpleDrawText(12, " K : SET KEYS");
-			if(sloMo){
-				setColorFromHue(256);
-				simpleDrawText(23, "TAB: SECRET SLOW STYLE!");
-				setColorWhite();
-			}
 			simpleDrawText(16, netMode?(netMode==2?"CONNECTING":"LISTENING"):"NETWORK INACTIVE");
 			simpleDrawText(17, " H : HOST A GAME");
 			if(pIndex[0] != -1) simpleDrawText(18, " C : CONNECT");
@@ -143,6 +138,14 @@ static void paint(){
 			simpleDrawText(19, line);
 			sprintf(line, " A : ADDR : %s", addressString);
 			simpleDrawText(20, line);
+
+			setColorFromHue(256);
+			if(sloMo) simpleDrawText(23, "SUP: SECRET SLOW STYLE!");
+			if(cheats&CHEAT_NUCLEAR){
+				simpleDrawText(24, "F6 : I SAID I'M");
+				drawText(20-width2+TEXTSIZE*9*16, 20+TEXTSIZE*(9*24-4*0.3)+height2, TEXTSIZE*1.3, "NUCLEAR!");
+			}
+			setColorWhite();
 		}else if(inputMode == 1){
 			sprintf(line, "PORT : %d", port);
 			simpleDrawText(0, line);
@@ -209,8 +212,13 @@ static void spKeyAction(int bit, char pressed){
 	if(mode == 0){
 		if(!pressed) return;
 		if(inputMode == 0){
-			if(bit == SDLK_TAB){
+			if(bit == SDLK_LGUI || bit == SDLK_RGUI){
 				sloMo = !sloMo;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_F6){
+				cheats ^= CHEAT_NUCLEAR;
 				nothingChanged = 0;
 				return;
 			}
@@ -456,7 +464,7 @@ static void spKeyAction(int bit, char pressed){
 	}else if(bit==otherKeys[0]){
 		if(pressed && zoom > 1) zoom/=2;
 		return;
-	}else if(bit == SDLK_TAB){
+	}else if(bit == SDLK_LGUI || bit == SDLK_RGUI){
 		if(pressed)
 			sloMo = !sloMo;
 		return;

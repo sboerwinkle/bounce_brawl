@@ -13,3 +13,5 @@ extern char masterKeys[NUMKEYS*10];
 extern playerRequest requests[10];
 
 extern char mode;
+
+extern char cheats;

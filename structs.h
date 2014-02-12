@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>//So everything gets SDL
 #include <stdint.h>
 
+#define CHEAT_NUCLEAR 1
+
 struct task{
         struct task *next;
         void *data;
