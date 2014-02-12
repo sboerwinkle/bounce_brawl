@@ -111,6 +111,8 @@ static inline void simpleDrawText(int line, char* text){
 }
 
 static void paint(){
+	GLenum error = glGetError();
+	if(error) fputs((const char*)gluErrorString(error), stderr);
 	if(mode == 0){
 		if(nothingChanged) return;
 //		boxColor(render, 0, 0, 500, 500, 0x000000FF);
@@ -131,7 +133,7 @@ static void paint(){
 			simpleDrawText(12, " K : SET KEYS");
 			if(sloMo){
 				setColorFromHue(256);
-				simpleDrawText(23, "TAB: SECRET SLOW STYLE ON!");
+				simpleDrawText(23, "TAB: SECRET SLOW STYLE!");
 				setColorWhite();
 			}
 			simpleDrawText(16, netMode?(netMode==2?"CONNECTING":"LISTENING"):"NETWORK INACTIVE");

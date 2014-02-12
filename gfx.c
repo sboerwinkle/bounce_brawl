@@ -7,19 +7,18 @@
 
 #include "gfx.h"
 
-static GLuint uniColorId;
+static GLuint uniColorId, vbo;
 
 int width2, height2;
 
 void initGfx(){
-	GLuint vbo;
 	glewExperimental = GL_TRUE;
-GLenum err = glewInit();
-if (GLEW_OK != err)
-{
-	/* Problem: glewInit failed, something is seriously wrong. */
-	fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-}
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		/* Problem: glewInit failed, something is seriously wrong. */
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+	}
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -158,6 +157,7 @@ void drawBox(float x1, float y1, float x2, float y2){
 		x1, y2};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_QUADS, 0, 4);
+	glInvalidateBufferData(vbo);
 }
 
 void drawRectangle(float x1, float y1, float x2, float y2){
@@ -168,16 +168,20 @@ void drawRectangle(float x1, float y1, float x2, float y2){
 		x1, y2};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, 4);
+	glInvalidateBufferData(vbo);
 }
 
 void drawLine(float x1, float y1, float x2, float y2){
 	float points[]={x1, y1, x2, y2};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINES, 0, 2);
+	glInvalidateBufferData(vbo);
 }
 
 void drawCircle(float cx, float cy, float r){
-	int numSegments = (int)(70*sqrtf(r));
+	int numSegments;
+	if(r<0.004) numSegments = 4;
+	else numSegments = (int)(60*sqrtf(r));
 	float* points = malloc(numSegments*2*sizeof(float));
 	float* current = points;
 	float t = 2*M_PI/numSegments;//'t' is for theta
@@ -195,5 +199,6 @@ void drawCircle(float cx, float cy, float r){
 	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*numSegments, points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, numSegments);
+	glInvalidateBufferData(vbo);
 	free(points);
 }
