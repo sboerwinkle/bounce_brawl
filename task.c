@@ -361,15 +361,18 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 static void taskguycontroldoRoll(taskguycontroldata* data){
 	double rollAmt = 0;
 	int index = data->index;
-	double rollInc = (data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?20:0.03;
+	double rollInc = (data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?10:0.03;
 	if(data->myKeys[3]) rollAmt += rollInc;
 	if(data->myKeys[1]) rollAmt -= rollInc;
 	if(!rollAmt) return;
-	if(rollInc > 5){
+	int i, j;
+	if(rollInc > 5 && alives[data->num]){
 		alives[data->num] = 0;
 		injured[data->num] = 1;
+		for(i=0; i<4; i++){
+			if(data->exists[i]) nodes[index+i].mass *= 10;
+		}
 	}
-	int i, j;
 	node *me, *him;
 	double dx, dy, dist;
 	for(i=0; i < 4; i++){
