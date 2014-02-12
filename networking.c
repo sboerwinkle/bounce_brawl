@@ -287,7 +287,7 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 		recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize);
 		if(code) running = 0;
 		else{
-			setColorFromHex(0x00FF00FF);
+			setColorFromHue(128);
 			drawText(20-width2, 20-height2, TEXTSIZE, "ACKNOWLEDGED");
 		}
 	}

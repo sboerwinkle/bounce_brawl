@@ -20,7 +20,7 @@ remake:
 field.o: field.c structs.h node.h gui.h task.h gfx.h
 	$(CC) $(CFLAGS) field.c
 
-font.o: font.c
+font.o: font.c fontData.h
 	$(CC) $(CFLAGS) font.c
 
 gui.o: gui.c structs.h font.h levels.h field.h networking.h

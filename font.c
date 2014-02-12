@@ -1,4 +1,4 @@
-#include <SDL2/SDL2_gfxPrimitives_font.h>
+#include "fontData.h"
 #include <SDL2/SDL.h>
 #include "gfx.h"
 

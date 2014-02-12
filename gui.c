@@ -120,6 +120,7 @@ static void paint(){
 //		SDL_RenderFillRect(render, &a);
 		char* line = malloc(40*sizeof(char));
 		setColorWhite();
+		simpleDrawText(28, "ESC: CANCEL / GO BACK");
 		if(inputMode == 0){
 			int i = 0;
 			for(; i < currentMenu->numItems; i++){
