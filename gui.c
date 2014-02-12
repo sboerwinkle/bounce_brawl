@@ -58,7 +58,6 @@ int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 char mode = 0, cheats = 0;
 static char inputMode = 0;
 static char nothingChanged = 0;
-static char sloMo = 0;
 static char frameFlag = 0;
 
 menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
@@ -140,7 +139,7 @@ static void paint(){
 			simpleDrawText(20, line);
 
 			setColorFromHue(256);
-			if(sloMo) simpleDrawText(23, "SUP: SECRET SLOW STYLE!");
+			if(cheats&CHEAT_SLOMO) simpleDrawText(23, "SUP: SECRET SLOW STYLE!");
 			if(cheats&CHEAT_NUCLEAR){
 				simpleDrawText(24, "F6 : I SAID I'M");
 				drawText(20-width2+TEXTSIZE*9*16, 20+TEXTSIZE*(9*24-4*0.3)+height2, TEXTSIZE*1.3, "NUCLEAR!");
@@ -213,7 +212,7 @@ static void spKeyAction(int bit, char pressed){
 		if(!pressed) return;
 		if(inputMode == 0){
 			if(bit == SDLK_LGUI || bit == SDLK_RGUI){
-				sloMo = !sloMo;
+				cheats ^= CHEAT_SLOMO;
 				nothingChanged = 0;
 				return;
 			}
@@ -466,7 +465,7 @@ static void spKeyAction(int bit, char pressed){
 		return;
 	}else if(bit == SDLK_LGUI || bit == SDLK_RGUI){
 		if(pressed)
-			sloMo = !sloMo;
+			cheats ^= CHEAT_SLOMO;
 		return;
 	}
 
@@ -581,7 +580,7 @@ int main(int argc, char** argv){
 		paint();//Also runs the thing if relevant.
 #ifndef WINDOWS
 		clock_gettime(CLOCK_MONOTONIC, &otherTime);
-		long int sleep = (sloMo?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
+		long int sleep = ((cheats&CHEAT_SLOMO)?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
 		if(sleep > 0){
 			frameFlag = 0;
 			t.tv_nsec = sleep;
@@ -591,7 +590,7 @@ int main(int argc, char** argv){
 #else
 		largeInt.LowPart = lastTime.dwLowDateTime;
 		largeInt.HighPart = lastTime.dwHighDateTime;
-		largeInt.QuadPart += sloMo?2500000:250000;
+		largeInt.QuadPart += (cheats&CHEAT_SLOMO)?2500000:250000;
 		SetWaitableTimer(hTimer, &largeInt, 0, NULL, NULL, 0);
 		WaitForSingleObject(hTimer, INFINITE);
 		GetSystemTimeAsFileTime(&lastTime);

@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #define CHEAT_NUCLEAR 1
+#define CHEAT_SLOMO   2
 
 struct task{
         struct task *next;
