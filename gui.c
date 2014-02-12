@@ -58,7 +58,7 @@ int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 char mode = 0, cheats = 0;
 static char inputMode = 0;
 static char nothingChanged = 0;
-static char frameFlag = 0;
+//static char frameFlag = 0;
 
 menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
@@ -582,10 +582,10 @@ int main(int argc, char** argv){
 		clock_gettime(CLOCK_MONOTONIC, &otherTime);
 		long int sleep = ((cheats&CHEAT_SLOMO)?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
 		if(sleep > 0){
-			frameFlag = 0;
+//			frameFlag = 0;
 			t.tv_nsec = sleep;
 			nanosleep(&t, &t);
-		} else frameFlag = 1;
+		}// else frameFlag = 1;
 		clock_gettime(CLOCK_MONOTONIC, &lastTime);
 #else
 		largeInt.LowPart = lastTime.dwLowDateTime;
