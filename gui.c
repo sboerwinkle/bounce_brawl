@@ -578,7 +578,6 @@ int main(int argc, char** argv){
 	while(running){
 		if(netMode) readKeys();
 		paint();///Also runs the thing if relevant.
-		return;
 #ifndef WINDOWS
 		clock_gettime(CLOCK_MONOTONIC, &otherTime);
 		long int sleep = ((cheats&CHEAT_SLOMO)?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
