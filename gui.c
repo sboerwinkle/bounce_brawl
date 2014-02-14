@@ -535,7 +535,7 @@ int main(int argc, char** argv){
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	SDL_ClearError();
 //	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-//	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+//	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);///Maybe someday these will be useful for asking for a newer version of opengl
 //	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 	puts(SDL_GetError());
 	SDL_ClearError();
@@ -577,7 +577,8 @@ int main(int argc, char** argv){
 	int running=1;
 	while(running){
 		if(netMode) readKeys();
-		paint();//Also runs the thing if relevant.
+		paint();///Also runs the thing if relevant.
+		return;
 #ifndef WINDOWS
 		clock_gettime(CLOCK_MONOTONIC, &otherTime);
 		long int sleep = ((cheats&CHEAT_SLOMO)?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
