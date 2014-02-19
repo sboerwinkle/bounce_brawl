@@ -8,6 +8,6 @@ grabber device - warehouse style
 3. space ais?
 4. missions - high scores
 
+Try -ffast-math?
+
 Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
-http://ogldev.atspace.co.uk/www/tutorial03/tutorial03.html
-Mex Mechs
