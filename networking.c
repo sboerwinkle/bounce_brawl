@@ -38,7 +38,7 @@ static struct sockaddr_in servaddr, myaddr;
 typedef struct{
 	struct sockaddr_in addr;
 	char dead;
-	char playerNum;
+	unsigned char playerNum;
 } client;
 static client *clients;
 

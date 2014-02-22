@@ -1,6 +1,6 @@
 #CC=i686-pc-mingw32-gcc
 CC=gcc
-CFLAGS=-Wall -Wno-char-subscripts -O2 -c -pthread $(DEBUG)
+CFLAGS=-Wall -O2 -c -pthread $(DEBUG)
 
 LFLAGS=-lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
 
