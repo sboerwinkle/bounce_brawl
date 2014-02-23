@@ -156,17 +156,18 @@ static void paint(){
 				simpleDrawText(0, "NO EDITTING ALLOWED WHILE HOSTING");
 			}else{
 				simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
-				simpleDrawText(1, "W AND S TO CHANGE COLOR");
-				simpleDrawText(2, "+ AND - TO CHANGE NUMBER");
+				simpleDrawText(1, "           OR PLAYER TYPE");
+				simpleDrawText(2, "W AND S TO CHANGE COLOR");
+				simpleDrawText(3, "+ AND - TO CHANGE NUMBER");
 			}
 			int i = 0;
 			for(; i < numRequests; i++){
 				setColorFromHex(requests[i].color);
-				simpleDrawText(4+i, modeToString(i));
+				simpleDrawText(5+i, modeToString(i));
 			}
 			if(!netMode){
 				setColorWhite();
-				simpleDrawText(4+players, ">");
+				simpleDrawText(5+players, ">");
 			}
 		}else if(inputMode == 4){
 			simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
@@ -358,12 +359,11 @@ static void spKeyAction(int bit, char pressed){
 				}
 				return;
 			}
+			if(numRequests == 0) return;
 			if(bit == SDLK_MINUS || bit == SDLK_KP_MINUS){
-				if(numRequests > 0){
-					numRequests--;
-					nothingChanged = 0;
-					if(players == numRequests) players--;
-				}
+				numRequests--;
+				if(players == numRequests && numRequests != 0) players--;
+				nothingChanged = 0;
 				return;
 			}
 			if(bit == SDLK_UP){

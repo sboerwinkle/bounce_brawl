@@ -3,10 +3,10 @@ Player management:
 
 5. source forge
 grabber device - warehouse style
-1. tutorials
-2. weaker, stronger enemies
-3. space ais?
-4. missions - high scores
+1. weaker, stronger enemies
+2. space ais?
+3. missions - high scores
+4. customizable color schemes
 
 Try -ffast-math?
 
