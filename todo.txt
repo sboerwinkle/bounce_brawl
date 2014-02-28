@@ -4,10 +4,8 @@ Player management:
 5. source forge
 grabber device - warehouse style
 1. weaker, stronger enemies
-2. space ais?
-3. missions - high scores
+3. space ais?
+2. missions - gold stars
 4. customizable color schemes
-
-Try -ffast-math?
 
 Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
