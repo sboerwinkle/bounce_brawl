@@ -41,21 +41,16 @@ typedef struct {
 	char mode;
 	int cycle;
 	char* myKeys;
-} taskaicombatdata;
+} taskaidata;
 
-char taskaicombat(void* where){
-	taskaicombatdata* data = (taskaicombatdata*)where;
-	if(nodes[data->index].dead){
-		free(data);
-		return 1;
-	}
+char taskaibasiccycle(taskaidata* data){
+	if(nodes[data->index].dead) return 2;
 	if(data->cycle-- == 0){
 		data->cycle = 10;
 		data->mode = !data->mode;
 		int i = 0;
 		for(; i < NUMKEYS; i++) data->myKeys[i]=0;
 		if(data->mode){
-			int index = data->index;
 			if(injured[data->target]){
 				int targets[players];
 				int numTargets = 0;
@@ -64,32 +59,47 @@ char taskaicombat(void* where){
 					if(!injured[i] && i != data->player)
 						targets[numTargets++] = i;
 				}
-				if(numTargets == 0) return 1;//We're the last one standing
-				data->target = targets[(long int)rand()*numTargets/RAND_MAX];
+				if(numTargets == 0) return 2;//We're the last one standing
+				data->target = targets[rand()%numTargets];
 			}
-			int target = taskguycontrolindexes[data->target];
-			char dir = nodes[target].x > nodes[index].x;
-			long maxHeight = 0;
-			int ix = -1;
-			int i = 0;
-			for(; i < 4; i++){
-				if(nodes[index+i].dead) continue;
-				long fitness = nodes[index+i].y+(dir?-nodes[index+i].x:nodes[index+i].x);
-				if(fitness > maxHeight || ix == -1){
-					ix = i;
-					maxHeight = fitness;
-				}
-			}
-			data->myKeys[ix] = 1;
+			return 1;
 		}
 	}
 	return 0;
 }
+
+char taskaicombat(void* where){
+	taskaidata* data = (taskaidata*)where;
+	char ret = taskaibasiccycle(data);
+	if(ret == 2){
+		free(where);
+		return 1;
+	}
+	if(ret == 0) return 0;
+
+	int index = data->index;
+	int target = taskguycontrolindexes[data->target];
+	char dir = nodes[target].x > nodes[index].x;
+	long maxHeight = 0;
+	int ix = -1;
+	int i = 0;
+	for(; i < 4; i++){
+		if(nodes[index+i].dead) continue;
+		long fitness = nodes[index+i].y+(dir?-nodes[index+i].x:nodes[index+i].x);
+		if(fitness > maxHeight || ix == -1){
+			ix = i;
+			maxHeight = fitness;
+		}
+	}
+	data->myKeys[ix] = 1;
+	return 0;
+}
+
 void taskaicombatadd(int Player){
 	if(players < 2) return;
 	task* current = (task*)malloc(sizeof(task));
 	current->func = &taskaicombat;
-	taskaicombatdata* data = (taskaicombatdata*)malloc(sizeof(taskaicombatdata));
+	taskaidata* data = (taskaidata*)malloc(sizeof(taskaidata));
 	current->dataUsed = 1;
 	current->data = data;
 	int target = (long)rand() * (players-1) / RAND_MAX;
