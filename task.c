@@ -491,10 +491,11 @@ inline void taskguycontroldoBigLegs(taskguycontroldata* data){
 	int controlindex = data->controlindex;
 	node* center = nodes+controlindex;
 	for(i = 0; i < 4; i++){
-		if(!center->connections[i].dead)
+		if(!center->connections[i].dead){
 			center->connections[i].preflength = centerDists[i];
-		if(!nodes[controlindex+i+1].connections[0].dead)
-			nodes[controlindex+i+1].connections[0].preflength = edgeLengths[i];
+			if(!nodes[controlindex+i+1].connections[0].dead)
+				nodes[controlindex+i+1].connections[0].preflength = edgeLengths[i];
+		}
 	}
 	if(nodes[controlindex+1].dead) return;
 	int size = (int)(maxZoomIn*5);
