@@ -43,7 +43,7 @@ typedef struct {
 	char* myKeys;
 } taskaidata;
 
-char taskaibasiccycle(taskaidata* data){
+static char taskaibasiccycle(taskaidata* data){
 	if(nodes[data->index].dead) return 2;
 	if(data->cycle-- == 0){
 		data->cycle = 10;
@@ -68,7 +68,7 @@ char taskaibasiccycle(taskaidata* data){
 	return 0;
 }
 
-char taskaicombat(void* where){
+static char taskaicombat(void* where){
 	taskaidata* data = (taskaidata*)where;
 	char ret = taskaibasiccycle(data);
 	if(ret == 2){
@@ -113,7 +113,7 @@ void taskaicombatadd(int Player){
 	addTask(current);
 }
 
-char taskaispacecombat(void* where){
+static char taskaispacecombat(void* where){
 	taskaidata* data = (taskaidata*)where;
 	char ret = taskaibasiccycle(data);
 	if(ret == 2){
@@ -187,7 +187,7 @@ typedef struct {
 	int cool;
 	int maxcool;
 } taskasteroidsdata;
-char taskasteroids(void* where){
+static char taskasteroids(void* where){
 	taskasteroidsdata* data = (taskasteroidsdata*)where;
 	if(data->cool-- <= 0){
 		newNodeLong(addNode(), (float)rand()/RAND_MAX*400, 0, 0, 0, (float)rand()/RAND_MAX*4-2, 0, data->size, data->mass, 0);
@@ -208,7 +208,7 @@ void taskasteroidsadd(int s, int m, int c){
 	addTask(current);
 }
 
-char taskcenter(void* where){
+static char taskcenter(void* where){
 	int* index = (int*)where;//'*index' is the size, index[n] is the nth element, 1 indexed.
 	register int i = 1;
 	long dx = 0;
@@ -263,7 +263,7 @@ void taskcenteradd(int i){
 }
 
 //Not gonna bother to typedef another struct, but data is 2 ints for this guy. time is first, followed by index.
-char taskdestroy(void* where){
+static char taskdestroy(void* where){
 	int* data = (int*)where;
 	if(nodes[data[1]].dead){
 		free(data);
@@ -295,7 +295,7 @@ typedef struct{
 	int index;
 	double speed;
 }taskfixeddata;
-char taskfixed(void* where){
+static char taskfixed(void* where){
 	taskfixeddata* data = (taskfixeddata*)where;
 	int index = data->index;
 	if(nodes[index].dead){
@@ -329,7 +329,7 @@ typedef struct{
 	double step, max;
 }taskinflatedata;
 
-char taskinflate(void* where){
+static char taskinflate(void* where){
 	taskinflatedata* data = (taskinflatedata*)where;
 	node* mine = nodes+data->index;
 	if(mine->dead){
@@ -354,7 +354,7 @@ void taskinflateadd(int i, double step, double max){
 	addTask(current);
 }
 
-char taskfriction(void* where){
+static char taskfriction(void* where){
 	register int i = 0;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
@@ -370,7 +370,7 @@ void taskfrictionadd(){
 	addTask(current);
 }
 
-char taskgravity(void* where){
+static char taskgravity(void* where){
 	register int i = 0;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
@@ -573,7 +573,7 @@ inline void taskguycontroldoBigLegs(taskguycontroldata* data){
 	setColorWhite();
 	drawCircle(getScreenX(x-centerx), getScreenY(y-centery), (double)size/zoom/width2);
 }
-char taskguycontrol(void* where){
+static char taskguycontrol(void* where){
 	taskguycontroldata* data = (taskguycontroldata*)where;
 	int num = data->num;
 	int index = data->index;
@@ -690,6 +690,7 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	current->data = data;
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
 	if(requests[playerNum].controlMode == 2) taskaicombatadd(playerNum);
+	else if(requests[playerNum].controlMode == 3) taskaispacecombatadd(playerNum);
 	data->index = i;
 	data->num = playerNum++;
 	data->controltype = -1;
@@ -770,7 +771,7 @@ void addToolToggle(int ix){
 	addGenericTool(ix, 2);
 }
 
-char taskincinerator(void* where){
+static char taskincinerator(void* where){
 	register int i = 0;
 	long l = *(long*)where;
 	for(; i < numNodes; i++){
@@ -789,7 +790,7 @@ void taskincineratoradd(long height){
 	addTask(current);
 }
 
-char taskincinerator2(void* where){
+static char taskincinerator2(void* where){
 	register int i = 0;
 	long height = *(long*)where;
 	for(; i < numNodes; i++){
@@ -813,7 +814,7 @@ typedef struct{
 	double gravity;
 } taskpointgravitydata;
 
-char taskpointgravity(void* where){
+static char taskpointgravity(void* where){
 	taskpointgravitydata* data = (taskpointgravitydata*)where;
 	if(nodes[data->ix].dead){
 		free(data);
@@ -847,7 +848,7 @@ void taskpointgravityadd(int ix, double gravity){
 	current->data = data;
 	addTask(current);
 }
-char taskuniversalgravity(void* where){
+static char taskuniversalgravity(void* where){
 	double G = *(double*)where;
 	register int i = 0;
 	register int j = 0;
@@ -897,7 +898,7 @@ typedef struct{
 	char done;
 } taskscoredata;
 
-char taskscore(void* where){
+static char taskscore(void* where){
 	taskscoredata* data = (taskscoredata*)where;
 	if(!data->done){
 		if(injured[data->index]) data->done = 1;
@@ -935,7 +936,7 @@ typedef struct{
 	char* text;
 } tasktextdata;
 
-char tasktext(void* where){
+static char tasktext(void* where){
 	tasktextdata* data = (tasktextdata*)where;
 	setColorWhite();
 	drawText((data->x*maxZoomIn - centerx)/zoom, (data->y*maxZoomIn - centery)/zoom, 1.0*maxZoomIn/zoom, data->text);

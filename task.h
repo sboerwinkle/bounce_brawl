@@ -6,6 +6,8 @@ extern void freeAllTasks(task* where);
 
 extern void taskaicombatadd(int Player);
 
+extern void taskaispacecombatadd(int Player);
+
 extern void taskasteroidsadd(int s, int m, int c);
 
 extern void taskcenteradd(int i);
