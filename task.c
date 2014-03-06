@@ -102,7 +102,75 @@ void taskaicombatadd(int Player){
 	taskaidata* data = (taskaidata*)malloc(sizeof(taskaidata));
 	current->dataUsed = 1;
 	current->data = data;
-	int target = (long)rand() * (players-1) / RAND_MAX;
+	int target = rand()%(players-1);
+	if(target >= Player) target++;
+	data->target = target;
+	data->cycle = 5;
+	data->player = Player;
+	data->index = taskguycontrolindexes[Player];
+	data->mode = 1;
+	data->myKeys = masterKeys + NUMKEYS*Player;
+	addTask(current);
+}
+
+char taskaispacecombat(void* where){
+	taskaidata* data = (taskaidata*)where;
+	char ret = taskaibasiccycle(data);
+	if(ret == 2){
+		free(where);
+		return 1;
+	}
+	if(ret == 0) return 0;
+
+	int index = data->index;
+	int target = taskguycontrolindexes[data->target];
+	int dx = nodes[target].x - nodes[index].x;
+	int dy = nodes[target].y - nodes[index].y;
+	int i = 0;
+	double avgx = 0, avgy = 0;
+	int count = 0;
+	node* current;
+	for(; i < 4; i++){
+		current = nodes+index+i;
+		if(current->dead) continue;
+		count++;
+		avgx += current->x+current->px;
+		avgy += current->y+current->py;
+	}
+	avgx /= count;
+	avgy /= count;
+	double dist, bestDist = 1000;
+	double tmpdx, tmpdy, bestdx = 0, bestdy = 0;
+	int ix = 0;
+	for(i=0; i<4; i++){
+		current = nodes+index+i;
+		if(current->dead) continue;
+		tmpdx = current->x+current->px-avgx;
+		tmpdy = current->y+current->py-avgy;
+		dist = tmpdx*tmpdx + tmpdy*tmpdy;
+		if(dist < bestDist){
+			bestDist = dist;
+			bestdx = tmpdx;
+			bestdy = tmpdy;
+			ix = i;
+		}
+	}
+	if(bestdx*dx+bestdy*dy > 0){ // If the dot product is positive, the selected foot is pointing towards the target. Fix that.
+		if(bestdx*dy > bestdy*dx) ix = (ix+3)%4;
+		else ix = (ix+1)%4;
+	}
+	data->myKeys[ix] = 1;
+	return 0;
+}
+
+void taskaispacecombatadd(int Player){
+	if(players < 2) return;
+	task* current = (task*)malloc(sizeof(task));
+	current->func = &taskaispacecombat;
+	taskaidata* data = (taskaidata*)malloc(sizeof(taskaidata));
+	current->dataUsed = 1;
+	current->data = data;
+	int target = rand()%(players-1);
 	if(target >= Player) target++;
 	data->target = target;
 	data->cycle = 5;
