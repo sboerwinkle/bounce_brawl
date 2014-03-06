@@ -139,7 +139,7 @@ static char taskaispacecombat(void* where){
 	}
 	avgx /= count;
 	avgy /= count;
-	double dist, bestDist = 1000;
+	double dist, bestDist = 100000;
 	double tmpdx, tmpdy, bestdx = 0, bestdy = 0;
 	int ix = 0;
 	for(i=0; i<4; i++){
