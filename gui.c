@@ -146,6 +146,7 @@ static void paint(){
 				simpleDrawText(24, "F6 : I SAID I'M");
 				drawText(20-width2+TEXTSIZE*9*16, 20+TEXTSIZE*(9*24-4*0.3)+height2, TEXTSIZE*1.3, "NUCLEAR!");
 			}
+			if(cheats&CHEAT_LOCK) simpleDrawText(25, "CAP: CONTROLS LOCKED");
 			setColorWhite();
 		}else if(inputMode == 1){
 			sprintf(line, "PORT : %d", port);
@@ -214,6 +215,11 @@ static void spKeyAction(int bit, char pressed){
 	if(mode == 0){
 		if(!pressed) return;
 		if(inputMode == 0){
+			if(bit == SDLK_CAPSLOCK){
+				cheats ^= CHEAT_LOCK;
+				nothingChanged = 0;
+				return;
+			}
 			if(bit == SDLK_LGUI || bit == SDLK_RGUI){
 				cheats ^= CHEAT_SLOMO;
 				nothingChanged = 0;
@@ -459,18 +465,21 @@ static void spKeyAction(int bit, char pressed){
 		mode = 0;
 		nothingChanged = 0;
 		return;
-	}else if(bit==otherKeys[1]){
+	}else if(bit == SDLK_LGUI || bit == SDLK_RGUI){
+		if(pressed)
+			cheats ^= CHEAT_SLOMO;
+		return;
+	}else if(bit == SDLK_CAPSLOCK){
+		if(pressed) cheats ^= CHEAT_LOCK;
+		return;
+	}else if(cheats & CHEAT_LOCK) return;
+	else if(bit==otherKeys[1]){
 		if(pressed && zoom<32768) zoom*=2;
 		return;
 	}else if(bit==otherKeys[0]){
 		if(pressed && zoom > 1) zoom/=2;
 		return;
-	}else if(bit == SDLK_LGUI || bit == SDLK_RGUI){
-		if(pressed)
-			cheats ^= CHEAT_SLOMO;
-		return;
 	}
-
 	int i, j;
 	for(j=0; j < 2; j++){
 		if(pIndex[j] == -1) continue;

@@ -43,10 +43,10 @@ typedef struct {
 	char* myKeys;
 } taskaidata;
 
-static char taskaibasiccycle(taskaidata* data){
+static char taskaibasiccycle(taskaidata* data, int delay){
 	if(nodes[data->index].dead) return 2;
 	if(data->cycle-- == 0){
-		data->cycle = 10;
+		data->cycle = delay;
 		data->mode = !data->mode;
 		int i = 0;
 		for(; i < NUMKEYS; i++) data->myKeys[i]=0;
@@ -70,7 +70,7 @@ static char taskaibasiccycle(taskaidata* data){
 
 static char taskaicombat(void* where){
 	taskaidata* data = (taskaidata*)where;
-	char ret = taskaibasiccycle(data);
+	char ret = taskaibasiccycle(data, 10);
 	if(ret == 2){
 		free(where);
 		return 1;
@@ -115,7 +115,7 @@ void taskaicombatadd(int Player){
 
 static char taskaispacecombat(void* where){
 	taskaidata* data = (taskaidata*)where;
-	char ret = taskaibasiccycle(data);
+	char ret = taskaibasiccycle(data, 25);
 	if(ret == 2){
 		free(where);
 		return 1;
