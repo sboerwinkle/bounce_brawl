@@ -4,6 +4,7 @@
 #define CHEAT_NUCLEAR 1
 #define CHEAT_SLOMO   2
 #define CHEAT_LOCK    4
+#define CHEAT_SPEED   8
 
 struct task{
         struct task *next;

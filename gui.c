@@ -147,6 +147,7 @@ static void paint(){
 				drawText(20-width2+TEXTSIZE*9*16, 20+TEXTSIZE*(9*24-4*0.3)+height2, TEXTSIZE*1.3, "NUCLEAR!");
 			}
 			if(cheats&CHEAT_LOCK) simpleDrawText(25, "CAP: CONTROLS LOCKED");
+			if(cheats&CHEAT_SPEED) simpleDrawText(26, "F11: SECRET SUPER SPEED STYLE!");
 			setColorWhite();
 		}else if(inputMode == 1){
 			sprintf(line, "PORT : %d", port);
@@ -227,6 +228,11 @@ static void spKeyAction(int bit, char pressed){
 			}
 			if(bit == SDLK_F6){
 				cheats ^= CHEAT_NUCLEAR;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_F11){
+				cheats ^= CHEAT_SPEED;
 				nothingChanged = 0;
 				return;
 			}
@@ -469,6 +475,10 @@ static void spKeyAction(int bit, char pressed){
 		if(pressed)
 			cheats ^= CHEAT_SLOMO;
 		return;
+	}else if(bit == SDLK_F11){
+		if(pressed)
+			cheats ^= CHEAT_SPEED;
+		return;
 	}else if(bit == SDLK_CAPSLOCK){
 		if(pressed) cheats ^= CHEAT_LOCK;
 		return;
@@ -589,23 +599,25 @@ int main(int argc, char** argv){
 	while(running){
 		if(netMode) readKeys();
 		paint();///Also runs the thing if relevant.
+		if(!(cheats & CHEAT_SPEED)){
 #ifndef WINDOWS
-		clock_gettime(CLOCK_MONOTONIC, &otherTime);
-		long int sleep = ((cheats&CHEAT_SLOMO)?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
-		if(sleep > 0){
-//			frameFlag = 0;
-			t.tv_nsec = sleep;
-			nanosleep(&t, &t);
-		}// else frameFlag = 1;
-		clock_gettime(CLOCK_MONOTONIC, &lastTime);
+			clock_gettime(CLOCK_MONOTONIC, &otherTime);
+			long int sleep = ((cheats&CHEAT_SLOMO)?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
+			if(sleep > 0){
+//				frameFlag = 0;
+				t.tv_nsec = sleep;
+				nanosleep(&t, &t);
+			}// else frameFlag = 1;
+			clock_gettime(CLOCK_MONOTONIC, &lastTime);
 #else
-		largeInt.LowPart = lastTime.dwLowDateTime;
-		largeInt.HighPart = lastTime.dwHighDateTime;
-		largeInt.QuadPart += (cheats&CHEAT_SLOMO)?2500000:250000;
-		SetWaitableTimer(hTimer, &largeInt, 0, NULL, NULL, 0);
-		WaitForSingleObject(hTimer, INFINITE);
-		GetSystemTimeAsFileTime(&lastTime);
+			largeInt.LowPart = lastTime.dwLowDateTime;
+			largeInt.HighPart = lastTime.dwHighDateTime;
+			largeInt.QuadPart += (cheats&CHEAT_SLOMO)?2500000:250000;
+			SetWaitableTimer(hTimer, &largeInt, 0, NULL, NULL, 0);
+			WaitForSingleObject(hTimer, INFINITE);
+			GetSystemTimeAsFileTime(&lastTime);
 #endif
+		}
 
 		SDL_Event evnt;
 		while(SDL_PollEvent(&evnt)){
