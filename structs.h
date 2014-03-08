@@ -1,11 +1,6 @@
 #include <SDL2/SDL.h>//So everything gets SDL
 #include <stdint.h>
 
-#define CHEAT_NUCLEAR 1
-#define CHEAT_SLOMO   2
-#define CHEAT_LOCK    4
-#define CHEAT_SPEED   8
-
 struct task{
         struct task *next;
         void *data;
@@ -45,9 +40,3 @@ typedef struct {
 	connection* connections;
 	int numConnections;
 } node;
-
-typedef struct{
-	uint16_t hue;
-	uint32_t color;
-	int controlMode;
-}playerRequest;

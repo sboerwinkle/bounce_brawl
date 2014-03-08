@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include "gui.h"
 #include "gfx.h"
 
 static GLuint uniColorId, vbo;
@@ -76,14 +77,11 @@ void initGfx(){
 //	glEnableVertexAttribArray(colorAttrib);
 	uniColorId = glGetUniformLocation(prgId, "uniColor");
 
-/*	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	GLuint elements[] = {0, 1, 2, 3, 2, 1};
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-*/
+	glLineWidth(2);
 }
 
 void setColorFromHue(uint16_t hue){
+	if(cheats & CHEAT_COLORS) return;
 	float r, g, b;
 	if(hue < 64){
 		r=0;
@@ -114,6 +112,7 @@ void setColorFromHue(uint16_t hue){
 }
 
 uint32_t getColorFromHue(uint16_t hue){
+	if(cheats & CHEAT_COLORS) return 0xFFFFFFFF;
 	float r, g, b;
 	if(hue < 64){
 		r=0;
@@ -146,6 +145,7 @@ uint32_t getColorFromHue(uint16_t hue){
 void setColorWhite(){glUniform3f(uniColorId, 1.0, 1.0, 1.0);}
 
 void setColorFromHex(uint32_t color){
+	if(cheats & CHEAT_COLORS) return;
 	glUniform3f(uniColorId, (float)(color&0xFF000000)/0xFF000000, (float)(color&0xFF0000)/0xFF0000, (float)(color&0xFF00)/0xFF00);
 }
 

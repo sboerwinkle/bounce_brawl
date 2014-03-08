@@ -11,14 +11,11 @@
 #include "levels.h"
 #include "field.h"
 #include "networking.h"
+#include "gui.h"
 
 #ifdef WINDOWS
 #include <windows.h>
 #endif
-
-#define NUMKEYS 6
-#define TEXTSIZE 2
-//If these are changed, change gui.h
 
 typedef struct{
 	int highscore;
@@ -101,7 +98,7 @@ static char* modeToString(int ix){
 		case 2:
 			return " COMBAT AI";
 		case 3:
-			return " EXPERIMENTAL SPACE COMBAT AI";
+			return " EXPERIMENTAL SPACE AI";
 		default:
 			return " Error! Danger! Augh!";
 	}
@@ -123,7 +120,7 @@ static void paint(){
 //		SDL_RenderFillRect(render, &a);
 		char* line = malloc(40*sizeof(char));
 		setColorWhite();
-		simpleDrawText(28, "ESC: CANCEL / GO BACK");
+		simpleDrawText(30, "ESC: CANCEL / GO BACK");
 		if(inputMode == 0){
 			int i = 0;
 			for(; i < currentMenu->numItems; i++){
@@ -148,6 +145,7 @@ static void paint(){
 			}
 			if(cheats&CHEAT_LOCK) simpleDrawText(25, "CAP: CONTROLS LOCKED");
 			if(cheats&CHEAT_SPEED) simpleDrawText(26, "F11: SECRET SUPER SPEED STYLE!");
+			if(cheats&CHEAT_COLORS) simpleDrawText(27, " \\ : COLORLESS MODE");
 			setColorWhite();
 		}else if(inputMode == 1){
 			sprintf(line, "PORT : %d", port);
@@ -223,6 +221,11 @@ static void spKeyAction(int bit, char pressed){
 			}
 			if(bit == SDLK_LGUI || bit == SDLK_RGUI){
 				cheats ^= CHEAT_SLOMO;
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_BACKSLASH){
+				cheats ^= CHEAT_COLORS;
 				nothingChanged = 0;
 				return;
 			}
