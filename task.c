@@ -40,11 +40,12 @@ typedef struct {
 	int index;
 	char mode;
 	int cycle;
+	char notDiehard;
 	char* myKeys;
 } taskaidata;
 
 static char taskaibasiccycle(taskaidata* data, int delay){
-	if(nodes[data->index].dead) return 2;
+	if(nodes[data->index].dead || (data->notDiehard && injured[data->player])) return 2;
 	if(data->cycle-- == 0){
 		data->cycle = delay;
 		data->mode = !data->mode;
@@ -95,7 +96,7 @@ static char taskaicombat(void* where){
 	return 0;
 }
 
-void taskaicombatadd(int Player){
+void taskaicombatadd(int Player, char diehard){
 	if(players < 2) return;
 	task* current = (task*)malloc(sizeof(task));
 	current->func = &taskaicombat;
@@ -110,6 +111,7 @@ void taskaicombatadd(int Player){
 	data->index = taskguycontrolindexes[Player];
 	data->mode = 1;
 	data->myKeys = masterKeys + NUMKEYS*Player;
+	data->notDiehard = !diehard;
 	addTask(current);
 }
 
@@ -163,7 +165,7 @@ static char taskaispacecombat(void* where){
 	return 0;
 }
 
-void taskaispacecombatadd(int Player){
+void taskaispacecombatadd(int Player, char diehard){
 	if(players < 2) return;
 	task* current = (task*)malloc(sizeof(task));
 	current->func = &taskaispacecombat;
@@ -178,6 +180,7 @@ void taskaispacecombatadd(int Player){
 	data->index = taskguycontrolindexes[Player];
 	data->mode = 1;
 	data->myKeys = masterKeys + NUMKEYS*Player;
+	data->notDiehard = !diehard;
 	addTask(current);
 }
 
@@ -689,8 +692,9 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	current->dataUsed = 1;
 	current->data = data;
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
-	if(requests[playerNum].controlMode == 2) taskaicombatadd(playerNum);
-	else if(requests[playerNum].controlMode == 3) taskaispacecombatadd(playerNum);
+	int controlMode = requests[playerNum].controlMode;
+	if(controlMode/2 == 1) taskaicombatadd(playerNum, controlMode==3);
+	else if(controlMode/2 == 2) taskaispacecombatadd(playerNum, controlMode==5);
 	data->index = i;
 	data->num = playerNum++;
 	data->controltype = -1;
