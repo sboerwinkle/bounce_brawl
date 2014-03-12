@@ -305,6 +305,9 @@ typedef struct{
 	int index;
 	double speed;
 }taskfixeddata;
+
+static double taskfixedFactor;
+
 static char taskfixed(void* where){
 	taskfixeddata* data = (taskfixeddata*)where;
 	int index = data->index;
@@ -314,11 +317,12 @@ static char taskfixed(void* where){
 	}
 	int deltax = data->x - nodes[index].x;
 	int deltay = data->y - nodes[index].y;
-	nodes[index].xmom = (nodes[index].xmom + data->speed * deltax) * .7;
-	nodes[index].ymom = (nodes[index].ymom + data->speed * deltay) * .7;
+	nodes[index].xmom = (nodes[index].xmom + data->speed * deltax) * taskfixedFactor;
+	nodes[index].ymom = (nodes[index].ymom + data->speed * deltay) * taskfixedFactor;
 	return 0;
 }
 void taskfixedaddLong(int i, long x, long y, double s){
+	taskfixedFactor = pow(0.6, SPEEDFACTOR); // This isn't 100% efficient (as the value is calculated once per task, not once, period), but it's *good enough*
 	task* current = (task*)malloc(sizeof(task));
 	current->func = &taskfixed;
 	taskfixeddata* data = (taskfixeddata*)malloc(sizeof(taskfixeddata));
@@ -885,7 +889,7 @@ static char taskuniversalgravity(void* where){
 //This task treats gravity as being inversely proportional to the distance (not its square).
 //This is in part due to the fact that the game is two dimentional, and in the author's
 //belief is justified in part by the fact that radiant intensity is also proportional to the
-//distance in a two dimensional world. The above line, by dividing the the square of the
+//distance in a two dimensional world. The above line, by dividing by the square of the
 //ditance, calculates force per unit offset. This means the next lines act as they should.
 			nodes[j].xmom += force*dx;
 			nodes[j].ymom += force*dy;

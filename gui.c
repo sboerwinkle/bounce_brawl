@@ -201,7 +201,7 @@ static void paint(){
 		myDrawScreen();
 	}else{
 		run();
-		if(++frameCount == 1){
+		if(++frameCount == 2){
 			frameCount = 0;
 			draw();
 			runTask(&firstTask);
@@ -620,7 +620,7 @@ int main(int argc, char** argv){
 		if(!(cheats & CHEAT_SPEED)){
 #ifndef WINDOWS
 			clock_gettime(CLOCK_MONOTONIC, &otherTime);
-			long int sleep = ((cheats&CHEAT_SLOMO)?250000000:25000000) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
+			long int sleep = ((cheats&CHEAT_SLOMO)?250000000*SPEEDFACTOR:25000000*SPEEDFACTOR) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
 			if(sleep > 0){
 //				frameFlag = 0;
 				t.tv_nsec = sleep;
@@ -630,7 +630,7 @@ int main(int argc, char** argv){
 #else
 			largeInt.LowPart = lastTime.dwLowDateTime;
 			largeInt.HighPart = lastTime.dwHighDateTime;
-			largeInt.QuadPart += (cheats&CHEAT_SLOMO)?2500000:250000;
+			largeInt.QuadPart += (cheats&CHEAT_SLOMO)?2500000*SPEEDFACTOR:250000*SPEEDFACTOR;
 			SetWaitableTimer(hTimer, &largeInt, 0, NULL, NULL, 0);
 			WaitForSingleObject(hTimer, INFINITE);
 			GetSystemTimeAsFileTime(&lastTime);

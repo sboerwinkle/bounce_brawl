@@ -10,8 +10,8 @@ void newConnectionLong(int node, int con, int id, double fric, double prefLen, d
 	who->preflength = prefLen;
 	who->midlength = mid;
 	who->tolerance = tol;
-	who->friction = fric-1;
-	who->force = force;
+	who->friction = pow(fric, SPEEDFACTOR)-1;
+	who->force = force*SPEEDFACTOR;
 }
 
 void newConnection(int node, int con, int id, double fric, double len, double tol, double force){

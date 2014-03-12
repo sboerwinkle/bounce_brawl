@@ -346,7 +346,6 @@ void lvlsumo(){
 	}
 
 	taskgravityadd();
-	taskfrictionadd();
 	taskincineratoradd(510);
 }
 
@@ -370,7 +369,6 @@ void lvltipsy(){
 	}
 
 	taskgravityadd();
-	taskfrictionadd();
 	taskincineratoradd(710);
 }
 
@@ -407,7 +405,6 @@ void lvltilt(){
 		taskscoreaddLong(1, 650, 20);
 	}
 	taskgravityadd();
-	taskfrictionadd();
 	taskincineratoradd(510);
 }
 
