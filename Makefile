@@ -25,7 +25,7 @@ field.o: field.c structs.h node.h gui.h task.h gfx.h
 font.o: font.c fontData.h
 	$(CC) $(CFLAGS) font.c
 
-gui.o: gui.c gui.h structs.h font.h levels.h field.h networking.h
+gui.o: gui.c gui.h structs.h font.h levels.h field.h networking.h task.h
 	$(CC) $(CFLAGS) gui.c
 
 levels.o: levels.c structs.h field.h task.h node.h gui.h

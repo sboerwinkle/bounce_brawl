@@ -1,4 +1,8 @@
+extern task* firstTask;
+
 extern int* taskguycontrolindexes;
+
+extern void addTask(task* who);
 
 extern void runTask(task **where);
 

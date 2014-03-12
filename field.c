@@ -16,7 +16,6 @@ node* nodes;
 orderedPair *centers;
 char* alives;
 char* injured;
-static task* firstTask;
 int numNodes;
 static char *corpses;//prevents a node from being placed in the spot of a recently slain node, preventing confusion.
 tool *tools;
@@ -150,10 +149,6 @@ void ensureCapacity(int index){					//Just gonna stand there and watch me burn
 	}
 	numNodes = index;
 }
-void addTask(task* addme){
-	addme->next = firstTask;
-	firstTask = addme;
-}
 
 float getScreenX(int x){
 	return (float)x/zoom/width2;
@@ -166,112 +161,111 @@ void run(){
 //	SDL_SetRenderDrawColor(screen, 0, 0, 0, 255);
 //	SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
 //	SDL_RenderFillRect(screen, &a);
-	{//Since some of the tasks draw text and drawing text uses register variables, these curly variables ensure the next two register variables go out of scope early enough. Or at least that's the goal.
-		register int i;
-		register int j;
-		//decay the corpses
-		for(i = 0; i < numNodes; i++){
-			if(corpses[i] != 0) corpses[i]--;
-		}
-		//springs
-		double* frictionXs = calloc(sizeof(double), numNodes);
-		double* frictionYs = calloc(sizeof(double), numNodes);
-		for(i = 0; i < numNodes; i++){
-			if(nodes[i].dead){continue;}
-			current = nodes+i;
-			for(j=0; j<current->numConnections; j++){
-				if(current->connections[j].dead){continue;}
-				if(nodes[current->connections[j].id].dead){
-					current->connections[j].dead=1;
-					continue;
-				}
-				current2 = nodes + current->connections[j].id;
-				deltaX = current->x - current2->x + current->px - current2->px;
-				deltaY = current->y - current2->y + current->py - current2->py;
-				currlengthNewX = sqrt(deltaX*deltaX + deltaY*deltaY);
-				if(fabs(currlengthNewX - current->connections[j].midlength) > current->connections[j].tolerance){
-					current->connections[j].dead = 1;
-					continue;
-				}
-				current->connections[j].hue = (uint8_t)(fabs(currlengthNewX - current->connections[j].midlength)/current->connections[j].tolerance*256);
-				unx = deltaX / currlengthNewX;
-				uny = deltaY / currlengthNewX;
-				deltaY = current->connections[j].friction*((current->xmom - current2->xmom)*unx + (current->ymom - current2->ymom)*uny);
-					//deltaY = current->connections[j].friction*deltaY + current->connections[j].force*(current->connections[j].preflength - currlengthNewX);
-				forceNewY = deltaY * current2->mass / (current->mass + current2->mass);
-				frictionXs[i] += forceNewY*unx;
-				frictionYs[i] += forceNewY*uny;
-				forceNewY -= deltaY;
-				frictionXs[current->connections[j].id] += forceNewY*unx;
-				frictionYs[current->connections[j].id] += forceNewY*uny;
-				forceNewY = current->connections[j].force*(current->connections[j].preflength - currlengthNewX);
-				current->xmom += forceNewY*unx/current->mass;
-				current->ymom += forceNewY*uny/current->mass;
-				current2->xmom -= forceNewY*unx/current2->mass;
-				current2->ymom -= forceNewY*uny/current2->mass;
+	register int i;
+	register int j;
+	//decay the corpses
+	for(i = 0; i < numNodes; i++){
+		if(corpses[i] != 0) corpses[i]--;
+	}
+	//springs
+	double* frictionXs = calloc(sizeof(double), numNodes);
+	double* frictionYs = calloc(sizeof(double), numNodes);
+	for(i = 0; i < numNodes; i++){
+		if(nodes[i].dead){continue;}
+		current = nodes+i;
+		for(j=0; j<current->numConnections; j++){
+			if(current->connections[j].dead){continue;}
+			if(nodes[current->connections[j].id].dead){
+				current->connections[j].dead=1;
+				continue;
 			}
-		}
-		for(i = 0; i < numNodes; i++){
-			if(nodes[i].dead) continue;
-			nodes[i].xmom += frictionXs[i];
-			nodes[i].ymom += frictionYs[i];
-		}
-		free(frictionXs);
-		free(frictionYs);
-		//collision detection (technically flawed)
-		char* check = calloc(numNodes, sizeof(char));
-		char* checkNext = calloc(numNodes, sizeof(char));
-		char firstTime = 1;
-		char collided;
-		char checkall;
-		node *he;
-		node *I;
-		int loopcounter = 0;
-		while(1){//Loop at most 5 times
-			collided = 0;
-			for(i = 0; i < numNodes; i++){
-				if(nodes[i].dead) continue;
-				I = &nodes[i];
-				checkall = check[i] || firstTime;
-				for(j = i+1; j < numNodes; j++){
-					if(nodes[j].dead) continue;
-					if(!(checkall || check[j])) continue;
-					he = nodes+j;
-					deltaX = I->x - he->x + I->px - he->px;
-					deltaY = I->y - he->y + I->py - he->py;
-					currlengthNewX = sqrt(deltaX*deltaX + deltaY*deltaY);//consider using newtons method: n+1 = (n + x/n)/2;
-					if(currlengthNewX > I->size + he->size || currlengthNewX == 0) continue;
-					unx = deltaX / currlengthNewX;
-					uny = deltaY / currlengthNewX;
-					deltaY = 1.333*((I->xmom - he->xmom)*unx + (I->ymom - he->ymom)*uny);//constant = bounciness
-					if(deltaY >= 0) continue;
-					//Ymom -= 1*(I.mass+he.mass)*(I.size+he.size - currlengthNewX);
-					checkNext[i] = 1;
-					checkNext[j] = 1;
-					collided = 1;
-					forceNewY = deltaY * -he->mass / (I->mass + he->mass);
-					I->xmom += forceNewY*unx;
-					I->ymom += forceNewY*uny;
-					forceNewY += deltaY;
-					he->xmom += forceNewY*unx;
-					he->ymom += forceNewY*uny;
-				}
+			current2 = nodes + current->connections[j].id;
+			deltaX = current->x - current2->x + current->px - current2->px;
+			deltaY = current->y - current2->y + current->py - current2->py;
+			currlengthNewX = sqrt(deltaX*deltaX + deltaY*deltaY);
+			if(fabs(currlengthNewX - current->connections[j].midlength) > current->connections[j].tolerance){
+				current->connections[j].dead = 1;
+				continue;
 			}
-			if(!collided || ++loopcounter >= 5) break;
-			firstTime = 0;
-			free(check);
-			check = checkNext;
-			checkNext = calloc(numNodes, sizeof(char));
-		}
-		free(check);
-		free(checkNext);
-		for(i = 0; i < numNodes; i++){
-			if(nodes[i].dead){continue;}
-			positioncleanup(&nodes[i]);
+			current->connections[j].hue = (uint8_t)(fabs(currlengthNewX - current->connections[j].midlength)/current->connections[j].tolerance*256);
+			unx = deltaX / currlengthNewX;
+			uny = deltaY / currlengthNewX;
+			deltaY = current->connections[j].friction*((current->xmom - current2->xmom)*unx + (current->ymom - current2->ymom)*uny);
+			//deltaY = current->connections[j].friction*deltaY + current->connections[j].force*(current->connections[j].preflength - currlengthNewX);
+			forceNewY = deltaY * current2->mass / (current->mass + current2->mass);
+			frictionXs[i] += forceNewY*unx;
+			frictionYs[i] += forceNewY*uny;
+			forceNewY -= deltaY;
+			frictionXs[current->connections[j].id] += forceNewY*unx;
+			frictionYs[current->connections[j].id] += forceNewY*uny;
+			forceNewY = current->connections[j].force*(current->connections[j].preflength - currlengthNewX);
+			current->xmom += forceNewY*unx/current->mass;
+			current->ymom += forceNewY*uny/current->mass;
+			current2->xmom -= forceNewY*unx/current2->mass;
+			current2->ymom -= forceNewY*uny/current2->mass;
 		}
 	}
+	for(i = 0; i < numNodes; i++){
+		if(nodes[i].dead) continue;
+		nodes[i].xmom += frictionXs[i];
+		nodes[i].ymom += frictionYs[i];
+	}
+	free(frictionXs);
+	free(frictionYs);
+	//collision detection (technically flawed)
+	char* check = calloc(numNodes, sizeof(char));
+	char* checkNext = calloc(numNodes, sizeof(char));
+	char firstTime = 1;
+	char collided;
+	char checkall;
+	node *he;
+	node *I;
+	int loopcounter = 0;
+	while(1){//Loops at most 5 times
+		collided = 0;
+		for(i = 0; i < numNodes; i++){
+			if(nodes[i].dead) continue;
+			I = &nodes[i];
+			checkall = check[i] || firstTime;
+			for(j = i+1; j < numNodes; j++){
+				if(nodes[j].dead) continue;
+				if(!(checkall || check[j])) continue;
+				he = nodes+j;
+				deltaX = I->x - he->x + I->px - he->px;
+				deltaY = I->y - he->y + I->py - he->py;
+				currlengthNewX = sqrt(deltaX*deltaX + deltaY*deltaY);//consider using newtons method: n+1 = (n + x/n)/2;
+				if(currlengthNewX > I->size + he->size || currlengthNewX == 0) continue;
+				unx = deltaX / currlengthNewX;
+				uny = deltaY / currlengthNewX;
+				deltaY = 1.333*((I->xmom - he->xmom)*unx + (I->ymom - he->ymom)*uny);//constant = bounciness
+				if(deltaY >= 0) continue;
+				//Ymom -= 1*(I.mass+he.mass)*(I.size+he.size - currlengthNewX);
+				checkNext[i] = 1;
+				checkNext[j] = 1;
+				collided = 1;
+				forceNewY = deltaY * -he->mass / (I->mass + he->mass);
+				I->xmom += forceNewY*unx;
+				I->ymom += forceNewY*uny;
+				forceNewY += deltaY;
+				he->xmom += forceNewY*unx;
+				he->ymom += forceNewY*uny;
+			}
+		}
+		if(!collided || ++loopcounter >= 5) break;
+		firstTime = 0;
+		free(check);
+		check = checkNext;
+		checkNext = calloc(numNodes, sizeof(char));
+	}
+	free(check);
+	free(checkNext);
+	for(i = 0; i < numNodes; i++){
+		if(nodes[i].dead){continue;}
+		positioncleanup(&nodes[i]);
+	}
+}
 
-	//start drawing
+void draw(){
 	centerx = 0;
 	centery = 0;
 	int i, j;
@@ -341,5 +335,4 @@ void run(){
 			if(netMode) addNetTool(tool->netIndex, tools[i].type);
 		}
 	}
-	runTask(&firstTask);//A linked list. This function runs them in order and snips out dead ones, freeing them.
 }

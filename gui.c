@@ -11,6 +11,7 @@
 #include "levels.h"
 #include "field.h"
 #include "networking.h"
+#include "task.h"
 #include "gui.h"
 
 #ifdef WINDOWS
@@ -55,7 +56,7 @@ int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 char mode = 0, cheats = 0;
 static char inputMode = 0;
 static char nothingChanged = 0;
-//static char frameFlag = 0;
+char frameCount = 0;
 
 menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
@@ -197,10 +198,20 @@ static void paint(){
 		}
 		free(line);
 		nothingChanged = 1;
-	}else run();
-	if(mode && netMode) writeImgs();
+		myDrawScreen();
+	}else{
+		run();
+		if(++frameCount == 1){
+			frameCount = 0;
+			draw();
+			runTask(&firstTask);
+			if(netMode) writeImgs();
+			myDrawScreen();
+		}else{
+			runTask(&firstTask);
+		}
+	}
 //	if(frameFlag) *screen = 0xFF8000FF;//Sort of orangy.
-	myDrawScreen();
 }
 
 static int getDigit(int code){

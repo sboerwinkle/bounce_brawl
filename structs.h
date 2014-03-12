@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>//So everything gets SDL
 #include <stdint.h>
 
+#define SPEEDFACTOR 1.0
+
 struct task{
         struct task *next;
         void *data;

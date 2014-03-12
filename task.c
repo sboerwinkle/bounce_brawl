@@ -12,6 +12,13 @@
 #include "networking.h"
 #include <math.h>
 
+task* firstTask;
+
+void addTask(task* addme){
+	addme->next = firstTask;
+	firstTask = addme;
+}
+
 void runTask(task **where){
 	while(*where != NULL){
 		if( (*(*where)->func) ((*where)->data)){
@@ -307,8 +314,8 @@ static char taskfixed(void* where){
 	}
 	int deltax = data->x - nodes[index].x;
 	int deltay = data->y - nodes[index].y;
-	nodes[index].xmom = (nodes[index].xmom + data->speed * deltax) * .6;
-	nodes[index].ymom = (nodes[index].ymom + data->speed * deltay) * .6;
+	nodes[index].xmom = (nodes[index].xmom + data->speed * deltax) * .7;
+	nodes[index].ymom = (nodes[index].ymom + data->speed * deltay) * .7;
 	return 0;
 }
 void taskfixedaddLong(int i, long x, long y, double s){
@@ -320,7 +327,7 @@ void taskfixedaddLong(int i, long x, long y, double s){
 	data->x = x;
 	data->y = y;
 	data->index = i;
-	data->speed = s;
+	data->speed = s*SPEEDFACTOR;
 	addTask(current);
 }
 void taskfixedadd(int i, double s){
@@ -377,7 +384,7 @@ static char taskgravity(void* where){
 	register int i = 0;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
-		nodes[i].ymom += .1;
+		nodes[i].ymom += .1*SPEEDFACTOR;
 	}
 	return 0;
 }
@@ -426,7 +433,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 	node* two = nodes + data->index+(aimingLeg+2)%4;
 	double dx = one->x - two->x + one->px - two->px;
 	double dy = one->y - two->y + one->py - two->py;
-	double dist = sqrt(dx*dx + dy*dy) / 10.0; // Velocity of the bullet
+	double dist = sqrt(dx*dx + dy*dy) / 10.0 / SPEEDFACTOR; // Velocity of the bullet
 	if(dist == 0){
 		dx = 0;
 		dy = 0;
@@ -442,7 +449,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 static void taskguycontroldoRoll(taskguycontroldata* data){
 	double rollAmt = 0;
 	int index = data->index;
-	double rollInc = (data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?10:0.03;
+	double rollInc = (data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?10:0.03*SPEEDFACTOR;
 	if(data->myKeys[3]) rollAmt += rollInc;
 	if(data->myKeys[1]) rollAmt -= rollInc;
 	if(!rollAmt) return;
@@ -572,9 +579,11 @@ inline void taskguycontroldoBigLegs(taskguycontroldata* data){
 	int size = (int)(maxZoomIn*5);
 	int x = nodes[controlindex+1].x*maxZoomIn;
 	int y = nodes[controlindex+1].y*maxZoomIn;
-	if(netMode) addNetCircle(x, y, size);
-	setColorWhite();
-	drawCircle(getScreenX(x-centerx), getScreenY(y-centery), (double)size/zoom/width2);
+	if(frameCount == 0){
+		if(netMode) addNetCircle(x, y, size);
+		setColorWhite();
+		drawCircle(getScreenX(x-centerx), getScreenY(y-centery), (double)size/zoom/width2);
+	}
 }
 static char taskguycontrol(void* where){
 	taskguycontroldata* data = (taskguycontroldata*)where;
@@ -668,10 +677,12 @@ static char taskguycontrol(void* where){
 		taskguycontroldoLegs(data); // Also handles some tools (gun)
 		break;
 	}
-	if(netMode)
-		addNetPlayerCircle(index, requests[data->num].color);
-	setColorFromHex(requests[data->num].color);
-	drawCircle(getScreenX(nodes[index].x*maxZoomIn-centerx), getScreenY(nodes[index].y*maxZoomIn-centery), (float)markSize/2/width2);
+	if(frameCount == 0){
+		if(netMode)
+			addNetPlayerCircle(index, requests[data->num].color);
+		setColorFromHex(requests[data->num].color);
+		drawCircle(getScreenX(nodes[index].x*maxZoomIn-centerx), getScreenY(nodes[index].y*maxZoomIn-centery), (float)markSize/2/width2);
+	}
 
 	data->lastpressAction = myKeys[5];
 	data->lastpress = myKeys[4];
@@ -847,7 +858,7 @@ void taskpointgravityadd(int ix, double gravity){
 	current->func = &taskpointgravity;
 	taskpointgravitydata* data = malloc(sizeof(taskpointgravitydata));
 	data->ix = ix;
-	data->gravity = gravity;
+	data->gravity = gravity*SPEEDFACTOR;
 	current->dataUsed = 1;
 	current->data = data;
 	addTask(current);
@@ -889,7 +900,7 @@ void taskuniversalgravityadd(double gravity){
 	task* current = (task*)malloc(sizeof(task));
 	current->func = &taskuniversalgravity;
 	double* data = malloc(sizeof(double));
-	*data = gravity;
+	*data = gravity*SPEEDFACTOR;
 	current->data = data;
 	current->dataUsed = 1;
 	addTask(current);
@@ -911,6 +922,7 @@ static char taskscore(void* where){
 			if(data->score == 999999) data->done = 1;//So we don't overflow our char*
 		}
 	}
+	if(frameCount) return 0;
 	char* text = malloc(sizeof(char)*7);
 	sprintf(text, "%d", data->score);
 	setColorWhite();
@@ -941,6 +953,7 @@ typedef struct{
 } tasktextdata;
 
 static char tasktext(void* where){
+	if(frameCount) return 0;
 	tasktextdata* data = (tasktextdata*)where;
 	setColorWhite();
 	drawText((data->x*maxZoomIn - centerx)/zoom, (data->y*maxZoomIn - centery)/zoom, 1.0*maxZoomIn/zoom, data->text);

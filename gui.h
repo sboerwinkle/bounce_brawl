@@ -27,3 +27,5 @@ extern char cheats;
 #define CHEAT_LOCK    4
 #define CHEAT_SPEED   8
 #define CHEAT_COLORS 16
+
+extern char frameCount;

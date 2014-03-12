@@ -33,10 +33,10 @@ extern int addTool();
 
 extern void ensureCapacity(int index);
 
-extern void addTask(task* addme);
-
 /*inline?*/ extern float getScreenX(int x);
 
 /*inline?*/ extern float getScreenY(int y);
 
 extern void run();
+
+extern void draw();
