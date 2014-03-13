@@ -374,8 +374,8 @@ static char taskfriction(void* where){
 		if(nodes[i].dead){continue;}
 		nodes[i].xmom = .985*nodes[i].xmom;
 		nodes[i].ymom = .985*nodes[i].ymom;
-	}
-	return 0;*/
+	}*/
+	return 0;
 }
 void taskfrictionadd(){
 	task* current = (task*)malloc(sizeof(task));

@@ -56,7 +56,7 @@ int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 char mode = 0, cheats = 0;
 static char inputMode = 0;
 static char nothingChanged = 0;
-char frameCount = 0;
+char frameCount = SHOWEVERYNTHFRAME;
 
 menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
@@ -201,12 +201,12 @@ static void paint(){
 		myDrawScreen();
 	}else{
 		run();
-		if(++frameCount == SHOWEVERYNTHFRAME){
-			frameCount = 0;
+		if(--frameCount == 0){
 			draw();
 			runTask(&firstTask);
 			if(netMode) writeImgs();
 			myDrawScreen();
+			frameCount = SHOWEVERYNTHFRAME;
 		}else{
 			runTask(&firstTask);
 		}
@@ -617,10 +617,10 @@ int main(int argc, char** argv){
 	while(running){
 		if(netMode) readKeys();
 		paint();///Also runs the thing if relevant.
-		if(!(cheats & CHEAT_SPEED)){
+		if(!(cheats & CHEAT_SPEED) && frameCount==SHOWEVERYNTHFRAME){
 #ifndef WINDOWS
 			clock_gettime(CLOCK_MONOTONIC, &otherTime);
-			long int sleep = ((cheats&CHEAT_SLOMO)?250000000*SPEEDFACTOR:25000000*SPEEDFACTOR) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
+			long int sleep = (long int)((cheats&CHEAT_SLOMO)?250000000*SPEEDFACTOR*SHOWEVERYNTHFRAME:25000000*SPEEDFACTOR*SHOWEVERYNTHFRAME) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
 			if(sleep > 0){
 //				frameFlag = 0;
 				t.tv_nsec = sleep;
@@ -630,7 +630,7 @@ int main(int argc, char** argv){
 #else
 			largeInt.LowPart = lastTime.dwLowDateTime;
 			largeInt.HighPart = lastTime.dwHighDateTime;
-			largeInt.QuadPart += (cheats&CHEAT_SLOMO)?2500000*SPEEDFACTOR:250000*SPEEDFACTOR;
+			largeInt.QuadPart += (cheats&CHEAT_SLOMO)?2500000*SPEEDFACTOR*SHOWEVERYNTHFRAME:250000*SPEEDFACTOR*SHOWEVERYNTHFRAME;
 			SetWaitableTimer(hTimer, &largeInt, 0, NULL, NULL, 0);
 			WaitForSingleObject(hTimer, INFINITE);
 			GetSystemTimeAsFileTime(&lastTime);
