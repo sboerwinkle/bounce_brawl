@@ -8,6 +8,11 @@
 #include "gui.h"
 #include "gfx.h"
 
+//This is a number which determines how much like circles your polygons look. It isn't number of sides, exactly; it's more of a scaling factor. Bigger is prettier but slower.
+//Make it too big, and you'll see no further improvement in the graphics but lotsa lag.
+//Keep making it smaller, eventually the bottleneck will be elsewhere (i.e., CPU, not GPU) and it'll look uglier with very little performance improvement.
+#define CIRCLERESOLUTION 60
+
 static GLuint uniColorId, vbo;
 
 int width2, height2;
@@ -179,9 +184,18 @@ void drawLine(float x1, float y1, float x2, float y2){
 }
 
 void drawCircle(float cx, float cy, float r){
-	int numSegments;
-	if(r<0.004) numSegments = 4;
-	else numSegments = (int)(60*sqrtf(r));
+	if(cx>0){
+		if(cx> 1+r) return;
+	}else{
+		if(cx<-1-r) return;
+	}
+	if(cy>0){
+		if(cy> 1+r) return;
+	}else{
+		if(cx<-1-r) return;
+	}
+	int numSegments = (int)(CIRCLERESOLUTION*sqrtf(r));
+	if(numSegments<4) numSegments = 4;
 	float* points = malloc(numSegments*2*sizeof(float));
 	float* current = points;
 	float t = 2*M_PI/numSegments;//'t' is for theta

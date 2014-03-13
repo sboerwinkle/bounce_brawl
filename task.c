@@ -78,7 +78,7 @@ static char taskaibasiccycle(taskaidata* data, int delay){
 
 static char taskaicombat(void* where){
 	taskaidata* data = (taskaidata*)where;
-	char ret = taskaibasiccycle(data, 10);
+	char ret = taskaibasiccycle(data, 10/SPEEDFACTOR);
 	if(ret == 2){
 		free(where);
 		return 1;
@@ -124,7 +124,7 @@ void taskaicombatadd(int Player, char diehard){
 
 static char taskaispacecombat(void* where){
 	taskaidata* data = (taskaidata*)where;
-	char ret = taskaibasiccycle(data, 25);
+	char ret = taskaibasiccycle(data, 25/SPEEDFACTOR);
 	if(ret == 2){
 		free(where);
 		return 1;
@@ -213,8 +213,8 @@ void taskasteroidsadd(int s, int m, int c){
 	current->data = data;
 	data->size = s;
 	data->mass = m;
-	data->maxcool = c;
-	data->cool = c;
+	data->maxcool = c/SPEEDFACTOR;
+	data->cool = data->maxcool;
 	addTask(current);
 }
 
@@ -369,13 +369,13 @@ void taskinflateadd(int i, double step, double max){
 }
 
 static char taskfriction(void* where){
-	register int i = 0;
+/*	register int i = 0;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
 		nodes[i].xmom = .985*nodes[i].xmom;
 		nodes[i].ymom = .985*nodes[i].ymom;
 	}
-	return 0;
+	return 0;*/
 }
 void taskfrictionadd(){
 	task* current = (task*)malloc(sizeof(task));

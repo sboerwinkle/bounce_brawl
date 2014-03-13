@@ -201,7 +201,7 @@ static void paint(){
 		myDrawScreen();
 	}else{
 		run();
-		if(++frameCount == 2){
+		if(++frameCount == SHOWEVERYNTHFRAME){
 			frameCount = 0;
 			draw();
 			runTask(&firstTask);
