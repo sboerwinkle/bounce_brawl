@@ -26,8 +26,15 @@ void drawText(int X, int Y, float size, char* string){
 			test = 128;
 			tempx = x+i*9*size;
 			for(x2 = 0; x2<8; x2++){
-				if(row & test)
-					drawBox(tempx, tempy, tempx+size, tempy+size);
+				if(row & test){
+					float oldX = tempx;
+					do{
+						tempx+=size;
+						test/=2;
+						x2++;
+					}while(row & test);
+					drawBox(oldX, tempy, tempx, tempy+size);
+				}
 				tempx+=size;
 				test/=2;
 			}
