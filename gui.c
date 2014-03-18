@@ -148,7 +148,7 @@ static void paint(){
 				simpleDrawText(24, "F6 : I SAID I'M");
 				drawText(20-width2+TEXTSIZE*9*16, 20+TEXTSIZE*(9*24-4*0.3)+height2, TEXTSIZE*1.3, "NUCLEAR!");
 			}
-			if(cheats&CHEAT_LOCK) simpleDrawText(25, "CAP: CONTROLS LOCKED");
+			if(cheats&CHEAT_LOCK) simpleDrawText(25, "TAB: CONTROLS LOCKED");
 			if(cheats&CHEAT_SPEED) simpleDrawText(26, "F11: SECRET SUPER SPEED STYLE!");
 			if(cheats&CHEAT_COLORS) simpleDrawText(27, " \\ : COLORLESS MODE");
 			setColorWhite();
@@ -229,7 +229,7 @@ static void spKeyAction(int bit, char pressed){
 	if(mode == 0){
 		if(!pressed) return;
 		if(inputMode == 0){
-			if(bit == SDLK_CAPSLOCK){
+			if(bit == SDLK_TAB){
 				cheats ^= CHEAT_LOCK;
 				nothingChanged = 0;
 				return;
@@ -497,7 +497,7 @@ static void spKeyAction(int bit, char pressed){
 		if(pressed)
 			cheats ^= CHEAT_SPEED;
 		return;
-	}else if(bit == SDLK_CAPSLOCK){
+	}else if(bit == SDLK_TAB){
 		if(pressed) cheats ^= CHEAT_LOCK;
 		return;
 	}else if(cheats & CHEAT_LOCK) return;

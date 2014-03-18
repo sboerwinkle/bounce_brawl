@@ -248,7 +248,7 @@ void lvltutorial(){
 	int i = 60;
 	for(; i < 121; i++) taskfixedadd(i, .4);
 	taskgravityadd();
-	taskincineratoradd(360);
+	taskincineratoradd(1550);
 	tasktextadd(0, -180, "Press 'esc' at any time to return to main menu.");
 	tasktextadd(-30, -90, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
 	tasktextadd(230, -90, "Try holding '1' with\n'A' or 'D' to\nroll.");
@@ -328,7 +328,7 @@ void lvlsumo(){
 	if(players > 2) players = 2;
 	initField(750, 750);
 	maxZoomIn = 3.75;
-	addBlock(180, 300, 14, 10, .9/*fric*/, 10/*spacing*/, 6.7/*vertSpacing*/, 3.3/*tol*/, 2.8/*str*/, 2/*size*/, 8/*mass*/);
+	addBlock(180, 300, 14, 10, .83/*fric*/, 10/*spacing*/, 6.7/*vertSpacing*/, 3.3/*tol*/, 2.8/*str*/, 2/*size*/, 8/*mass*/);
 	int i = 0;
 	for(; i < 29; i++){
 		nodes[i].size = 5;
