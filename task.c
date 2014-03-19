@@ -245,8 +245,8 @@ static char taskcenter(void* where){
 	dy /= *index;
 	dxv /= *index;
 	dyv /= *index;
-	dx+=250;
-	dy+=250;
+//	dx+=250;
+//	dy+=250;
 	node* current;
 	for(i = 0; i < numNodes; i++){
 		if(nodes[i].dead) continue;
@@ -814,8 +814,8 @@ static char taskincinerator2(void* where){
 	long height = *(long*)where;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
-		if(fabs(nodes[i].y-250) - nodes[i].size > height ||
-		   fabs(nodes[i].x-250) - nodes[i].size > height)     killNode(i);
+		if(fabs(nodes[i].y) - nodes[i].size > height ||
+		   fabs(nodes[i].x) - nodes[i].size > height)     killNode(i);
 	}
 	return 0;
 }

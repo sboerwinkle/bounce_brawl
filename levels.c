@@ -60,18 +60,17 @@ static void addHex(double x, double y, int width, int height, int* map, double f
 		placeY += spacing*sqrt3/2;
 	}
 }
-static void addLoop(int centerX, int centerY, double radius, int num, double omega, double size, double mass, double fric, double tol, double str){
+static void addLoop(int centerX, int centerY, double radius, int num, double theta, double size, double mass, double fric, double tol, double str){
 	double angleInc = M_PI*2/num;
 	int ix = 0;
 	double xpart, ypart;
 	double len = 2*radius*sin(angleInc/2);
-	double theta = 0;
 	int i = 0;
 	for(; i < num; i++){
 		xpart = radius*cos(theta);
 		ypart = radius*sin(theta);
 		ix = addNode();
-		newNodeLong(ix, (int)xpart+centerX, (int)ypart+centerY, xpart-(int)xpart, ypart-(int)ypart, (int)(omega*ypart), (int)(omega*xpart), size, mass, 1);
+		newNodeLong(ix, (int)xpart+centerX, (int)ypart+centerY, xpart-(int)xpart, ypart-(int)ypart, 0, 0, size, mass, 1);
 		newConnection(ix, 0, ix+1, fric, len, tol, str);
 		theta += angleInc;
 	}
@@ -562,10 +561,10 @@ void lvldrop(){
 
 #define STR_1 5
 #define TOL_1 2.8
-static void connectNodes(int a, int b){
-	int dx = (int)(nodes[a].x - nodes[b].x);
-	int dy = (int)(nodes[a].y - nodes[b].y);
-	newConnection(a, createConnection(a), b, 1, sqrt(dx*dx+dy*dy), TOL_1, STR_1);
+static void connectNodes(int a, int b, double friction, double tol, double str){
+	double dx = (nodes[a].x-nodes[b].x) + (nodes[a].px-nodes[b].px);
+	double dy = (nodes[a].y-nodes[b].y) + (nodes[a].py-nodes[b].py);
+	newConnection(a, createConnection(a), b, friction, sqrt(dx*dx+dy*dy), tol, str);
 }
 int addPlanet(int x, int y){
 	int ix = addNode();
@@ -575,11 +574,50 @@ int addPlanet(int x, int y){
 	int i = 0;
 	for(; i < 6; i++){
 		newConnection(ix, i, i+ix+1, 1, 40, TOL_1, STR_1);
-		connectNodes(i+ix+1, i==0?ix+18:i*2+ix+6);
-		connectNodes(i+ix+1, i*2+ix+7);
-		connectNodes(i+ix+1, i*2+ix+8);
+		connectNodes(i+ix+1, i==0?ix+18:i*2+ix+6, 1, TOL_1, STR_1);
+		connectNodes(i+ix+1, i*2+ix+7, 1, TOL_1, STR_1);
+		connectNodes(i+ix+1, i*2+ix+8, 1, TOL_1, STR_1);
 	}
 	addLoop(x, y, 105, 66, 0, 4.8, 3, .8, 7, 2.5);
+	return ix;
+}
+int addGenericPlanet(int x, int y, int size, double density, double surfaceDensity, double friction, double tolerance, double strength, int* layers){
+	if(*layers <= 1){
+		fprintf(stderr, "Strange number of layers to addGenericPlanet: %d\n", *layers);
+		return -1;
+	}
+	int ix = addNode();
+	newNode(ix, x, y, size, size*size*density, 0);
+	int precedingStart = 0;
+	int currentCount = 1;
+	int precedingCount = 1;
+	int offset = 1;
+	int layer;
+	int section;
+	int i;
+	double theta = 0;
+	double s, r=size, mass, str;
+	for(layer = 1; layer <= *layers; layer++){
+		currentCount *= layers[layer];
+		s=3*r/(currentCount-3);
+		r+=s;
+		s*=0.9;
+		mass = s*s*(layer==*layers?surfaceDensity:density);
+		str = strength*mass;
+		addLoop(x, y, r, currentCount, theta, s, s*s*density, friction, tolerance, str);
+		r+=s;
+		theta -= M_PI/currentCount;
+		if(precedingStart) connectNodes(ix+precedingStart+precedingCount-1, ix+offset, friction, tolerance, str);
+		for(section = 0; section < precedingCount; section++){
+			if(section) connectNodes(ix+precedingStart+section-1, ix+offset, friction, tolerance, str);
+			for(i=0; i<layers[layer]; i++){
+				connectNodes(ix+precedingStart+section, ix+offset+i, friction, tolerance, str);
+			}
+			offset+=layers[layer];
+		}
+		precedingStart += precedingCount;
+		precedingCount = currentCount;
+	}
 	return ix;
 }
 void lvlplanet(){
@@ -627,6 +665,20 @@ void lvl3rosette(){
 	taskuniversalgravityadd(0.02);
 }
 
+void lvlbigplanet(){
+	initField(750, 750);
+	double rads = players == 0?0:M_PI*2/players;
+	register int i = 0;
+	for(; i < players; i++){
+		taskguycontroladd(-10-300*cos(i*rads), -10+300*sin(i*rads));
+	}
+	int layers[] = {5, 6, 2, 1, 3, 3};
+	taskcenteradd(addGenericPlanet(0, 0, 27, .20, .23, .97, 5, .22, layers));
+	taskuniversalgravityadd(0.004);
+//	addToolGun(0, -300);
+//	addToolGun(0, 300);
+	taskincinerator2add(2000);
+}
 
 void lvlmech(){
 	if(players > 2) players = 2;

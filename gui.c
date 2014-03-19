@@ -526,7 +526,7 @@ int main(int argc, char** argv){
 	topMenu.numItems = 8;
 	topMenu.items = malloc(topMenu.numItems*sizeof(menuItem));
 	//menu* asteroidsMenu = addMenuMenu(&topMenu, 0, 2, "ASTEROID SURVIVAL...");
-	menu* planetsMenu = addMenuMenu(&topMenu, 0, 2, "PLANET STAGES...");
+	menu* planetsMenu = addMenuMenu(&topMenu, 0, 3, "PLANET STAGES...");
 	menu* flatMenu    = addMenuMenu(&topMenu, 1, 4, "FLAT STAGES...");
 	addMenuLevel(&topMenu, 2, &lvlsumo, "SUMO");
 //	addMenuLevel(&topMenu, 3, &lvltipsy, "UNSTABLE STAGE");
@@ -539,6 +539,7 @@ int main(int argc, char** argv){
 
 	addMenuLevel(planetsMenu, 0, &lvlplanet, "SINGLE PLANET");
 	addMenuLevel(planetsMenu, 1, &lvl3rosette, "3-ROSETTE");
+	addMenuLevel(planetsMenu, 2, &lvlbigplanet, "BIG PLANET");
 
 	addMenuLevel(flatMenu, 0, &lvltest, "PLAIN STAGE");
 	addMenuLevel(flatMenu, 1, &lvlsurvive, "ASTEROID SURVIVAL");
