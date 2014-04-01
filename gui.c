@@ -57,7 +57,7 @@ char mode = 0, cheats = 0;
 static char inputMode = 0;
 static char nothingChanged = 0;
 char frameCount = SHOWEVERYNTHFRAME;
-static char frameFlag;
+//static char frameFlag;
 
 menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
@@ -624,10 +624,10 @@ int main(int argc, char** argv){
 			clock_gettime(CLOCK_MONOTONIC, &otherTime);
 			long int sleep = (long int)((cheats&CHEAT_SLOMO)?250000000*SPEEDFACTOR*SHOWEVERYNTHFRAME:25000000*SPEEDFACTOR*SHOWEVERYNTHFRAME) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));
 			if(sleep > 0){
-				frameFlag = 0;
+//				frameFlag = 0;
 				t.tv_nsec = sleep;
 				nanosleep(&t, &t);
-			} else frameFlag = 1;
+			}// else frameFlag = 1;
 			clock_gettime(CLOCK_MONOTONIC, &lastTime);
 #else
 			largeInt.LowPart = lastTime.dwLowDateTime;

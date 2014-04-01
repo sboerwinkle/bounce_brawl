@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "structs.h"
 #include "field.h"
 #include "task.h"
