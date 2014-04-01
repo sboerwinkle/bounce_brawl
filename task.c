@@ -496,8 +496,6 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 	short eleven0 = 28;
 //	short sl = 35;
 //	short ll = 49;
-	short sl = 40;
-	short ll = 56;
 	if(myKeys[5]){
 		switch(data->controltype){
 			case 10:
@@ -506,9 +504,18 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 			default:
 				taskguycontroldoRoll(data);
 				return;
-				sl=28;
-				ll=40;
 		}
+	}
+	short sl = 0, ll = 0;
+	int count = 0;
+	int i = 0;
+	for(; i < 4; i++){
+		if(myKeys[i]) count++;
+	}
+	if(count != 0){
+		if(count == 3) count = 4;
+		sl = 20+20/count;
+		ll = 28+28/count;
 	}
 	if(myKeys[0]){
 		nine0 = sl;
@@ -530,27 +537,21 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 		nine1 = sl;
 		eleven0 = ll;
 	}
-	if(!nodes[index].connections[1].dead){
-		nodes[index].connections[1].preflength = nine0;
-	}
-	if(!nodes[index].connections[2].dead){
+	if(!nodes[index].connections[2].dead)
 		nodes[index].connections[2].preflength = nine1;
-	}
-	if(!nodes[index].connections[3].dead){
-		nodes[index].connections[3].preflength = nine2;
-	}
 	if(data->exists[2]){
-		if(!nodes[index+2].connections[1].dead){
+		if(!nodes[index].connections[3].dead)
+			nodes[index].connections[3].preflength = nine2;
+		if(!nodes[index+2].connections[1].dead)
 			nodes[index+2].connections[1].preflength = ten0;
-		}
-		if(!nodes[index+2].connections[2].dead){
+		if(!nodes[index+2].connections[2].dead)
 			nodes[index+2].connections[2].preflength = ten1;
-		}
 	}
 	if(data->exists[3]){
-		if(!nodes[index+3].connections[1].dead){
+		if(!nodes[index].connections[1].dead)
+			nodes[index].connections[1].preflength = nine0;
+		if(!nodes[index+3].connections[1].dead)
 			nodes[index+3].connections[1].preflength = eleven0;
-		}
 	}
 }
 inline void taskguycontroldoBigLegs(taskguycontroldata* data){
