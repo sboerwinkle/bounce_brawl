@@ -674,10 +674,16 @@ void lvlbigplanet(){
 		taskguycontroladd(-10-300*cos(i*rads), -10+300*sin(i*rads));
 	}
 	int layers[] = {5, 6, 2, 1, 3, 3};
-	int ixs[2];
-	ixs[0]=addGenericPlanet(0,    0, 27, .20, .23, .97, 5, .22, layers);
-	ixs[1]=addGenericPlanet(0, 1000, 27, .20, .23, .97, 5, .22, layers);
-	taskcenteraddLong(2, ixs);
+	int ix1 = addGenericPlanet(0,    0, 27, .20, .23, .97, 5, .22, layers);
+	int ix2 = addNode();
+	taskcenteradd(ix1);
+	while(ix1 < ix2-1) addToolDestroy(++ix1);
+	newNode(ix2, 0, 0, 1, 1, 0);
+	killNode(ix2);//We just want the index
+//	int ixs[2];
+//	ixs[0]=addGenericPlanet(0,    0, 27, .20, .23, .97, 5, .22, layers);
+//	ixs[1]=addGenericPlanet(0, 1000, 27, .20, .23, .97, 5, .22, layers);
+//	taskcenteraddLong(2, ixs);
 
 	taskuniversalgravityadd(0.004);
 //	addToolGun(0, -300);
