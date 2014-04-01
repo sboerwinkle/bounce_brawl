@@ -49,7 +49,7 @@ playerRequest requests[10];
 
 char masterKeys[NUMKEYS*10];
 int pIndex[] = {0, 1};
-int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_q, SDLK_1},\
+int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_x, SDLK_z},\
 	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
 int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 
