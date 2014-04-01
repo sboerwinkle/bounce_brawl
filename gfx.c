@@ -177,10 +177,16 @@ void drawRectangle(float x1, float y1, float x2, float y2){
 }
 
 void drawLine(float x1, float y1, float x2, float y2){
-	float points[]={x1, y1, x2, y2};
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
+//	float points[]={x1, y1, x2, y2};
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
+	float* points = glMapBufferRange(GL_ARRAY_BUFFER, 0, 4*sizeof(float), GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	points[0]=x1;
+	points[1]=y1;
+	points[2]=x2;
+	points[3]=y2;
+	glUnmapBuffer(GL_ARRAY_BUFFER);
 	glDrawArrays(GL_LINES, 0, 2);
-	glInvalidateBufferData(vbo);
+//	glInvalidateBufferData(vbo);
 }
 
 void drawCircle(float cx, float cy, float r){
