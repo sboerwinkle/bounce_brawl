@@ -12,6 +12,11 @@ static int dist(node* a, node* b){
 	int dy = (int)(a->y - b->y);
 	return (int)sqrt(dx*dx + dy*dy);
 }
+static void connectNodes(int a, int b, double friction, double tol, double str){
+	double dx = (nodes[a].x-nodes[b].x) + (nodes[a].px-nodes[b].px);
+	double dy = (nodes[a].y-nodes[b].y) + (nodes[a].py-nodes[b].py);
+	newConnection(a, createConnection(a), b, friction, sqrt(dx*dx+dy*dy), tol, str);
+}
 #define sqrt3 1.732050808
 #define H 1
 //Makes arrays created for this method easier to visualize, especially w/ syntax highlighting
@@ -273,7 +278,7 @@ void lvltutorial(){
 	addToolGun(550, -90);
 }
 
-void lvlexperiment(){
+void lvlboulder(){
 	lvltest();
 	int hexArg[] = {0,0,0,H,0,\
 			 0,H,H,H,H,\
@@ -316,6 +321,51 @@ void lvlcave(){
 	taskguycontroladd(lvlcavesize*19.5+1, 9*sqrt3/2*lvlcavesize);
 	if(players < 3) return;
 	taskguycontroladd(lvlcavesize*12, sqrt3/2*lvlcavesize);
+}
+
+void lvlpyramid(){
+	int size = 25;
+	double fric = 0.85;
+	int tol = 5;
+	double str = 2.3;
+	initField(750, 750);
+	maxZoomIn = 1.5;
+	if(players > 2) players = 2;
+	int ix = addNode();
+	newNode(ix, 0, 0, 1, 1, 0);
+	killNode(ix);//We just want the index
+	int hexArg[] = {0,0,H,H,H,0,0,0,0,0,H,H,H,\
+			 0,0,0,0,0,0,0,0,0,0,0,0,0,\
+			  0,0,0,0,0,H,H,H,0,0,0,0,0,\
+			   0,0,0,0,H,H,H,H,0,0,0,0,0,\
+			    H,H,H,H,H,H,H,H,H,H,H,0,0};
+	addHex(-7*size, 0, 13, 5, hexArg, fric, size, tol, str, size*.45, 8);
+
+	connectNodes(ix+14, ix+3, fric, tol, str);
+
+	connectNodes(ix+24, ix+4, fric, tol, str);
+
+	connectNodes(ix+14, ix+1, fric, tol, str);
+	connectNodes(ix+15, ix+1, fric, tol, str);
+	connectNodes(ix+17, ix+1, fric, tol, str);
+
+	connectNodes(ix+21, ix+6, fric, tol, str);
+	connectNodes(ix+23, ix+6, fric, tol, str);
+	connectNodes(ix+24, ix+6, fric, tol, str);
+
+	int ix2 = addNode();
+	newNode(ix2, 0, -200, 5, 1000, 0);
+	connectNodes(ix2, ix+1, 0.9, tol*2, str*2);
+	connectNodes(ix2, ix+6, 0.9, tol*2, str*2);
+	connectNodes(ix2, ix+17, 0.9, tol*2, str*2);
+	connectNodes(ix2, ix+21, 0.9, tol*2, str*2);
+	taskfixedadd(ix2, 1);
+	taskgravityadd();
+	taskincineratoradd(300);
+	if(players < 1) return;
+	taskguycontroladd(size*-4-10, 2*sqrt3/2*size);
+	if(players < 2) return;
+	taskguycontroladd(size*4-10, 2*sqrt3/2*size);
 }
 
 void lvlbuilding(){
@@ -562,11 +612,6 @@ void lvldrop(){
 
 #define STR_1 5
 #define TOL_1 2.8
-static void connectNodes(int a, int b, double friction, double tol, double str){
-	double dx = (nodes[a].x-nodes[b].x) + (nodes[a].px-nodes[b].px);
-	double dy = (nodes[a].y-nodes[b].y) + (nodes[a].py-nodes[b].py);
-	newConnection(a, createConnection(a), b, friction, sqrt(dx*dx+dy*dy), tol, str);
-}
 int addPlanet(int x, int y){
 	int ix = addNode();
 	newNode(ix, x, y, 18, 20, 6);

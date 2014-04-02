@@ -524,7 +524,7 @@ int main(int argc, char** argv){
 	menu topMenu;
 	currentMenu = &topMenu;
 	topMenu.parent = NULL;
-	topMenu.numItems = 8;
+	topMenu.numItems = 9;
 	topMenu.items = malloc(topMenu.numItems*sizeof(menuItem));
 	//menu* asteroidsMenu = addMenuMenu(&topMenu, 0, 2, "ASTEROID SURVIVAL...");
 	menu* planetsMenu = addMenuMenu(&topMenu, 0, 3, "PLANET STAGES...");
@@ -537,6 +537,7 @@ int main(int argc, char** argv){
 	menu* mechMenu    = addMenuMenu(&topMenu, 5, 3, "MECHS...");
 	addMenuLevel(&topMenu, 6, &lvlcave, "CAVE");
 	addMenuLevel(&topMenu, 7, &lvltutorial, "TUTORIAL");
+	addMenuLevel(&topMenu, 8, &lvlpyramid, "TEMPORARY TESTING LEVEL");
 
 	addMenuLevel(planetsMenu, 0, &lvlplanet, "SINGLE PLANET");
 	addMenuLevel(planetsMenu, 1, &lvl3rosette, "3-ROSETTE");
@@ -545,7 +546,7 @@ int main(int argc, char** argv){
 	addMenuLevel(flatMenu, 0, &lvltest, "PLAIN STAGE");
 	addMenuLevel(flatMenu, 1, &lvlsurvive, "ASTEROID SURVIVAL");
 	addMenuLevel(flatMenu, 2, &lvlbuilding, "BUILDING STAGE");
-	addMenuLevel(flatMenu, 3, &lvlexperiment, "EXPERIMENTAL STAGE");
+	addMenuLevel(flatMenu, 3, &lvlboulder, "BOULDER");
 
 	addMenuLevel(mechMenu, 0, &lvlmech, "MAN VS MECH");
 	addMenuLevel(mechMenu, 1, &lvlmechmech, "MECH VS MECH");

@@ -2,9 +2,11 @@ extern void lvltest();
 
 extern void lvltutorial();
 
-extern void lvlexperiment();
+extern void lvlboulder();
 
 extern void lvlcave();
+
+extern void lvlpyramid();
 
 extern void lvlbuilding();
 
