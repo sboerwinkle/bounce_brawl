@@ -362,6 +362,12 @@ void lvlelevator(){
 	double distance = preciseDist(ix+13, ix+1);
 	newConnection(ix+13, createConnection(ix+13), ix+1, .6, size, distance, 0.02);
 	newConnection(ix+15, createConnection(ix+15), ix+2, .6, size, distance, 0.02);
+	int ix2 = createConnection(ix+14);
+	nodes[ix+14].connections[ix2] = nodes[ix+14].connections[0];
+	//The new connection must be number 0 so that the tool works properly
+	double dist = preciseDist(ix, ix+14);
+	newConnectionLong(ix+14, 0, ix, .6, dist, dist-100, 200, .03);
+	addToolToggle(ix+14);
 
 	taskgravityadd();
 	taskincineratoradd(300);
