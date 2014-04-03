@@ -12,6 +12,11 @@ static int dist(node* a, node* b){
 	int dy = (int)(a->y - b->y);
 	return (int)sqrt(dx*dx + dy*dy);
 }
+static double preciseDist(int a, int b){
+	double dx = (nodes[a].x-nodes[b].x) + (nodes[a].px-nodes[b].px);
+	double dy = (nodes[a].y-nodes[b].y) + (nodes[a].py-nodes[b].py);
+	return sqrt(dx*dx + dy*dy);
+}
 static void connectNodes(int a, int b, double friction, double tol, double str){
 	double dx = (nodes[a].x-nodes[b].x) + (nodes[a].px-nodes[b].px);
 	double dy = (nodes[a].y-nodes[b].y) + (nodes[a].py-nodes[b].py);
@@ -323,6 +328,49 @@ void lvlcave(){
 	taskguycontroladd(lvlcavesize*12, sqrt3/2*lvlcavesize);
 }
 
+void lvlelevator(){
+	int size = 24;
+	double fric = 0.90;
+	int tol = 5;
+	double str = 2.3;
+	initField(750, 750);
+	maxZoomIn = 1.5;
+	if(players > 2) players = 2;
+
+	int ix = addNode();
+	newNode(ix, 0, -200, 5, 1000, 0);
+	newNode(addNode(), -2*size, 0, 11, 8, 0);
+	newNode(addNode(),  2*size, 0, 11, 8, 0);
+	addBlock(size*-5.5, 100, 4, 1, fric, size, 0, tol, str, 11, 8);
+	addBlock(size*1.5, 100, 4, 1, fric, size, 0, tol, str, 11, 8);
+
+	int i = 0;
+	for(; i < 4; i++){
+		connectNodes(ix+1, ix+3+i, fric, tol, str);
+		connectNodes(ix+2, ix+7+i, fric, tol, str);
+	}
+	connectNodes(ix+1, ix+2, fric, tol, str);
+	connectNodes(ix+6, ix+7, fric, tol, str);
+
+	connectNodes(ix, ix+1, 0.7, tol*2, str*2);
+	connectNodes(ix, ix+2, 0.7, tol*2, str*2);
+	connectNodes(ix, ix+3, 0.7, tol*2, str*2);
+	connectNodes(ix, ix+10, 0.7, tol*2, str*2);
+	taskfixedadd(ix, 1);
+
+	addBlock(-size, 100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str, 11, 8);
+	double distance = preciseDist(ix+13, ix+1);
+	newConnection(ix+13, createConnection(ix+13), ix+1, .6, size, distance, 0.02);
+	newConnection(ix+15, createConnection(ix+15), ix+2, .6, size, distance, 0.02);
+
+	taskgravityadd();
+	taskincineratoradd(300);
+	if(players < 1) return;
+	taskguycontroladd(size*-4-10, 2*sqrt3/2*size);
+	if(players < 2) return;
+	taskguycontroladd(size*4-10, 2*sqrt3/2*size);
+}
+
 void lvlpyramid(){
 	int size = 25;
 	double fric = 0.85;
@@ -355,10 +403,10 @@ void lvlpyramid(){
 
 	int ix2 = addNode();
 	newNode(ix2, 0, -200, 5, 1000, 0);
-	connectNodes(ix2, ix+1, 0.9, tol*2, str*2);
-	connectNodes(ix2, ix+6, 0.9, tol*2, str*2);
-	connectNodes(ix2, ix+17, 0.9, tol*2, str*2);
-	connectNodes(ix2, ix+21, 0.9, tol*2, str*2);
+	connectNodes(ix2, ix+1, 0.7, tol*2, str*2);
+	connectNodes(ix2, ix+6, 0.7, tol*2, str*2);
+	connectNodes(ix2, ix+17, 0.7, tol*2, str*2);
+	connectNodes(ix2, ix+21, 0.7, tol*2, str*2);
 	taskfixedadd(ix2, 1);
 	taskgravityadd();
 	taskincineratoradd(300);

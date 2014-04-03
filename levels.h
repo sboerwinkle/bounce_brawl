@@ -6,6 +6,8 @@ extern void lvlboulder();
 
 extern void lvlcave();
 
+extern void lvlelevator();
+
 extern void lvlpyramid();
 
 extern void lvlbuilding();
