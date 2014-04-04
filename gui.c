@@ -59,6 +59,8 @@ static char nothingChanged = 0;
 char frameCount = SHOWEVERYNTHFRAME;
 //static char frameFlag;
 
+FILE* logFile;
+
 menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
 	ret->parent = parent;
@@ -116,7 +118,11 @@ static inline void simpleDrawText(int line, char* text){
 
 static void paint(){
 	GLenum error = glGetError();
-	if(error) fputs((const char*)gluErrorString(error), stderr);
+	if(error){
+		fputs((const char*)gluErrorString(error), logFile);
+		fputc('\n', logFile);
+		fflush(logFile);
+	}
 	if(mode == 0){
 		if(nothingChanged) return;
 //		boxColor(render, 0, 0, 500, 500, 0x000000FF);
@@ -521,12 +527,14 @@ static void spKeyAction(int bit, char pressed){
 }
 
 int main(int argc, char** argv){
+	logFile = fopen("log.txt", "w");
+	fputs("Everything looks good from here\n", logFile);
 	menu topMenu;
 	currentMenu = &topMenu;
 	topMenu.parent = NULL;
 	topMenu.numItems = 9;
 	topMenu.items = malloc(topMenu.numItems*sizeof(menuItem));
-	//menu* asteroidsMenu = addMenuMenu(&topMenu, 0, 2, "ASTEROID SURVIVAL...");
+//	menu* asteroidsMenu = addMenuMenu(&topMenu, 0, 2, "ASTEROID SURVIVAL...");
 	menu* planetsMenu = addMenuMenu(&topMenu, 0, 3, "PLANET STAGES...");
 	menu* flatMenu    = addMenuMenu(&topMenu, 1, 4, "FLAT STAGES...");
 	addMenuLevel(&topMenu, 2, &lvlsumo, "SUMO");
@@ -554,8 +562,11 @@ int main(int argc, char** argv){
 
 	addMenuLevel(tmpMenu, 0, &lvlpyramid, "PYRAMID");
 	addMenuLevel(tmpMenu, 1, &lvlelevator, "ELEVATOR");
+	
+	fputs("Menu Created\n", logFile);
 
 	initNetworking();
+	fputs("Networking Initialized\n", logFile);
 
 	numRequests = 2;
 	srand(time(NULL));
@@ -577,15 +588,18 @@ int main(int argc, char** argv){
 	FILETIME lastTime = {.dwLowDateTime = 0, .dwHighDateTime = 0};
 	LARGE_INTEGER largeInt;
 #endif
+	fputs("Player specs and timing initialized\n", logFile);
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-	SDL_ClearError();
+	//SDL_ClearError();
 //	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 //	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);///Maybe someday these will be useful for asking for a newer version of opengl
 //	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	puts(SDL_GetError());
+	fputs(SDL_GetError(), logFile);
+	fputc('\n', logFile);
 	SDL_ClearError();
 	window = SDL_CreateWindow("Bounce Brawl", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 750, 750, SDL_WINDOW_OPENGL);
-	puts(SDL_GetError());
+	fputs(SDL_GetError(), logFile);
+	fputc('\n', logFile);
 	SDL_ClearError();
 	if(window == NULL){
 		fputs("No SDL2 window.\n", stderr);
@@ -593,32 +607,21 @@ int main(int argc, char** argv){
 		SDL_Quit();
 		return 1;
 	}
+	fputs("Created Window\n", logFile);
 	width2 = 350;
 	height2 = -350;
-/*	render = SDL_CreateRenderer(window, -1, 0);
-	if(render == NULL){
-		fputs("No SDL2 renderer.\n", stderr);
-		fputs(SDL_GetError(), stderr);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
-	texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 750, 750);
-	if(texture == NULL){
-		fputs("No SDL2 texture.\n", stderr);
-		fputs(SDL_GetError(), stderr);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
-	screen = malloc(750*750*4);
-	//screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 500, 500, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);*/
 	SDL_GLContext context = SDL_GL_CreateContext(window);
-	puts(SDL_GetError());
+	fputs(SDL_GetError(), logFile);
+	fputc('\n', logFile);
 	SDL_ClearError();
-	initGfx();
+	fputs("Created GL Context\n", logFile);
+	initGfx(logFile);
 	glClearColor(0, 0, 0, 1);
+	fputs(SDL_GetError(), logFile);
+	fputc('\n', logFile);
+	SDL_ClearError();
+	fputs("Intialized Graphics, Entering Main Loop\n", logFile);
+	fflush(logFile);
 	int running=1;
 	while(running){
 		if(netMode) readKeys();
@@ -651,6 +654,7 @@ int main(int argc, char** argv){
 			else if (evnt.type == SDL_WINDOWEVENT)	nothingChanged = 0;//Just to be safe, in case something was occluded.
 		}
 	}
+	fclose(logFile);
 	if(netMode) stopHosting();
 	stopNetworking();
 	SDL_DestroyWindow(window);

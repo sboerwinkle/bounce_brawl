@@ -17,13 +17,13 @@ static GLuint uniColorId, vbo;
 
 int width2, height2;
 
-void initGfx(){
+void initGfx(FILE* logFile){
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
 		/* Problem: glewInit failed, something is seriously wrong. */
-		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		fprintf(logFile, "Error: %s\n", glewGetErrorString(err));
 	}
 
 	glGenBuffers(1, &vbo);
@@ -61,17 +61,19 @@ void initGfx(){
 	GLint status;
 	glGetShaderiv(vertexPrgId, GL_COMPILE_STATUS, &status);
 	if(status!=GL_TRUE){
-		puts("OMG AAAAAAAAAAAAAAA");
+		fputs("OMG AAAAAAAAAAAAAAA\n", logFile);
 		char buffer[512];
 		glGetShaderInfoLog(vertexPrgId, 512, NULL, buffer);
-		puts(buffer);
+		fputs(buffer, logFile);
+		fputc('\n', logFile);
 	}
 	glGetShaderiv(fragmentPrgId, GL_COMPILE_STATUS, &status);
 	if(status!=GL_TRUE){
-		puts("OMG AAAAAAAAHHHHHHH");
+		fputs("OMG AAAAAAAAHHHHHHH\n", logFile);
 		char buffer[512];
 		glGetShaderInfoLog(fragmentPrgId, 512, NULL, buffer);
-		puts(buffer);
+		fputs(buffer, logFile);
+		fputc('\n', logFile);
 	}
 
 	GLint posAttrib = glGetAttribLocation(prgId, "pos");
@@ -162,8 +164,8 @@ void drawBox(float x1, float y1, float x2, float y2){
 		x1, y2};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_QUADS, 0, 4);
-	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
 //	glInvalidateBufferData(vbo);
 }
 
@@ -175,21 +177,22 @@ void drawRectangle(float x1, float y1, float x2, float y2){
 		x1, y2};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, 4);
-	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
 //	glInvalidateBufferData(vbo);
 }
 
 void drawLine(float x1, float y1, float x2, float y2){
-	float points[]={x1, y1, x2, y2};
+	float points[]={x1, y1, x2, y2, 0, 0, 0, 0};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINES, 0, 2);
-	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
 //	glInvalidateBufferData(vbo);
 }
 
 void drawCircle(float cx, float cy, float r){
+return;
 	if(cx>0){
 		if(cx> 1+r) return;
 	}else{
@@ -219,8 +222,8 @@ void drawCircle(float cx, float cy, float r){
 	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*numSegments, points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, numSegments);
-	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	//glUnmapBuffer(GL_ARRAY_BUFFER);
 //	glInvalidateBufferData(vbo);
 	free(points);
 }

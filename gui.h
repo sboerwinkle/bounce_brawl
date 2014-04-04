@@ -1,8 +1,6 @@
 #define NUMKEYS 6
 #define TEXTSIZE 2
-//If these are changed, change gui.c
 
-//extern uint32_t* screen;
 extern void myDrawScreen();
 
 extern int players;
@@ -29,3 +27,5 @@ extern char cheats;
 #define CHEAT_COLORS 16
 
 extern char frameCount;
+
+extern FILE* logFile;
