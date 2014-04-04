@@ -13,9 +13,30 @@
 //Keep making it smaller, eventually the bottleneck will be elsewhere (i.e., CPU, not GPU) and it'll look uglier with very little performance improvement.
 #define CIRCLERESOLUTION 60
 
+//The Windows computer I was developing on had an Intel graphics card with terrible support for openGL.
+//Comment out the following 'define' if you have a Windows computer (Linux users are fine here, just get mesa) with "good enough" openGL support.
+//All I know for sure is openGL 2.1 isn't enough, but openGL 3.2 probably is.
+#ifdef WINDOWS
+#define STUPIDINTEL
+#endif
+//P.S. I guess there's a small chance it could improve performance on really terrible computers... Don't judge me because I'm ignorint!
+
 static GLuint uniColorId, vbo;
 
+#ifdef STUPIDINTEL
+static GLuint vboCircle;
+#endif
+
 int width2, height2;
+
+void gettinRealSickOfThis(){
+	GLenum error = glGetError();
+	if(error){
+		fputs((const char*)gluErrorString(error), logFile);
+		fputc('\n', logFile);
+		fflush(logFile);
+	}
+}
 
 void initGfx(FILE* logFile){
 	glewExperimental = GL_TRUE;
@@ -28,6 +49,9 @@ void initGfx(FILE* logFile){
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+#ifdef STUPIDINTEL
+	glGenBuffers(1, &vboCircle);
+#endif
 	const GLchar* vertexPrg =
 "#version 120\n"
 "attribute vec2 pos;"
@@ -164,9 +188,11 @@ void drawBox(float x1, float y1, float x2, float y2){
 		x1, y2};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_QUADS, 0, 4);
-	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	//glUnmapBuffer(GL_ARRAY_BUFFER);
-//	glInvalidateBufferData(vbo);
+#ifndef STUPIDINTEL
+	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glInvalidateBufferData(vbo);
+#endif
 }
 
 void drawRectangle(float x1, float y1, float x2, float y2){
@@ -177,22 +203,29 @@ void drawRectangle(float x1, float y1, float x2, float y2){
 		x1, y2};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, 4);
-	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	//glUnmapBuffer(GL_ARRAY_BUFFER);
-//	glInvalidateBufferData(vbo);
+#ifndef STUPIDINTEL
+	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glInvalidateBufferData(vbo);
+#endif
 }
 
 void drawLine(float x1, float y1, float x2, float y2){
+#ifdef STUPIDINTEL
 	float points[]={x1, y1, x2, y2, 0, 0, 0, 0};
+#else
+	float points[]={x1, y1, x2, y2};
+#endif
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINES, 0, 2);
-	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	//glUnmapBuffer(GL_ARRAY_BUFFER);
-//	glInvalidateBufferData(vbo);
+#ifndef STUPIDINTEL
+	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glInvalidateBufferData(vbo);
+#endif
 }
 
 void drawCircle(float cx, float cy, float r){
-return;
 	if(cx>0){
 		if(cx> 1+r) return;
 	}else{
@@ -201,10 +234,15 @@ return;
 	if(cy>0){
 		if(cy> 1+r) return;
 	}else{
-		if(cx<-1-r) return;
+		if(cy<-1-r) return;
 	}
+#ifdef STUPIDINTEL
+	int numSegments = 3;
+	glBindBuffer(GL_ARRAY_BUFFER, vboCircle);
+#else
 	int numSegments = (int)(CIRCLERESOLUTION*sqrtf(r));
 	if(numSegments<4) numSegments = 4;
+#endif
 	float* points = malloc(numSegments*2*sizeof(float));
 	float* current = points;
 	float t = 2*M_PI/numSegments;//'t' is for theta
@@ -222,8 +260,12 @@ return;
 	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*numSegments, points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, numSegments);
-	//glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
-	//glUnmapBuffer(GL_ARRAY_BUFFER);
-//	glInvalidateBufferData(vbo);
 	free(points);
+#ifdef STUPIDINTEL
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+#else
+	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//glInvalidateBufferData(vbo);
+#endif
 }
