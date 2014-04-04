@@ -259,7 +259,7 @@ void lvltutorial(){
 	for(; i < 121; i++) taskfixedadd(i, .4);
 	taskgravityadd();
 	taskincineratoradd(1550);
-	tasktextadd(0, -180, "Press 'esc' at any time to return to main menu.");
+	tasktextadd(-40, -150, "Press 'esc' at any time to return to main menu.");
 	tasktextadd(-30, -90, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
 	tasktextadd(230, -90, "Try holding 'Z' with\n'A' or 'D' to\nroll.");
 	tasktextadd(500, -90, "Press 'X' to interact with\nobjects marked with squares.\nSome of these change\nthe functions of your keys.");
@@ -277,7 +277,7 @@ void lvltutorial(){
 	newConnection(i-1, createConnection(i-1), i+1, .8, dist(nodes+i-1, nodes+i+1), 15, 10);
 	nodes[i-1].mass = 100;
 	tasktextadd(730, -20, "Try falling off\nthis edge.\nHold the SAD keys\nto soften your\nlanding.");
-	tasktextadd(680, 240, "If you've gotten into the stocking\nwithout breaking any limbs, congrats!\nYou can use +/- to admire your\
+	tasktextadd(680, 270, "If you've gotten into the stocking\nwithout breaking any limbs, congrats!\nYou can use +/- to admire your\
 \nsurroundings.\n\n'esc' for main menu");
 	taskguycontroladd(10*11, -30);
 	addToolGun(550, -90);
@@ -639,7 +639,8 @@ void lvlswing(){
 
 void lvldrop(){
 	initField(750, 750);
-	maxZoomIn = 1.5;
+	maxZoomIn = 3.0;
+	zoom = 2;
 	addBlock(30, 280, 43, 2, 1, 10, 7, 4, 6, 4.5, 10);
 	//f.addBlock(
 	int n, i = 0;
@@ -736,7 +737,8 @@ void lvlplanet(){
 #define rosetteSpeed 3
 void lvl3rosette(){
 	initField(750, 750);
-	maxZoomIn = 1.4;
+	maxZoomIn = 2.8;
+	zoom = 2;
 	double rads = players == 0?0:M_PI*2/players;
 	register int i = 0;
 	for(; i < players; i++){

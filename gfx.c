@@ -173,7 +173,7 @@ uint32_t getColorFromHue(uint16_t hue){
 	return 0x01000000*(int)(r*0xFF) + 0x010000*(int)(g*0xFF) + 0x0100*(int)(b*0xFF) + 0xFF;
 }
 
-void setColorWhite(){glUniform3f(uniColorId, 1.0, 1.0, 1.0);}
+void setColorWhite(){glUniform3f(uniColorId, 0.5, 0.5, 0.5);}
 
 void setColorFromHex(uint32_t color){
 	if(cheats & CHEAT_COLORS) return;

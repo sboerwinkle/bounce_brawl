@@ -557,8 +557,8 @@ int main(int argc, char** argv){
 	addMenuLevel(flatMenu, 3, &lvlboulder, "BOULDER");
 
 	addMenuLevel(mechMenu, 0, &lvlmech, "MAN VS MECH");
-	addMenuLevel(mechMenu, 1, &lvlmechmech, "MECH VS MECH");
-	addMenuLevel(mechMenu, 2, &lvlmechgun, "GUN VS MECH");
+	addMenuLevel(mechMenu, 1, &lvlmechgun, "GUN VS MECH");
+	addMenuLevel(mechMenu, 2, &lvlmechmech, "MECH VS MECH");
 
 	addMenuLevel(tmpMenu, 0, &lvlpyramid, "PYRAMID");
 	addMenuLevel(tmpMenu, 1, &lvlelevator, "ELEVATOR");
