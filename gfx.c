@@ -19,7 +19,7 @@
 #ifdef WINDOWS
 #define STUPIDINTEL
 #endif
-//P.S. I guess there's a small chance it could improve performance on really terrible computers... Don't judge me because I'm ignorint!
+//P.S. Actually, the derpy version of drawing caused by defining STUPIDINTEL is probably actually pretty fast (if ugly). You might experiment with defining it anyway.
 
 static GLuint uniColorId, vbo;
 
@@ -181,11 +181,20 @@ void setColorFromHex(uint32_t color){
 }
 
 void drawBox(float x1, float y1, float x2, float y2){
+#ifdef STUPIDINTEL
+	float points[]={
+		x1, y1,
+		x2, y1,
+		x2, y2,
+		x1, y2,
+		0, 0, 0, 0, 0, 0, 0, 0};
+#else
 	float points[]={
 		x1, y1,
 		x2, y1,
 		x2, y2,
 		x1, y2};
+#endif
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_QUADS, 0, 4);
 #ifndef STUPIDINTEL
@@ -196,11 +205,20 @@ void drawBox(float x1, float y1, float x2, float y2){
 }
 
 void drawRectangle(float x1, float y1, float x2, float y2){
+#ifdef STUPIDINTEL
+	float points[]={
+		x1, y1,
+		x2, y1,
+		x2, y2,
+		x1, y2,
+		0, 0, 0, 0, 0, 0, 0, 0};
+#else
 	float points[]={
 		x1, y1,
 		x2, y1,
 		x2, y2,
 		x1, y2};
+#endif
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, 4);
 #ifndef STUPIDINTEL
@@ -212,7 +230,7 @@ void drawRectangle(float x1, float y1, float x2, float y2){
 
 void drawLine(float x1, float y1, float x2, float y2){
 #ifdef STUPIDINTEL
-	float points[]={x1, y1, x2, y2, 0, 0, 0, 0};
+	float points[]={x1, y1, x2, y2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
 	float points[]={x1, y1, x2, y2};
 #endif
@@ -237,8 +255,7 @@ void drawCircle(float cx, float cy, float r){
 		if(cy<-1-r) return;
 	}
 #ifdef STUPIDINTEL
-	int numSegments = 3;
-	glBindBuffer(GL_ARRAY_BUFFER, vboCircle);
+	int numSegments = 8;
 #else
 	int numSegments = (int)(CIRCLERESOLUTION*sqrtf(r));
 	if(numSegments<4) numSegments = 4;
@@ -261,9 +278,7 @@ void drawCircle(float cx, float cy, float r){
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*2*numSegments, points, GL_STREAM_DRAW);
 	glDrawArrays(GL_LINE_LOOP, 0, numSegments);
 	free(points);
-#ifdef STUPIDINTEL
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-#else
+#ifndef STUPIDINTEL
 	glMapBufferRange(GL_ARRAY_BUFFER, 0, 0, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_BUFFER_BIT);
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	//glInvalidateBufferData(vbo);

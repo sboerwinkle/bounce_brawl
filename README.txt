@@ -31,7 +31,7 @@ Just run 'make'. The executable is called 'game'.
 
 ----Windows----
 
-Doesn't work yet. I got it working with MinGW and the Windows version of 'make', but after the switch to OpenGL I realized I just didn't care enough to weed out the bugs. So have fun, if it really matters to you. Use 'make windows' to compile, assuming you have make, gcc, MinGW, etc.
+Use 'make windows' to compile, assuming you have make, gcc, MinGW, etc. Unfortunately, since my development computer has an Intel graphics card and can't openGL to save it's life, this is a rather graphically derpy version. All the circles are octogons, though it's rather efficient. If you want to fix it, feel free to try.
 
 ----Twiddling Performance----
 
