@@ -12,6 +12,12 @@ So!
 
 ====INSTALLING====
 
+No installation, just compile and run the executable.
+
+====COMPILING====
+
+Windows users get a pre-compiled binary because compiling on Windows is so damn hard (pardon my French)
+
 You'll need the following libraries: (Actually, this is just a list of the interesting stuff I linked in. If something breaks, poke around yourself or use Teh Googles to look for similar errors.)
 
 SDL2
@@ -25,15 +31,15 @@ Just run 'make'. The executable is called 'game'.
 
 ----Windows----
 
-Doesn't work yet. I got it working with MinGW and the Windows version of 'make', but after the switch to OpenGL I realized I just didn't care enough to weed out the bugs. So have fun, if it really matters to you.
+Doesn't work yet. I got it working with MinGW and the Windows version of 'make', but after the switch to OpenGL I realized I just didn't care enough to weed out the bugs. So have fun, if it really matters to you. Use 'make windows' to compile, assuming you have make, gcc, MinGW, etc.
 
 ----Twiddling Performance----
 
 Don't worry, even the (moderately) computer illiterate can follow these instructions.
 
-There are 2 "#define"s at the top of "structs.h", and 1 at the top of "gfx.c". They are well commented with descriptions of what they do. Change the values to suit your needs, and recompile.
+There are 2 "#define"s at the top of "structs.h" and 2 at the top of "gfx.c". They are well commented with descriptions of what they do. Change the values to suit your needs, and recompile.
 
-Honestly performance shouldn't be an issue; the computer I developed this on is pretty old.
+Honestly performance shouldn't be an issue. The computer I developed this on is pretty old, and it runs the game fine with the default values.
 
 ====GAMEPLAY====
 
