@@ -19,7 +19,7 @@
 #ifdef WINDOWS
 #define STUPIDINTEL
 #endif
-//P.S. I guess there's a small chance it could improve performance on really terrible computers... Don't judge me because I'm ignorint!
+//P.S. Actually, the derpy version of drawing caused by defining STUPIDINTEL is probably actually pretty fast (if ugly). You might experiment with defining it anyway.
 
 static GLuint uniColorId, vbo;
 
