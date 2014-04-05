@@ -54,6 +54,7 @@ int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_x, SDLK_z},\
 int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 
 char mode = 0, cheats = 0;
+static int running = 1;
 static char inputMode = 0;
 static char nothingChanged = 0;
 char frameCount = SHOWEVERYNTHFRAME;
@@ -133,7 +134,9 @@ static void paint(){
 		char* line = malloc(40*sizeof(char));
 		setColorWhite();
 		simpleDrawText(30, "ESC: CANCEL / GO BACK");
-		if(inputMode == 0){
+		if(inputMode == -1){
+			simpleDrawText(3, "REALLY QUIT? PRESS ANY KEY TO EXIT");
+		}else if(inputMode == 0){
 			int i = 0;
 			for(; i < currentMenu->numItems; i++){
 				sprintf(line, " %d : %s", i+1, currentMenu->items[i].text);
@@ -235,7 +238,20 @@ static int getDigit(int code){
 static void spKeyAction(int bit, char pressed){
 	if(mode == 0){
 		if(!pressed) return;
-		if(inputMode == 0){
+		if(inputMode == -1){
+			if(bit == SDLK_ESCAPE){
+				inputMode = 0;
+				nothingChanged = 0;
+				return;
+			}
+			running = 0;
+			return;
+		}else if(inputMode == 0){
+			if(bit == SDLK_ESCAPE){
+				inputMode = -1;
+				nothingChanged = 0;
+				return;
+			}
 			if(bit == SDLK_TAB){
 				cheats ^= CHEAT_LOCK;
 				nothingChanged = 0;
@@ -622,7 +638,6 @@ int main(int argc, char** argv){
 	SDL_ClearError();
 	fputs("Intialized Graphics, Entering Main Loop\n", logFile);
 	fflush(logFile);
-	int running=1;
 	while(running){
 		if(netMode) readKeys();
 		paint();///Also runs the thing if relevant.
