@@ -22,6 +22,16 @@ static void connectNodes(int a, int b, double friction, double tol, double str){
 	double dy = (nodes[a].y-nodes[b].y) + (nodes[a].py-nodes[b].py);
 	newConnection(a, createConnection(a), b, friction, sqrt(dx*dx+dy*dy), tol, str);
 }
+
+static void addScores(){
+	double scoreInc;
+	if(players>1) scoreInc = 602.0/(players-1);
+	else scoreInc=0;
+	int i = 0;
+	for(; i < players; i++){
+		taskscoreaddLong(i, 20+i*scoreInc, 20);
+	}
+}
 #define sqrt3 1.732050808
 #define H 1
 //Makes arrays created for this method easier to visualize, especially w/ syntax highlighting
@@ -320,6 +330,7 @@ void lvlcave(){
 	}
 	taskgravityadd();
 	taskincineratoradd(300);
+	addScores();
 	if(players < 1) return;
 	taskguycontroladd(lvlcavesize*4.5, 9*sqrt3/2*lvlcavesize);
 	if(players < 2) return;
@@ -442,12 +453,11 @@ void lvlsumo(){
 	}
 	if(players > 0){
 		taskguycontroladd(200, 270);
-		taskscoreadd(0);
 	}
 	if(players > 1){
 		taskguycontroladd(280, 270);
-		taskscoreaddLong(1, 650, 20);
 	}
+	addScores();
 
 	taskgravityadd();
 	taskincineratoradd(510);
@@ -627,12 +637,11 @@ void lvlswing(){
 	}
 	if(players > 0){
 		taskguycontroladd(200, 240);
-		taskscoreadd(0);
 	}
 	if(players > 1){
 		taskguycontroladd(280, 240);
-		taskscoreaddLong(1, 650, 20);
 	}
+	addScores();
 	taskgravityadd();
 	taskincineratoradd(510);
 }
@@ -733,6 +742,7 @@ void lvlplanet(){
 	addToolGun(250, 250-130);
 	addToolGun(250, 250+130);
 	taskincinerator2add(1000);
+	addScores();
 }
 #define rosetteSpeed 3
 void lvl3rosette(){
@@ -765,6 +775,7 @@ void lvl3rosette(){
 	taskcenteraddLong(3, indexes);
 	taskincinerator2add(1000);
 	taskuniversalgravityadd(0.02);
+	addScores();
 }
 
 void lvlbigplanet(){
@@ -791,10 +802,10 @@ void lvlbigplanet(){
 //	addToolGun(0, -300);
 //	addToolGun(0, 300);
 	taskincinerator2add(2000);
+	addScores();
 }
 
 void lvlmech(){
-	if(players > 2) players = 2;
 	initField(750, 750);
 	maxZoomIn = 1.5;
 	newNode(addNode(), 247, 4000, 3600, 1000, 0);
@@ -802,17 +813,17 @@ void lvlmech(){
 	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
 	taskfixedadd(1, .5);
 	taskfixedadd(33, .5);
-	if(players > 0){
-		taskguycontroladdLong(49, 366, 1);
-		taskscoreadd(0);
-	}
-	if(players > 1){
-		taskguycontroladd(446, 366);
-		taskscoreaddLong(1, 650, 20);
+	double placeInc;
+	if(players>1) placeInc = 397.0/(players-1);
+	else placeInc=0;
+	int i = 0;
+	for(; i < players; i++){
+		taskguycontroladd(49+i*placeInc, 366);
 	}
 	taskgravityadd();
 	taskincineratoradd(410);
 	addToolMech1(371, 326);
+	addScores();
 }
 
 void lvlmechmech(){

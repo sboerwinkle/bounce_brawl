@@ -247,11 +247,6 @@ static void spKeyAction(int bit, char pressed){
 			running = 0;
 			return;
 		}else if(inputMode == 0){
-			if(bit == SDLK_ESCAPE){
-				inputMode = -1;
-				nothingChanged = 0;
-				return;
-			}
 			if(bit == SDLK_TAB){
 				cheats ^= CHEAT_LOCK;
 				nothingChanged = 0;
@@ -278,15 +273,13 @@ static void spKeyAction(int bit, char pressed){
 				return;
 			}
 			if(bit == SDLK_ESCAPE){
+				nothingChanged = 0;
 				if(currentMenu->parent==NULL){
-					if(netMode){
-						stopHosting();
-						nothingChanged = 0;
-					}
+					if(netMode) stopHosting();
+					else inputMode = -1;
 					return;
 				}
 				currentMenu = currentMenu->parent;
-				nothingChanged = 0;
 				return;
 			}
 			if(bit == SDLK_p){
