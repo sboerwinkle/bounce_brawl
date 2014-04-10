@@ -81,6 +81,22 @@ static void addHex(double x, double y, int width, int height, int* map, double f
 		placeY += spacing*sqrt3/2;
 	}
 }
+static void addBridge(int ix1, int ix2, int numNodes, double height, double size, double mass, double fric, double tol, double str){
+	double stepx = (nodes[ix2].x-nodes[ix1].x+nodes[ix2].px-nodes[ix1].px)/numNodes;
+	double stepy = (nodes[ix2].y-nodes[ix1].y+nodes[ix2].py-nodes[ix1].py)/numNodes;
+	double stepDist = sqrt(stepx*stepx + stepy*stepy);
+	double x = nodes[ix1].x+nodes[ix1].px
+	double y = nodes[ix1].y+nodes[ix1].py;
+	int ix = addNode();
+	int i = 1;
+	for(; i < numNodes; i++){
+		newNode(addNode(), x+=stepx, y+=stepy, size, mass, 1);
+		newConnection(ix+i, 0, ix+i+1, fric, stepDist, tol, str);
+	}
+	nodes[ix+numNodes-1].connections[0].id = ix2;
+	newConnection(ix+1, createConnection(ix+1), ix1, fric, stepDist, tol, str);
+	newNode(ix, dx/2 + dy*height/stepDist, dy/2 - dx*height/stepDist, size, mass*3, 3);
+}
 static void addLoop(int centerX, int centerY, double radius, int num, double theta, double size, double mass, double fric, double tol, double str){
 	double angleInc = M_PI*2/num;
 	int ix = 0;
