@@ -641,7 +641,7 @@ int main(int argc, char** argv){
 			if(sleep > 0){
 //				frameFlag = 0;
 				t.tv_nsec = sleep;
-				nanosleep(&t, &t);
+				nanosleep(&t, NULL);
 			}// else frameFlag = 1;
 			clock_gettime(CLOCK_MONOTONIC, &lastTime);
 #else
