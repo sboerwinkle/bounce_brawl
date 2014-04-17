@@ -81,21 +81,25 @@ static void addHex(double x, double y, int width, int height, int* map, double f
 		placeY += spacing*sqrt3/2;
 	}
 }
-static void addBridge(int ix1, int ix2, int numNodes, double height, double size, double mass, double fric, double tol, double str){
+static void addBridge(int ix1, int ix2, int numNodes, double height, double size, double mass, double fric, double tol, double str){//'height' is a fraction of the total distance.
 	double stepx = (nodes[ix2].x-nodes[ix1].x+nodes[ix2].px-nodes[ix1].px)/numNodes;
 	double stepy = (nodes[ix2].y-nodes[ix1].y+nodes[ix2].py-nodes[ix1].py)/numNodes;
 	double stepDist = sqrt(stepx*stepx + stepy*stepy);
-	double x = nodes[ix1].x+nodes[ix1].px
+	double x = nodes[ix1].x+nodes[ix1].px;
 	double y = nodes[ix1].y+nodes[ix1].py;
 	int ix = addNode();
 	int i = 1;
+	height *= numNodes;
+	newNode(ix, x + stepx*numNodes/2 + stepy*height, y + stepy*numNodes/2 - stepx*height, size, mass*3, 3);
 	for(; i < numNodes; i++){
 		newNode(addNode(), x+=stepx, y+=stepy, size, mass, 1);
 		newConnection(ix+i, 0, ix+i+1, fric, stepDist, tol, str);
 	}
 	nodes[ix+numNodes-1].connections[0].id = ix2;
 	newConnection(ix+1, createConnection(ix+1), ix1, fric, stepDist, tol, str);
-	newNode(ix, dx/2 + dy*height/stepDist, dy/2 - dx*height/stepDist, size, mass*3, 3);
+	newConnection(ix, 0, ix1, fric, preciseDist(ix, ix1), tol, str*3);
+	newConnection(ix, 1, ix2, fric, preciseDist(ix, ix2), tol, str*3);
+	newConnection(ix, 2, ix+numNodes/2, fric, preciseDist(ix, ix+numNodes/2), tol, str*3);
 }
 static void addLoop(int centerX, int centerY, double radius, int num, double theta, double size, double mass, double fric, double tol, double str){
 	double angleInc = M_PI*2/num;
@@ -355,21 +359,18 @@ void lvlcave(){
 	taskguycontroladd(lvlcavesize*12, sqrt3/2*lvlcavesize);
 }
 
-void lvlelevator(){
+static int addElevator(int x, int y){
 	int size = 24;
 	double fric = 0.90;
 	int tol = 5;
 	double str = 2.3;
-	initField(750, 750);
-	maxZoomIn = 1.5;
-	if(players > 2) players = 2;
 
 	int ix = addNode();
-	newNode(ix, 0, -200, 5, 1000, 0);
-	newNode(addNode(), -2*size, 0, 11, 8, 0);
-	newNode(addNode(),  2*size, 0, 11, 8, 0);
-	addBlock(size*-5.5, 100, 4, 1, fric, size, 0, tol, str, 11, 8);
-	addBlock(size*1.5, 100, 4, 1, fric, size, 0, tol, str, 11, 8);
+	newNode(ix, x, y-200, 5, 1000, 0);
+	newNode(addNode(), x-2*size, y, 11, 8, 0);
+	newNode(addNode(), x+2*size, y, 11, 8, 0);
+	addBlock(x+size*-5.5, y+100, 4, 1, fric, size, 0, tol, str, 11, 8);
+	addBlock(x+size*1.5, y+100, 4, 1, fric, size, 0, tol, str, 11, 8);
 
 	int i = 0;
 	for(; i < 4; i++){
@@ -385,7 +386,7 @@ void lvlelevator(){
 	connectNodes(ix, ix+10, 0.7, tol*2, str*2);
 	taskfixedadd(ix, 1);
 
-	addBlock(-size, 100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str, 11, 8);
+	addBlock(x-size, y+100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str, 11, 8);
 	double distance = preciseDist(ix+13, ix+1);
 	newConnection(ix+13, createConnection(ix+13), ix+1, .6, size, distance, 0.02);
 	newConnection(ix+15, createConnection(ix+15), ix+2, .6, size, distance, 0.02);
@@ -395,32 +396,35 @@ void lvlelevator(){
 	double dist = preciseDist(ix, ix+14);
 	newConnectionLong(ix+14, 0, ix, .6, dist, dist-100, 200, .03);
 	addToolToggle(ix+14);
+	return ix;
+}
 
+void lvlelevator(){
+	initField(750, 750);
+	maxZoomIn = 1.5;
+	if(players > 2) players = 2;
+	addElevator(0, 0);
 	taskgravityadd();
 	taskincineratoradd(300);
 	if(players < 1) return;
-	taskguycontroladd(size*-4-10, 2*sqrt3/2*size);
+	taskguycontroladd(-106, 24*sqrt3);
 	if(players < 2) return;
-	taskguycontroladd(size*4-10, 2*sqrt3/2*size);
+	taskguycontroladd(86, 24*sqrt3);
 }
 
-void lvlpyramid(){
+static int addPyramid(int x, int y){
 	int size = 25;
 	double fric = 0.85;
 	int tol = 5;
 	double str = 2.3;
-	initField(750, 750);
-	maxZoomIn = 1.5;
-	if(players > 2) players = 2;
 	int ix = addNode();
 	newNode(ix, 0, 0, 1, 1, 0);
-	killNode(ix);//We just want the index
 	int hexArg[] = {0,0,H,H,H,0,0,0,0,0,H,H,H,\
 			 0,0,0,0,0,0,0,0,0,0,0,0,0,\
 			  0,0,0,0,0,H,H,H,0,0,0,0,0,\
 			   0,0,0,0,H,H,H,H,0,0,0,0,0,\
 			    H,H,H,H,H,H,H,H,H,H,H,0,0};
-	addHex(-7*size, 0, 13, 5, hexArg, fric, size, tol, str, size*.45, 8);
+	addHex(-7*size+x, y, 13, 5, hexArg, fric, size, tol, str, size*.45, 8);
 
 	connectNodes(ix+14, ix+3, fric, tol, str);
 
@@ -434,19 +438,28 @@ void lvlpyramid(){
 	connectNodes(ix+23, ix+6, fric, tol, str);
 	connectNodes(ix+24, ix+6, fric, tol, str);
 
-	int ix2 = addNode();
-	newNode(ix2, 0, -200, 5, 1000, 0);
-	connectNodes(ix2, ix+1, 0.7, tol*2, str*2);
-	connectNodes(ix2, ix+6, 0.7, tol*2, str*2);
-	connectNodes(ix2, ix+17, 0.7, tol*2, str*2);
-	connectNodes(ix2, ix+21, 0.7, tol*2, str*2);
-	taskfixedadd(ix2, 1);
+	newNode(ix, x, y-200, 5, 1000, 0);
+	connectNodes(ix, ix+1, 0.7, tol*2, str*2);
+	connectNodes(ix, ix+6, 0.7, tol*2, str*2);
+	connectNodes(ix, ix+17, 0.7, tol*2, str*2);
+	connectNodes(ix, ix+21, 0.7, tol*2, str*2);
+	taskfixedadd(ix, 1);
+	return ix;
+}
+
+void lvlpyramid(){
+	initField(750, 750);
+	maxZoomIn = 1.5;
+	if(players > 2) players = 2;
+	int ix1 = addPyramid(0, 0);
+	int ix2 = addElevator(600, -200);
+	addBridge(ix1+6, ix2+3, 12, .3, 14, 8, .95, 7, 4.4);
 	taskgravityadd();
 	taskincineratoradd(300);
 	if(players < 1) return;
-	taskguycontroladd(size*-4-10, 2*sqrt3/2*size);
+	taskguycontroladd(-110, 25*sqrt3);
 	if(players < 2) return;
-	taskguycontroladd(size*4-10, 2*sqrt3/2*size);
+	taskguycontroladd(90, 25*sqrt3);
 }
 
 void lvlbuilding(){
