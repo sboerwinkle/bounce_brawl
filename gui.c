@@ -19,11 +19,6 @@
 #endif
 
 typedef struct{
-	int highscore;
-	void (*func)();
-} level;
-
-typedef struct{
 	char menu;
 	void* target;
 	char* text;
@@ -77,9 +72,8 @@ menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
 void addMenuLevel(menu* where, int ix, void (*func)(), char* text){
 	menuItem* item = where->items+ix;
 	item->menu = 0;
-	item->target = malloc(sizeof(level));
-	((level*)item->target)->func = func;
-	((level*)item->target)->highscore = 0;
+	item->target = malloc(sizeof(void (*)()));
+	*((void (**)())item->target) = func;
 	item->text = text;
 }
 
@@ -332,7 +326,7 @@ static void spKeyAction(int bit, char pressed){
 					return;
 				}
 				players = numRequests;
-				(*((level*)choice->target)->func)();
+				(**((void (**)())choice->target))();
 				memset(masterKeys, 0, NUMKEYS*10);
 				mode = 1;
 				kickNoRoom();

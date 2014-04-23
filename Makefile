@@ -20,29 +20,29 @@ remake:
 	$(MAKE) clean
 	$(MAKE)
 
-field.o: field.c structs.h node.h gui.h task.h gfx.h networking.h
+field.o: field.c structs.h gfx.h node.h gui.h task.h networking.h
 	$(CC) $(CFLAGS) field.c
 
-font.o: font.c fontData.h
+font.o: font.c fontData.h gfx.h
 	$(CC) $(CFLAGS) font.c
 
-gui.o: gui.c gui.h structs.h font.h levels.h field.h networking.h task.h
+gfx.o: gfx.c gfx.h gui.h
+	$(CC) $(CFLAGS) gfx.c
+
+gui.o: gui.c gfx.h structs.h font.h levels.h field.h networking.h task.h gui.h
 	$(CC) $(CFLAGS) gui.c
 
 levels.o: levels.c structs.h field.h task.h node.h gui.h
 	$(CC) $(CFLAGS) levels.c
+
+networking.o: networking.c structs.h font.h gfx.h gui.h task.h field.h
+	$(CC) $(CFLAGS) networking.c
 
 node.o: node.c structs.h field.h
 	$(CC) $(CFLAGS) node.c
 
 task.o: task.c structs.h gui.h field.h node.h font.h gfx.h networking.h
 	$(CC) $(CFLAGS) task.c
-
-gfx.o: gfx.c gfx.h gui.h
-	$(CC) $(CFLAGS) gfx.c
-
-networking.o: networking.c structs.h font.h gfx.h gui.h task.h field.h
-	$(CC) $(CFLAGS) networking.c
 
 clean:
 	rm -f *.o game game.exe

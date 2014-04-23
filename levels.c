@@ -252,7 +252,7 @@ static void addBuilding(double x, double y, int stories){
 }
 
 void lvltest(){
-	initField(750, 750);
+	initField();
 	maxZoomIn = 1.5;
 	newNode(addNode(), 247, 4000, 3600, 1000, 0);
 	taskfixedaddLong(0, 247l, 4000l, .4);
@@ -281,7 +281,7 @@ void lvltest(){
 }
 
 void lvltutorial(){
-	initField(750, 750);
+	initField();
 	maxZoomIn = 2.0;
 	players = 1;
 	addBlock(0, 0, 60, 2, .95, 12, 8, 3, 5, 5, 10);
@@ -325,7 +325,7 @@ void lvlboulder(){
 
 void lvlcave(){
 #define lvlcavesize 25
-	initField(750, 750);
+	initField();
 	maxZoomIn = 1.5;
 	if(players > 3) players = 3;
 	int hexArg[] = {0,0,0,0,0,0,0,0,0,0,0,H,H,H,H,H,H,H,H,H,H,H,H,H,H,\
@@ -400,7 +400,7 @@ static int addElevator(int x, int y){
 }
 
 void lvlelevator(){
-	initField(750, 750);
+	initField();
 	maxZoomIn = 1.5;
 	if(players > 2) players = 2;
 	addElevator(0, 0);
@@ -448,7 +448,7 @@ static int addPyramid(int x, int y){
 }
 
 void lvlpyramid(){
-	initField(750, 750);
+	initField();
 	maxZoomIn = 1.5;
 	if(players > 2) players = 2;
 	int ix1 = addPyramid(0, 0);
@@ -470,7 +470,7 @@ void lvlbuilding(){
 
 void lvlsumo(){
 	if(players > 2) players = 2;
-	initField(750, 750);
+	initField();
 	maxZoomIn = 3.75;
 	addBlock(180, 300, 14, 10, .83/*fric*/, 10/*spacing*/, 6.7/*vertSpacing*/, 3.3/*tol*/, 2.8/*str*/, 2/*size*/, 8/*mass*/);
 	int i = 0;
@@ -494,7 +494,7 @@ void lvlsumo(){
 
 void lvltipsy(){
 	if(players > 2) players = 2;
-	initField(750, 750);
+	initField();
 	maxZoomIn = 2;
 	addBlock(180, 300, 14, 20, 0.89/*fric*/, 10/*spacing*/, 6.75/*vertSpacing*/, 4.8/*tol*/, 0.6/*str*/, 4.42/*size*/, 4.0/3/*mass*/);
 	//addBlock(180, 300, 14, 20, 1/*fric*/, 10/*spacing*/, 7/*vertSpacing*/, 100/*tol*/, 5/*str*/, 4/*size*/, 8/*mass*/);
@@ -517,7 +517,7 @@ void lvltipsy(){
 
 void lvltilt(){
 	if(players > 2) players = 2;
-	initField(750, 750);
+	initField();
 	//addBlock(185, 300, 13, 4, .7/*fric*/, 10/*spacing*/, 7/*vertSpacing*/, 10/*tol*/, 10/*str*/, 5/*size*/, 16/*mass*/);
 	/*addBlock(240, 332, 2,  2, 1         , 10           ,-7               , 10        , 5         , 3        , 16       );
 	for(int i = 62; i < 67; i++)
@@ -638,7 +638,7 @@ newNodeLong(addNode(), 349, 308, -0.983000, 0.827000, .123, -1.702, size, mass, 
 }
 void lvlswing(){
 	if(players > 2) players = 2;
-	initField(750, 750);
+	initField();
 	maxZoomIn = 2.55;
 
 	int i = 0;
@@ -676,7 +676,7 @@ void lvlswing(){
 }
 
 void lvldrop(){
-	initField(750, 750);
+	initField();
 	maxZoomIn = 3.0;
 	zoom = 2;
 	addBlock(30, 280, 43, 2, 1, 10, 7, 4, 6, 4.5, 10);
@@ -760,7 +760,7 @@ int addGenericPlanet(int x, int y, int size, double density, double surfaceDensi
 	return ix;
 }
 void lvlplanet(){
-	initField(750, 750);
+	initField();
 	double rads = players == 0?0:M_PI*2/players;
 	register int i = 0;
 	for(; i < players; i++){
@@ -775,7 +775,7 @@ void lvlplanet(){
 }
 #define rosetteSpeed 3
 void lvl3rosette(){
-	initField(750, 750);
+	initField();
 	maxZoomIn = 2.8;
 	zoom = 2;
 	double rads = players == 0?0:M_PI*2/players;
@@ -808,7 +808,7 @@ void lvl3rosette(){
 }
 
 void lvlbigplanet(){
-	initField(750, 750);
+	initField();
 	zoom = 2;
 	double rads = players == 0?0:M_PI*2/players;
 	register int i = 0;
@@ -835,7 +835,7 @@ void lvlbigplanet(){
 }
 
 void lvlmech(){
-	initField(750, 750);
+	initField();
 	maxZoomIn = 1.5;
 	newNode(addNode(), 247, 4000, 3600, 1000, 0);
 	taskfixedaddLong(0, 247l, 4000l, .4);

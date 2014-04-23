@@ -1,5 +1,3 @@
-Fix that menu-level struct bidniss
-wtf is up with storing width and width2 and all that?
 Hanging Gardens
 Keyboard 2 net control
 Onslaugt

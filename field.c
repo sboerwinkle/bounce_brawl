@@ -30,17 +30,13 @@ static double unx;
 static double uny;
 double maxZoomIn;
 int zoom;
-static int width;
-static int height;
 
 int playerNum;
 int centerx;
 int centery;
 int markSize;//Invented for networking, but also used by task.c to do player marks.
 
-void initField(int xsize, int ysize){// Here: init taskguycontrolindexes, alives, centers to proper number of players
-	width = xsize;
-	height = ysize;
+void initField(){// Here: init taskguycontrolindexes, alives, centers to proper number of players
 	numNodes = 100;
 	nodes = (node*)malloc(numNodes*sizeof(node));
 	int i = 0;

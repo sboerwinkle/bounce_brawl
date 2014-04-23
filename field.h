@@ -15,7 +15,7 @@ extern int centery;
 extern int playerNum;//How many created
 extern int markSize;
 
-extern void initField(int xsize, int ysize);
+extern void initField();
 
 extern void stopField();
 
