@@ -1,11 +1,8 @@
-Player management:
-	keyboard 2 net control?
-
-5. source forge
-grabber device - warehouse style
-1. weaker, stronger enemies
-3. space ais?
-2. missions - gold stars
-4. customizable color schemes
+Hanging Gardens
+Keyboard 2 net control
+Onslaugt
+Achievements
+Space ships
+source forge
 
 Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
