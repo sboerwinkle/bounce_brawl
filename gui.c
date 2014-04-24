@@ -44,9 +44,9 @@ playerRequest requests[10];
 
 char masterKeys[NUMKEYS*10];
 int pIndex[] = {0, 1};
-static int pKeys[2][6] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_x, SDLK_z},\
+int pKeys[2][NUMKEYS] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_x, SDLK_z},\
 	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
-static int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
+int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 
 char mode = 0, cheats = 0;
 static int running = 1;
@@ -299,18 +299,18 @@ static void spKeyAction(int bit, char pressed){
 				return;
 			}
 			if(bit == SDLK_c){
-				if(pIndex[0] == -1) return;
-				myConnect(requests[pIndex[0]].color);
+				myConnect();
 				nothingChanged = 0;
 				return;
 			}
 			if(bit == SDLK_h){
-				int playerNumbers[10];
+				int *playerNumbers = calloc(1, 10);
 				int numNet = 0;
 				int i = 0;
 				for(; i < 10; i++){
 					if(requests[i].controlMode == -1){
-						playerNumbers[numNet++] = i;
+						numNet++;
+						playerNumbers[i] = 1; // :'(
 					}
 				}
 				myHost(numNet, playerNumbers);

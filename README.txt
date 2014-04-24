@@ -45,6 +45,18 @@ Honestly performance shouldn't be an issue. The computer I developed this on is 
 
 Press the buttons listed on the menu to do things. Play the tutorial. Enjoy yourself. No level progression or anything, but that's just too bad, now isn't it?
 
+----Networking----
+
+-Hosting
+
+Go to manage players and add as many "NETWORKED PLAYER"s as you want. Go to the main menu and hit the host key. On the manage players screen, the slots will change from grey as people connect. Start a level to begin the lan party.
+
+Bear in mind that every time you end a level, you will have to start hosting again.
+
+-Connecting
+
+Go to manage players and make sure either "PLAYER 1" or both "PLAYER 1" and "PLAYER 2" are present, depending on how many people are playing on your end. Go to the main menu and hit the connect key. If everything goes well, you should quickly see "ACKNOWLEDGED". Then wait patiently.
+
 ====FEEDBACK====
 
 You may email questions, comments, or anything else to sboerwinkle@gmail.com. Feel free to fork on Github (http://www.github.com/sboerwinkle/bound_brawl) and do stuff or however that works.

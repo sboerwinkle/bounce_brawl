@@ -5,7 +5,7 @@ extern char* addressString;
 extern void initNetworking();
 extern void stopNetworking();
 
-extern void myConnect(uint32_t color);
+extern void myConnect();
 extern void myHost(int max, int* playerNumbers);
 extern void kickNoRoom();
 extern void readKeys();

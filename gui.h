@@ -5,6 +5,8 @@ extern void myDrawScreen();
 
 extern int players;
 extern int pIndex[2];
+extern int pKeys[2][NUMKEYS];
+extern int otherKeys[2];
 
 extern char masterKeys[NUMKEYS*10];
 

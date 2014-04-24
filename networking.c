@@ -38,20 +38,23 @@ static struct sockaddr_in servaddr, myaddr;
 typedef struct{
 	struct sockaddr_in addr;
 	char dead;
-	unsigned char playerNum;
+	unsigned char playerNum1;
+	unsigned char playerNum2;
 } client;
 static client *clients;
 
 static int running; // So keypresses can stop the connect function
 static char netListenKill = 0;
 
-static char myKeys; // We could use the arrays defined in gui.h, but this way is more condusive to networking.
+static unsigned char myKeys[2]; // We could use the arrays defined in gui.h, but this way is more condusive to networking.
 
 static uint16_t numLineBytes = 0, numCircles = 0, numPlayerCircles = 0, numToolMarks = 0;
 static uint16_t maxLineBytes = 0, maxCircles = 0, maxPlayerCircles = 0, maxToolMarks = 0;
 static uint16_t numLines = 0;
 static uint8_t *lines = NULL, *circles = NULL, *playerCircles = NULL, *toolMarks = NULL;
-static uint8_t numClients, maxClients;
+static uint8_t maxClients;
+
+static char* playerNums;
 
 static pthread_mutex_t myMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t myCond = PTHREAD_COND_INITIALIZER;
@@ -161,7 +164,7 @@ static void sendImgs(void* derp){
 			}
 		}
 		int i = 0;
-		for(; i < numClients; i++){
+		for(; i < maxClients; i++){
 			if(!clients[i].dead){
 				memcpy((uint8_t*)dataToSend->data, (uint8_t*)(dataToSend->centers+2*i), 4);
 				sendto(sockfd, (char*)&dataToSend->sizeData, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
@@ -176,7 +179,7 @@ static void sendImgs(void* derp){
 }
 
 void writeImgs(){
-	if(numClients && !pthread_mutex_trylock(&myMutex)){//If trylock doesn't fail, the other thread is waiting on a condition.
+	if(!pthread_mutex_trylock(&myMutex)){//If trylock doesn't fail, the other thread is waiting on a condition.
 		uint16_t size = 4+2+numToolMarks+4+6*numCircles+2+numLineBytes+2+6*numPlayerCircles;
 		uint16_t sizeData = htons(size);
 		uint8_t* realData = malloc(size);
@@ -191,12 +194,27 @@ void writeImgs(){
 		*((short*)(data+=numLineBytes)) = htons(numPlayerCircles);
 		memcpy(data+=2, playerCircles, 6*numPlayerCircles);
 
-		uint16_t* netCenters = malloc(2*2*numClients);
+		uint16_t* netCenters = malloc(2*2*maxClients);
 		int i = 0;
-		for(; i < numClients; i++){
+		for(; i < maxClients; i++){
 			if(clients[i].dead) continue;
-			netCenters[2*i] = htons(maxZoomIn * centers[clients[i].playerNum].x);
-			netCenters[2*i+1] = htons(maxZoomIn * centers[clients[i].playerNum].y);
+			int x=0, y=0, count=0;
+			if(alives[clients[i].playerNum1]){
+				count=1;
+				x = centers[clients[i].playerNum1].x;
+				y = centers[clients[i].playerNum1].y;
+			}
+			if(clients[i].playerNum2!=255 && alives[clients[i].playerNum2]){
+				count++;
+				x += centers[clients[i].playerNum2].x;
+				y += centers[clients[i].playerNum2].y;
+			}
+			if(count == 2){
+				x/=2;
+				y/=2;
+			}
+			netCenters[2*i] = htons(maxZoomIn * x);
+			netCenters[2*i+1] = htons(maxZoomIn * y);
 		}
 
 		dataToSend = malloc(sizeof(struct imgData));
@@ -231,34 +249,60 @@ void stopNetworking(){
 #endif
 }
 
+static void decolorize(int i){
+	requests[clients[i].playerNum1].color = 0x606060FF;
+	if(clients[i].playerNum2!=255) requests[clients[i].playerNum2].color = 0x606060FF;
+}
+
 static void keyAction(int code, char pressed){
-	if(code == SDL_SCANCODE_MINUS){
+	int key = 0;
+	int p = 0;
+	if(code == otherKeys[1]){
 		if(pressed && zoom < 32768) zoom *= 2;
 		return;
-	}else if(code == SDL_SCANCODE_EQUALS){
+	}else if(code == otherKeys[0]){
 		if(pressed && zoom > 1) zoom /= 2;
 		return;
 	}else if(code == SDL_SCANCODE_ESCAPE){
 		running = 0;
-		code = 255;
-	}else if(code == SDL_SCANCODE_UP) code = 1;
-	else if(code == SDL_SCANCODE_RIGHT) code = 2;
-	else if(code == SDL_SCANCODE_DOWN) code = 4;
-	else if(code == SDL_SCANCODE_LEFT) code = 8;
-	else if(code == SDL_SCANCODE_RCTRL) code = 16;
-	else if(code == SDL_SCANCODE_RSHIFT) code = 32;
-	else return; // No need to send information, no vital keys changed.
+		p=0;
+		key=255;
+	}else{
+		int thing, j, i = 0;
+		for(; i < 2; i++){
+			thing = 1;
+			for(j=0; j<NUMKEYS; j++){
+				if(code == pKeys[i][j]){
+					p=i;
+					key=thing;
+					j=NUMKEYS;
+					i=2;
+				}
+				thing *= 2;
+			}
+		}
+	}
+	if(key==0) return; // No need to send information, no vital keys changed.
 
-	char old = myKeys;
-	if(pressed)	myKeys |= code;// Hence the resetting of 'code' shown above.
-	else 		myKeys &= 255-code;
-	if(old!=myKeys)//If it wasn't caused by a key repeat (such as "down ... downdowndowndownup"
-		sendto(sockfd, &myKeys, 1, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+	char old = myKeys[p];
+	if(pressed)	myKeys[p] |= code;// Hence the resetting of 'code' shown above.
+	else 		myKeys[p] &= 255-code;
+	if(old!=myKeys[p]){//If it wasn't caused by a key repeat (such as "down ... downdowndowndownup"
+		unsigned char vhat = myKeys[p];
+		if(p) vhat|=128;
+		sendto(sockfd, &vhat, 1, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+	}
 }
 
-static void netListen(void* color){ // Helper to myConnect. Listens for frames and draws them. Kills itself when netListenKill is set
-	uint32_t Color = htonl(*(uint32_t*)color);
-	sendto(sockfd, (char*)&Color, 4, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+static void netListen(){ // Helper to myConnect. Listens for frames and draws them. Kills itself when netListenKill is set
+	uint32_t colors[2];
+	colors[0] = htonl(requests[pIndex[0]].color);
+	if(pIndex[1] == -1){
+		sendto(sockfd, (char*)colors, 4, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+	}else{
+		colors[1] = htonl(requests[pIndex[1]].color);
+		sendto(sockfd, (char*)colors, 8, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+	}
 	struct timeval wait, waitClone = {.tv_sec = 1, .tv_usec = 0};
 	fd_set* fdSet = malloc(sizeof(fd_set));
 	FD_ZERO(fdSet);
@@ -416,8 +460,8 @@ static void netListen(void* color){ // Helper to myConnect. Listens for frames a
 	}
 }
 
-void myConnect(uint32_t color){ // Entered by pressing 'c', not exited until you push 'esc'.
-	if(netListenKill) return; // The last one hasn't finished exitting.
+void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
+	if(netListenKill || pIndex[0] == -1) return; // The last one hasn't finished exitting.
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sockfd < 0) return;
 
@@ -452,15 +496,14 @@ void myConnect(uint32_t color){ // Entered by pressing 'c', not exited until you
 
 	zoom = 1;
 
-	{ // I don't care about the ID, I trust it to exit. But I have to store the value. So I litmit its scope.
-		pthread_t netListenID;
-		pthread_create(&netListenID, NULL, (void* (*)(void*))&netListen, &color);
-		pthread_detach(netListenID);
-	}
+	pthread_t netListenID;
+	pthread_create(&netListenID, NULL, (void* (*)(void*))&netListen, NULL);
+	pthread_detach(netListenID);
 
 	SDL_Event e;
 	running = 1;
-	myKeys = 0;
+	myKeys[0] = 0;
+	myKeys[1] = 0;
 	while(running){
 		SDL_WaitEvent(&e);
 		if(e.type == SDL_KEYDOWN)	keyAction(e.key.keysym.scancode, 1);
@@ -473,16 +516,18 @@ void myConnect(uint32_t color){ // Entered by pressing 'c', not exited until you
 	}
 	netListenKill = 1; // socket is closed whenever netListen gets the message here sent.
 }
-void myHost(int max, int* playerNumbers){
-	if(netListenKill) return;
+void myHost(int max, char* playerNumbers){
+	if(netListenKill){
+		free(playerNumbers);
+		return;
+	}
+	playerNums = playerNumbers;
 
 	clients = malloc(max*sizeof(client));
 	maxClients = max;
-	numClients = 0;
 	int i = 0;
 	for(; i < max; i++){
 		clients[i].dead = 1;
-		clients[i].playerNum = playerNumbers[i];
 	}
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sockfd < 0){
@@ -498,6 +543,7 @@ void myHost(int max, int* playerNumbers){
 	if(0 > bind(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr))){
 		close(sockfd);
 		free(clients);
+		free(playerNums);
 		return;
 	}
 
@@ -515,24 +561,28 @@ void stopHosting(){
 	pthread_mutex_unlock(&myMutex);
 	int i = 0;
 	uint16_t size = htons(0);
-	for(; i < numClients; i++){
+	for(; i < maxClients; i++){
 		if(clients[i].dead) continue;
-		requests[clients[i].playerNum].color = 0x606060FF;
+		decolorize(i);
 		sendto(sockfd, (char*)&size, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 	}
 	close(sockfd);
 	free(clients);
+	free(playerNums);
 	netMode = 0;
 }
 
 void kickNoRoom(){ // When the game begins, kick any players whose space was requested but didn't fit in the map
-	int i = numClients-1;
+	int i = 0;
 	uint16_t size = htons(0);
-	for(; i >= 0; i--){
-		if(clients[i].playerNum < players) return; // 'playerNum's are in descending order, so if one has is still in the game, all the rest will be, too.
+	for(; i < maxClients; i++){
 		if(clients[i].dead) continue;
+		if(clients[i].playerNum1 < players){
+			if(clients[i].playerNum2 >= players) clients[i].playerNum2 = 255;
+			continue;
+		}
 		clients[i].dead = 1;
-		requests[clients[i].playerNum].color = 0x606060FF;
+		decolorize(i);
 		sendto(sockfd, (char*)&size, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 	}
 }
@@ -555,17 +605,20 @@ void readKeys(){
 		while(select(sockfd+1, fdSet, NULL, NULL, zeroTime)){
 			recvfrom(sockfd,(char*) data, 1, 0, (struct sockaddr*)&sender, &size);
 			current = clients;
-			for(index = 0; index < numClients; index++){
+			for(index = 0; index < maxClients; index++){
 				if(!current->dead && current->addr.sin_addr.s_addr == sender.sin_addr.s_addr){
 					twoPower = 1;
-					for(index = 0; index < NUMKEYS; index++){
-						masterKeys[NUMKEYS*current->playerNum + index] = *data & twoPower;
-						twoPower *= 2;
-					}
 					if(*data == 255){
 						current->dead = 1;
-						puts("Client disconnected.");
-						requests[current->playerNum].color = 0x606060FF;
+						fputs("Client disconnected.\n", logFile);
+						decolorize(index);
+						break;
+					}
+
+					char* tmpKeys = (*data & 128 && current->playerNum2!=255)?masterKeys+NUMKEYS*current->playerNum2:masterKeys+NUMKEYS*current->playerNum1;
+					for(index = 0; index < NUMKEYS; index++){
+						tmpKeys[index] = *data & twoPower;
+						twoPower *= 2;
 					}
 					break;
 				}
@@ -573,43 +626,58 @@ void readKeys(){
 			}
 		}
 	}else{
-		data = malloc(5);
+		data = malloc(8);
 		int msgLen;
 		client* target;
 		while(select(sockfd+1, fdSet, NULL, NULL, zeroTime)){
-			msgLen = recvfrom(sockfd, (char*)data, 5, 0, (struct sockaddr*)&sender, &size);
+			msgLen = recvfrom(sockfd, (char*)data, 8, 0, (struct sockaddr*)&sender, &size);
 			current = clients;
 			target = NULL;
 			for(index = 0; index < maxClients; index++){
 				if(current->dead){
 					if(!target){
 						target = current;
-						puts("Found a place to store him");
 					}
 				}else if(sender.sin_addr.s_addr == current->addr.sin_addr.s_addr){
-					if(msgLen == 1){
-						if(*data == 255){
-							current->dead = 1;
-							requests[current->playerNum].color = 0x606060FF;
-							puts("Client dropped before game!");
-						}
-						target = NULL;
-					}else{
-						puts("Client requested reassign...");
-						target = current;
-						numClients--;//If it's a reconnect, counteract the ++ below.
+					if(msgLen == 1 && *data == 255){
+						current->dead = 1;
+						playerNums[current->playerNum1] = 1;
+						if(current->playerNum2!=255)
+							playerNums[current->playerNum2]=1;
+						decolorize(index);
+						fputs("Client dropped before game!\n", logFile);
 					}
+					target = NULL;
 					break;
 				}
 				current++;
 			}
 			if(target){
-				target->addr = sender;
-				target->dead = 0;
-				requests[target->playerNum].color = ntohl(*(uint32_t*)data);
-				puts("Stored him.");
-				numClients++;
-				*data = 0;
+				target->playerNum1 = target->playerNum2 = 255;
+				for(index = 0; index < 10; index++){
+					if(playerNums[index]){
+						if(target->playerNum1==255){
+							target->playerNum1=index;
+							if(msgLen==4) break;
+						}else{
+							target->playerNum2=index;
+							break;
+						}
+					}
+				}
+				if(index == 10) *data = 1;
+				else{
+					target->addr = sender;
+					target->dead = 0;
+					playerNums[target->playerNum1] = 0;
+					requests[target->playerNum1].color = ntohl(*(uint32_t*)data);
+					if(msgLen!=4){
+						playerNums[target->playerNum2] = 0;
+						requests[target->playerNum2].color = ntohl(*(((uint32_t*)data)+1));
+					}
+					fputs("Stored a client.\n", logFile);
+					*data = 0;
+				}
 			}else *data = 1;
 			sendto(sockfd, (char*)data, 1, 0, (struct sockaddr*)&sender, size);
 		}
