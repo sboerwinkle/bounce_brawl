@@ -294,81 +294,14 @@ static void keyAction(int code, char pressed){
 	}
 }
 
-static void netListen(){ // Helper to myConnect. Listens for frames and draws them. Kills itself when netListenKill is set
-	uint32_t colors[2];
-	colors[0] = htonl(requests[pIndex[0]].color);
-	if(pIndex[1] == -1){
-		sendto(sockfd, (char*)colors, 4, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
-	}else{
-		colors[1] = htonl(requests[pIndex[1]].color);
-		sendto(sockfd, (char*)colors, 8, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
-	}
+static void waitForNetStuff(){
 	struct timeval wait, waitClone = {.tv_sec = 1, .tv_usec = 0};
 	fd_set* fdSet = malloc(sizeof(fd_set));
 	FD_ZERO(fdSet);
-	uint8_t* sizeData = malloc(3);
-	uint8_t*  data = NULL;
-	uint16_t size = 0;
-	int msgSize;
-	struct sockaddr_in sender;
-	socklen_t addrSize = sizeof(struct sockaddr_in);
-	SDL_Event e = {.type = SDL_WINDOWEVENT}; //Since only the main thread can manipulate the window, thie event is our way of signalling a screen update.
-	glClear(GL_COLOR_BUFFER_BIT);
-	SDL_PushEvent(&e); 
-	do{
-		if(netListenKill){
-			free(fdSet);
-			free(sizeData);
-			close(sockfd);
-			netListenKill = 0;
-			return;
-		}
-		FD_SET(sockfd, fdSet);
-		wait = waitClone;
-	}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
-	{
-		uint8_t code;
-		recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize);
-		if(code) running = 0;
-		else{
-			setColorFromHue(128);
-			drawText(20-width2, 20-height2, TEXTSIZE, "ACKNOWLEDGED");
-		}
-	}
-	SDL_PushEvent(&e);
+	SDL_Event e = {.type = SDL_USEREVENT}; //Since only the main thread can do anything of consequence, this is how we communicate that we have data to read.
 	while(1){
-		if(size == 0){
-			do{
-				if(netListenKill){
-					free(fdSet);
-					free(sizeData);
-					close(sockfd);
-					netListenKill = 0;
-					return;
-				}
-				FD_SET(sockfd, fdSet);
-				wait = waitClone;
-			}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
-			msgSize = recvfrom(sockfd, (char*)sizeData, 3, 0, (struct sockaddr*)&sender, &addrSize);
-			if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
-				puts("E: Info from someone besides the server!");
-				continue;
-			}
-			if(msgSize != 2){
-				puts("E: Read frame as length data");
-				continue;//That was a frame, but we only got the first 2 bytes...
-			}
-			size = ntohs(*((uint16_t*)sizeData));
-			if(size == 0){//Don't return, because we still need to flip netListenKill back to 0 and perform cleanup whenever main thread figures out what's going on and tries to kill us.
-				running = 0;
-				SDL_PushEvent(&e);//Gives it an event so it notices running is now 0.
-			}
-			data = malloc(size);
-		}
 		do{
 			if(netListenKill){
-				free(data);
-				free(sizeData);
 				free(fdSet);
 				close(sockfd);
 				netListenKill = 0;
@@ -377,87 +310,139 @@ static void netListen(){ // Helper to myConnect. Listens for frames and draws th
 			FD_SET(sockfd, fdSet);
 			wait = waitClone;
 		}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
-		FD_ZERO(fdSet);
-		msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
-		while(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
-			puts("E: Info from someone besides the server! ");
-			msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
-		}
-		if(msgSize == 2){
-			puts("E: Read length data as frame");
-			size = ntohs(*((uint16_t*)data));
-			if(size == 0){
-				running = 0;
-				SDL_PushEvent(&e);//Gives it an event so it notices running is now 0.
-			}
-			free(data);
-			data = malloc(size);
-			continue;
-		}
-		uint16_t locX = ntohs(*(uint16_t*)data);
-		uint16_t locY = ntohs(*(uint16_t*)(data+2));
-		uint8_t* pointer = data + 6 + ntohs(*(uint16_t*)(data+4));
-		uint8_t* toolColors = data+6;
-		size = ntohs(*(uint16_t*)pointer);
-		float myMarkSizef = (float)(ntohs(*((uint16_t*)(pointer+2)))/zoom)/width2/2;
-		pointer += 4;
-		uint16_t* circlePointer = (uint16_t*)pointer;
-		short x, y;
-		float xf, yf;
-		uint16_t radius;
-		int i = 0;
-		char flag = 0;
-		setColorWhite();
-		for(; i < size; i++){
-			radius = ntohs(*((uint16_t*)(pointer+4)));
-			x = ( *(uint16_t*)pointer = (ntohs(*(uint16_t*)pointer)-locX)/zoom );
-			y = ( *(uint16_t*)(pointer+2) = (ntohs(*(uint16_t*)(pointer+2))-locY)/zoom );
-			xf = (float)x/width2;
-			yf = (float)y/height2;
-			if(radius & 32768){
-				radius ^= 32768;
-				flag = 1;
-			}
-			radius /= zoom;
-			if(radius > 0)
-				drawCircle(xf, yf, (float)radius/width2);
-			if(flag){
-				flag = 0;
-				setColorFromHex(getToolColor(*(toolColors++)));
-				drawRectangle(xf-myMarkSizef, yf-myMarkSizef, xf+myMarkSizef, yf+myMarkSizef);
-				setColorWhite();
-			}
-			pointer += 6;
-		}
-		size = ntohs(*(uint16_t*)pointer);
-		pointer += 2;
-		int j;
-		int ix;
-		for(i = 0; i < size; i++){
-			ix = 3*ntohs(*(uint16_t*)pointer);
-			msgSize = *(pointer+=2);
-			pointer++;
-			xf = (float)*(circlePointer+ix)/width2;
-			yf = (float)*(circlePointer+ix+1)/height2;
-			for(j = 0; j < msgSize; j++){
-				ix = 3*ntohs(*((uint16_t*)pointer));
-				setColorFromHex(getColorFromHue(*(pointer+=2)));
-				drawLine(xf, yf, (float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2);
-				pointer++;
-			}
-		}
-		size = ntohs(*(uint16_t*)pointer);
-		pointer+=2;
-		for(i = 0; i < size; i++){
-			ix = 3*ntohs(*(uint16_t*)pointer);
-			setColorFromHex(ntohl(*(uint32_t*)(pointer+2)));
-			drawCircle((float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2, myMarkSizef);
-			pointer+=6;
-		}
-		size = 0;//since we use 'size' to determine which variety of packet to read next, this says we just read a screenshot.
-		SDL_PushEvent(&e); // Here: I recommend a flag that sets whether or not the last frame finished drawing.
-		free(data);
+		SDL_PushEvent(&e); 
 	}
+}
+
+static int netListen(int phase){ // Helper to myConnect. Is called whenever there's net data to read, and does all the dirty work.
+	uint8_t sizeData[3];
+	uint8_t* data = NULL;
+	static uint16_t size = 0;
+	int msgSize;
+	struct sockaddr_in sender;
+	socklen_t addrSize = sizeof(struct sockaddr_in);
+	if(phase == 0){
+		uint8_t code;
+		recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize);
+		if(code){
+			running = 0;
+			return 0;
+		}else{
+			setColorFromHue(128);
+			drawText(20-width2, 20-height2, TEXTSIZE, "ACKNOWLEDGED");
+			myDrawScreen();
+			return 1;
+		}
+	}
+	if(phase == 1){
+		msgSize = recvfrom(sockfd, (char*)sizeData, 3, 0, (struct sockaddr*)&sender, &addrSize);
+		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
+			puts("E: Info from someone besides the server!");
+			return 1;
+		}
+		if(msgSize != 2){
+			puts("E: Read frame as length data");
+			return 1;
+		}
+		size = ntohs(*((uint16_t*)sizeData));
+		if(size == 0){
+			running = 0;
+			return 1;//I was here, so yeah....
+		}
+		data = malloc(size);
+	}
+	do{
+		if(netListenKill){
+			free(data);
+			free(sizeData);
+			free(fdSet);
+			close(sockfd);
+			netListenKill = 0;
+			return;
+		}
+		FD_SET(sockfd, fdSet);
+		wait = waitClone;
+	}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
+	FD_ZERO(fdSet);
+	msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
+	while(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
+		puts("E: Info from someone besides the server! ");
+		msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
+	}
+	if(msgSize == 2){
+		puts("E: Read length data as frame");
+		size = ntohs(*((uint16_t*)data));
+		if(size == 0){
+			running = 0;
+			SDL_PushEvent(&e);//Gives it an event so it notices running is now 0.
+		}
+		free(data);
+		data = malloc(size);
+		continue;
+	}
+	uint16_t locX = ntohs(*(uint16_t*)data);
+	uint16_t locY = ntohs(*(uint16_t*)(data+2));
+	uint8_t* pointer = data + 6 + ntohs(*(uint16_t*)(data+4));
+	uint8_t* toolColors = data+6;
+	size = ntohs(*(uint16_t*)pointer);
+	float myMarkSizef = (float)(ntohs(*((uint16_t*)(pointer+2)))/zoom)/width2/2;
+	pointer += 4;
+	uint16_t* circlePointer = (uint16_t*)pointer;
+	short x, y;
+	float xf, yf;
+	uint16_t radius;
+	int i = 0;
+	char flag = 0;
+	setColorWhite();
+	for(; i < size; i++){
+		radius = ntohs(*((uint16_t*)(pointer+4)));
+		x = ( *(uint16_t*)pointer = (ntohs(*(uint16_t*)pointer)-locX)/zoom );
+		y = ( *(uint16_t*)(pointer+2) = (ntohs(*(uint16_t*)(pointer+2))-locY)/zoom );
+		xf = (float)x/width2;
+		yf = (float)y/height2;
+		if(radius & 32768){
+			radius ^= 32768;
+			flag = 1;
+		}
+		radius /= zoom;
+		if(radius > 0)
+			drawCircle(xf, yf, (float)radius/width2);
+		if(flag){
+			flag = 0;
+			setColorFromHex(getToolColor(*(toolColors++)));
+			drawRectangle(xf-myMarkSizef, yf-myMarkSizef, xf+myMarkSizef, yf+myMarkSizef);
+			setColorWhite();
+		}
+		pointer += 6;
+	}
+	size = ntohs(*(uint16_t*)pointer);
+	pointer += 2;
+	int j;
+	int ix;
+	for(i = 0; i < size; i++){
+		ix = 3*ntohs(*(uint16_t*)pointer);
+		msgSize = *(pointer+=2);
+		pointer++;
+		xf = (float)*(circlePointer+ix)/width2;
+		yf = (float)*(circlePointer+ix+1)/height2;
+		for(j = 0; j < msgSize; j++){
+			ix = 3*ntohs(*((uint16_t*)pointer));
+			setColorFromHex(getColorFromHue(*(pointer+=2)));
+			drawLine(xf, yf, (float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2);
+			pointer++;
+		}
+	}
+	size = ntohs(*(uint16_t*)pointer);
+	pointer+=2;
+	for(i = 0; i < size; i++){
+		ix = 3*ntohs(*(uint16_t*)pointer);
+		setColorFromHex(ntohl(*(uint32_t*)(pointer+2)));
+		drawCircle((float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2, myMarkSizef);
+		pointer+=6;
+	}
+	size = 0;//since we use 'size' to determine which variety of packet to read next, this says we just read a screenshot.
+	SDL_PushEvent(&e); // Here: I recommend a flag that sets whether or not the last frame finished drawing.
+	free(data);
 }
 
 void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
@@ -497,8 +482,18 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 	zoom = 1;
 
 	pthread_t netListenID;
-	pthread_create(&netListenID, NULL, (void* (*)(void*))&netListen, NULL);
-	pthread_detach(netListenID);
+	pthread_create(&netListenID, NULL, (void* (*)(void*))&waitForNetStuff, NULL);
+
+	uint32_t colors[2];
+	colors[0] = htonl(requests[pIndex[0]].color);
+	if(pIndex[1] == -1){
+		sendto(sockfd, (char*)colors, 4, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+	}else{
+		colors[1] = htonl(requests[pIndex[1]].color);
+		sendto(sockfd, (char*)colors, 8, 0, (struct sockaddr*)(&servaddr), sizeof(servaddr));
+	}
+	myDrawScreen();
+	int stage = 0;
 
 	SDL_Event e;
 	running = 1;
@@ -509,12 +504,14 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 		if(e.type == SDL_KEYDOWN)	keyAction(e.key.keysym.scancode, 1);
 		else if(e.type == SDL_KEYUP)	keyAction(e.key.keysym.scancode, 0);
 		else if(e.type == SDL_WINDOWEVENT) myDrawScreen();
+		else if(e.type == SDL_USEREVENT) stage = netListen(stage);
 		else if(e.type == SDL_QUIT){
 			SDL_PushEvent(&e);//Push it back on so main will exit, then hand control back in that direction.
 			running = 0;
 		}
 	}
 	netListenKill = 1; // socket is closed whenever netListen gets the message here sent.
+	pthread_join(netListenID, NULL);
 }
 void myHost(int max, char* playerNumbers){
 	if(netListenKill){
