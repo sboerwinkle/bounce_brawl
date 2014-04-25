@@ -58,6 +58,7 @@ static char* playerNums;
 
 static pthread_mutex_t myMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t myCond = PTHREAD_COND_INITIALIZER;
+static char condVerifier=0;
 static struct imgData* dataToSend = NULL;
 
 void addNetCircle(short x, short y, unsigned int r){
@@ -310,7 +311,11 @@ static void waitForNetStuff(){
 			FD_SET(sockfd, fdSet);
 			wait = waitClone;
 		}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
+		pthread_mutex_lock(&myMutex);
+		condVerifier = 0;
 		SDL_PushEvent(&e); 
+		while(!condVerifier) pthread_cond_wait(&myCond, &myMutex);
+		pthread_mutex_unlock(&myMutex);
 	}
 }
 
@@ -333,8 +338,7 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 			myDrawScreen();
 			return 1;
 		}
-	}
-	if(phase == 1){
+	}else if(phase == 1){
 		msgSize = recvfrom(sockfd, (char*)sizeData, 3, 0, (struct sockaddr*)&sender, &addrSize);
 		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
 			puts("E: Info from someone besides the server!");
@@ -344,107 +348,97 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 			puts("E: Read frame as length data");
 			return 1;
 		}
-		size = ntohs(*((uint16_t*)sizeData));
+		uint8_t* tmpPointer = sizeData;
+		size = ntohs(*((uint16_t*)tmpPointer));
 		if(size == 0){
 			running = 0;
-			return 1;//I was here, so yeah....
+			return 1;
 		}
+		return 2;
+	}else if(phase == 2){
 		data = malloc(size);
-	}
-	do{
-		if(netListenKill){
-			free(data);
-			free(sizeData);
-			free(fdSet);
-			close(sockfd);
-			netListenKill = 0;
-			return;
-		}
-		FD_SET(sockfd, fdSet);
-		wait = waitClone;
-	}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
-	FD_ZERO(fdSet);
-	msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
-	while(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
-		puts("E: Info from someone besides the server! ");
 		msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
-	}
-	if(msgSize == 2){
-		puts("E: Read length data as frame");
-		size = ntohs(*((uint16_t*)data));
-		if(size == 0){
-			running = 0;
-			SDL_PushEvent(&e);//Gives it an event so it notices running is now 0.
+		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
+			free(data);
+			puts("E: Info from someone besides the server! ");
+			return 2;
+		}
+		if(msgSize == 2){
+			puts("E: Read length data as frame");
+			size = ntohs(*((uint16_t*)data));
+			if(size == 0){
+				running = 0;
+				return 1;
+			}
+			free(data);
+			return 2;
+		}
+		uint16_t locX = ntohs(*(uint16_t*)data);
+		uint16_t locY = ntohs(*(uint16_t*)(data+2));
+		uint8_t* pointer = data + 6 + ntohs(*(uint16_t*)(data+4));
+		uint8_t* toolColors = data+6;
+		size = ntohs(*(uint16_t*)pointer);
+		float myMarkSizef = (float)(ntohs(*((uint16_t*)(pointer+2)))/zoom)/width2/2;
+		pointer += 4;
+		uint16_t* circlePointer = (uint16_t*)pointer;
+		short x, y;
+		float xf, yf;
+		uint16_t radius;
+		int i = 0;
+		char flag = 0;
+		setColorWhite();
+		for(; i < size; i++){
+			radius = ntohs(*((uint16_t*)(pointer+4)));
+			x = ( *(uint16_t*)pointer = (ntohs(*(uint16_t*)pointer)-locX)/zoom );
+			y = ( *(uint16_t*)(pointer+2) = (ntohs(*(uint16_t*)(pointer+2))-locY)/zoom );
+			xf = (float)x/width2;
+			yf = (float)y/height2;
+			if(radius & 32768){
+				radius ^= 32768;
+				flag = 1;
+			}
+			radius /= zoom;
+			if(radius > 0)
+				drawCircle(xf, yf, (float)radius/width2);
+			if(flag){
+				flag = 0;
+				setColorFromHex(getToolColor(*(toolColors++)));
+				drawRectangle(xf-myMarkSizef, yf-myMarkSizef, xf+myMarkSizef, yf+myMarkSizef);
+				setColorWhite();
+			}
+			pointer += 6;
+		}
+		size = ntohs(*(uint16_t*)pointer);
+		pointer += 2;
+		int j;
+		int ix;
+		for(i = 0; i < size; i++){
+			ix = 3*ntohs(*(uint16_t*)pointer);
+			msgSize = *(pointer+=2);
+			pointer++;
+			xf = (float)*(circlePointer+ix)/width2;
+			yf = (float)*(circlePointer+ix+1)/height2;
+			for(j = 0; j < msgSize; j++){
+				ix = 3*ntohs(*((uint16_t*)pointer));
+				setColorFromHex(getColorFromHue(*(pointer+=2)));
+				drawLine(xf, yf, (float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2);
+				pointer++;
+			}
+		}
+		size = ntohs(*(uint16_t*)pointer);
+		pointer+=2;
+		for(i = 0; i < size; i++){
+			ix = 3*ntohs(*(uint16_t*)pointer);
+			setColorFromHex(ntohl(*(uint32_t*)(pointer+2)));
+			drawCircle((float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2, myMarkSizef);
+			pointer+=6;
 		}
 		free(data);
-		data = malloc(size);
-		continue;
+		myDrawScreen();
+		return 1;
 	}
-	uint16_t locX = ntohs(*(uint16_t*)data);
-	uint16_t locY = ntohs(*(uint16_t*)(data+2));
-	uint8_t* pointer = data + 6 + ntohs(*(uint16_t*)(data+4));
-	uint8_t* toolColors = data+6;
-	size = ntohs(*(uint16_t*)pointer);
-	float myMarkSizef = (float)(ntohs(*((uint16_t*)(pointer+2)))/zoom)/width2/2;
-	pointer += 4;
-	uint16_t* circlePointer = (uint16_t*)pointer;
-	short x, y;
-	float xf, yf;
-	uint16_t radius;
-	int i = 0;
-	char flag = 0;
-	setColorWhite();
-	for(; i < size; i++){
-		radius = ntohs(*((uint16_t*)(pointer+4)));
-		x = ( *(uint16_t*)pointer = (ntohs(*(uint16_t*)pointer)-locX)/zoom );
-		y = ( *(uint16_t*)(pointer+2) = (ntohs(*(uint16_t*)(pointer+2))-locY)/zoom );
-		xf = (float)x/width2;
-		yf = (float)y/height2;
-		if(radius & 32768){
-			radius ^= 32768;
-			flag = 1;
-		}
-		radius /= zoom;
-		if(radius > 0)
-			drawCircle(xf, yf, (float)radius/width2);
-		if(flag){
-			flag = 0;
-			setColorFromHex(getToolColor(*(toolColors++)));
-			drawRectangle(xf-myMarkSizef, yf-myMarkSizef, xf+myMarkSizef, yf+myMarkSizef);
-			setColorWhite();
-		}
-		pointer += 6;
-	}
-	size = ntohs(*(uint16_t*)pointer);
-	pointer += 2;
-	int j;
-	int ix;
-	for(i = 0; i < size; i++){
-		ix = 3*ntohs(*(uint16_t*)pointer);
-		msgSize = *(pointer+=2);
-		pointer++;
-		xf = (float)*(circlePointer+ix)/width2;
-		yf = (float)*(circlePointer+ix+1)/height2;
-		for(j = 0; j < msgSize; j++){
-			ix = 3*ntohs(*((uint16_t*)pointer));
-			setColorFromHex(getColorFromHue(*(pointer+=2)));
-			drawLine(xf, yf, (float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2);
-			pointer++;
-		}
-	}
-	size = ntohs(*(uint16_t*)pointer);
-	pointer+=2;
-	for(i = 0; i < size; i++){
-		ix = 3*ntohs(*(uint16_t*)pointer);
-		setColorFromHex(ntohl(*(uint32_t*)(pointer+2)));
-		drawCircle((float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2, myMarkSizef);
-		pointer+=6;
-	}
-	size = 0;//since we use 'size' to determine which variety of packet to read next, this says we just read a screenshot.
-	SDL_PushEvent(&e); // Here: I recommend a flag that sets whether or not the last frame finished drawing.
-	free(data);
+	return 1;
 }
-
 void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 	if(netListenKill || pIndex[0] == -1) return; // The last one hasn't finished exitting.
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -504,7 +498,13 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 		if(e.type == SDL_KEYDOWN)	keyAction(e.key.keysym.scancode, 1);
 		else if(e.type == SDL_KEYUP)	keyAction(e.key.keysym.scancode, 0);
 		else if(e.type == SDL_WINDOWEVENT) myDrawScreen();
-		else if(e.type == SDL_USEREVENT) stage = netListen(stage);
+		else if(e.type == SDL_USEREVENT){
+			stage = netListen(stage);
+			pthread_mutex_lock(&myMutex);
+			condVerifier = 1;
+			pthread_mutex_unlock(&myMutex);
+			pthread_cond_signal(&myCond);
+		}
 		else if(e.type == SDL_QUIT){
 			SDL_PushEvent(&e);//Push it back on so main will exit, then hand control back in that direction.
 			running = 0;
