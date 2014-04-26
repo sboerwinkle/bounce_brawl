@@ -18,6 +18,7 @@
 	//#pragma comment(lib, "Ws2_32.lib") //Doesn't work
 #endif
 #include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -265,6 +266,7 @@ static void decolorize(int i){
 }
 
 static void keyAction(int code, char pressed){
+	puts("It's a key!");
 	int key = 0;
 	int p = 0;
 	if(code == otherKeys[1]){
@@ -312,8 +314,7 @@ static void waitForNetStuff(){
 			close(sockfd);
 			return;
 		}
-		poll(&myPollFd, 1, 1000);
-		if(myPollFd.revents & POLLIN){
+		if(poll(&myPollFd, 1, 1000)==1 && myPollFd.revents == POLLIN){
 			if(!SDL_PushEvent(&e)) sem_wait(&mySem); // If we successfully pushed the event, wait for main thread to process it.
 		}
 	}
@@ -325,27 +326,32 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 	static uint16_t size = 0;
 	int msgSize;
 	struct sockaddr_in sender;
-	socklen_t addrSize = sizeof(struct sockaddr_in);
+	socklen_t addrSize2 = sizeof(struct sockaddr_in);
+	socklen_t addrSize;
 	if(phase == 0){
 		uint8_t code;
-		recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize);
+		addrSize = addrSize2;
+		if(0==recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize)) return 0;
 		if(code){
+			puts("Shucks.");
 			running = 0;
 			return 0;
 		}else{
+			puts("Hooray!");
 			setColorFromHue(128);
-			drawText(20-width2, 20-height2, TEXTSIZE, "ACKNOWLEDGED");
+			drawText(20-width2, 20+height2, TEXTSIZE, "ACKNOWLEDGED");
 			myDrawScreen();
 			return 1;
 		}
 	}else if(phase == 1){
+		addrSize = addrSize2;
 		msgSize = recvfrom(sockfd, (char*)sizeData, 3, 0, (struct sockaddr*)&sender, &addrSize);
 		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
 			puts("E: Info from someone besides the server!");
 			return 1;
 		}
 		if(msgSize != 2){
-			puts("E: Read frame as length data");
+			if(msgSize != 0) puts("E: Read frame as length data");
 			return 1;
 		}
 		uint8_t* tmpPointer = sizeData;
@@ -357,6 +363,7 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 		return 2;
 	}else if(phase == 2){
 		data = malloc(size);
+		addrSize = addrSize2;
 		msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
 		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
 			free(data);
@@ -453,6 +460,7 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 		close(sockfd);
 		return;
 	}
+	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
 #ifndef WINDOWS
 	in_addr_t addr = inet_addr(addressString);
@@ -493,12 +501,15 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 	running = 1;
 	myKeys[0] = 0;
 	myKeys[1] = 0;
+	puts("Entering loop...");
 	while(running){
 		SDL_WaitEvent(&e);
+		puts("Got an event!");
 		if(e.type == SDL_KEYDOWN)	keyAction(e.key.keysym.sym, 1);
 		else if(e.type == SDL_KEYUP)	keyAction(e.key.keysym.sym, 0);
 		else if(e.type == SDL_WINDOWEVENT) myDrawScreen();
 		else if(e.type == SDL_USEREVENT){
+			puts("Oh no.");
 			stage = netListen(stage);
 			sem_post(&mySem);
 		}
@@ -507,6 +518,7 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 			running = 0;
 		}
 	}
+	puts("Done with loop!");
 	sem_post(&secondSem);//Tells waitForNetStuff to kill itself
 	sem_post(&mySem);//In case he was in the middle of telling us about a packet: "Yes, yes, that't very nice, now kill yourself!"
 	pthread_join(netStuffId, NULL);
@@ -538,6 +550,7 @@ void myHost(int max, char* playerNumbers){
 		free(playerNums);
 		return;
 	}
+	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
 	pthread_create(&hostThreadId, NULL, (void* (*)(void*))&sendImgs, NULL);
 
@@ -579,22 +592,21 @@ void kickNoRoom(){ // When the game begins, kick any players whose space was req
 }
 
 void readKeys(){
-	struct timeval* zeroTime = calloc(1, sizeof(struct timeval));
-	fd_set* fdSet = malloc(sizeof(fd_set));
-	FD_ZERO(fdSet);
-	FD_SET(sockfd, fdSet);
+	struct pollfd myPollFd = {.fd=sockfd, .events=POLLIN};
 
 	uint8_t* data;
 	struct sockaddr_in sender;
-	socklen_t size = sizeof(sender);
+	socklen_t size2 = sizeof(sender);
+	socklen_t size;
 	client* current;
 	int index;
 
 	if(mode){
 		data = malloc(1);
 		int twoPower;
-		while(select(sockfd+1, fdSet, NULL, NULL, zeroTime)){
-			recvfrom(sockfd,(char*) data, 1, 0, (struct sockaddr*)&sender, &size);
+		while(poll(&myPollFd, 1, 0)==1){
+			size = size2;
+			if(0==recvfrom(sockfd,(char*) data, 1, 0, (struct sockaddr*)&sender, &size)) continue;
 			current = clients;
 			for(index = 0; index < maxClients; index++){
 				if(!current->dead && current->addr.sin_addr.s_addr == sender.sin_addr.s_addr){
@@ -620,8 +632,10 @@ void readKeys(){
 		data = malloc(8);
 		int msgLen;
 		client* target;
-		while(select(sockfd+1, fdSet, NULL, NULL, zeroTime)){
+		while(poll(&myPollFd, 1, 0)==1){
+			size = size2;
 			msgLen = recvfrom(sockfd, (char*)data, 8, 0, (struct sockaddr*)&sender, &size);
+			if(msgLen==0) continue;
 			current = clients;
 			target = NULL;
 			for(index = 0; index < maxClients; index++){
@@ -673,7 +687,5 @@ void readKeys(){
 			sendto(sockfd, (char*)data, 1, 0, (struct sockaddr*)&sender, size);
 		}
 	}
-	free(zeroTime);
-	free(fdSet);
 	free(data);
 }
