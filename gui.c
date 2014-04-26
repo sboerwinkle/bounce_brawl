@@ -95,12 +95,14 @@ static char* modeToString(int ix){
 		case 1:
 			return " PLAYER 2";
 		case 2:
-			return " COMBAT AI";
+			return " WIMPY COMBAT AI";
 		case 3:
-			return " DIEHARD COMBAT AI";
+			return " COMBAT AI";
 		case 4:
-			return " EXPERIMENTAL SPACE AI";
+			return " DIEHARD COMBAT AI";
 		case 5:
+			return " EXPERIMENTAL SPACE AI";
+		case 6:
 			return " DIEHARD EXPERIMENTAL SPACE AI";
 		default:
 			return " Error! Danger! Augh!";
@@ -424,14 +426,14 @@ static void spKeyAction(int bit, char pressed){
 				if(requests[players].controlMode > -1){
 					if(--requests[players].controlMode == -1) requests[players].color = 0x606060FF;
 				}else{
-					requests[players].controlMode = 5;
+					requests[players].controlMode = 6;
 					requests[players].color = getColorFromHue(requests[players].hue);
 				}
 				nothingChanged = 0;
 				return;
 			}
 			if(bit == SDLK_RIGHT){
-				if(requests[players].controlMode < 5){
+				if(requests[players].controlMode < 6){
 					if(requests[players].controlMode++ == -1) requests[players].color = getColorFromHue(requests[players].hue);
 				}else{
 					requests[players].controlMode = -1;

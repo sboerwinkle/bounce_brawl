@@ -708,11 +708,8 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	current->dataUsed = 1;
 	current->data = data;
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
-	int controlMode = requests[playerNum].controlMode;
-	if(controlMode/2 == 1) taskaicombatadd(playerNum, controlMode==3);
-	else if(controlMode/2 == 2) taskaispacecombatadd(playerNum, controlMode==5);
 	data->index = i;
-	data->num = playerNum++;
+	data->num = playerNum;
 	data->controltype = -1;
 	int ix = 0;
 	for(; ix < 4; ix++) data->exists[ix] = 1;
@@ -737,6 +734,19 @@ void taskguycontroladdLong(int x, int y, char flipped){
 //	newConnectionLong(i,   2, i+1, 0.6, 20, 27, 15, .35);
 //	newConnectionLong(i,   3, i+2, 0.6, 28, 39, 19, .35);
 //	newConnectionLong(i+3, 1, i+1, 0.6, 28, 39, 19, .35);
+	int controlMode = requests[playerNum].controlMode;
+	if(controlMode>=2 && controlMode<=4){
+		taskaicombatadd(playerNum, controlMode!=3);
+		if(controlMode==2){
+			int j;
+			for(ix=0; ix<4; ix++){
+				nodes[i+ix].mass /= 2;
+				for(j=1; j<nodes[i+ix].numConnections; j++) nodes[i+ix].connections[j].force /= 2;
+			}
+		}
+	}
+	else if(controlMode==5 || controlMode==6) taskaispacecombatadd(playerNum, controlMode==6);
+	playerNum++;
 }
 void taskguycontroladd(int x, int y){taskguycontroladdLong(x, y, 0);}
 uint32_t getToolColor(int type){
