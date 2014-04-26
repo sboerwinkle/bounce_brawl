@@ -1,4 +1,5 @@
 Hanging Gardens
+I really ought to clean up the newNode / addNode business...
 Onslaugt
 Achievements
 Space ships

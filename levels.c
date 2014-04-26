@@ -35,7 +35,8 @@ static void addScores(){
 #define sqrt3 1.732050808
 #define H 1
 //Makes arrays created for this method easier to visualize, especially w/ syntax highlighting
-static void addHex(double x, double y, int width, int height, int* map, double fric, double spacing, double tolerance, double str, double size, double mass){
+static int addHex(double x, double y, int width, int height, int* map, double fric, double spacing, double tolerance, double str, double size, double mass){
+	int ret = -1;
 	double placeX;
 	double placeY = y;
 	int tmp;
@@ -45,6 +46,7 @@ static void addHex(double x, double y, int width, int height, int* map, double f
 		for(i = 0; i < width; i++){
 			if(map[j*width + i]){
 				tmp = addNode();
+				if(ret==-1) ret=tmp;
 				newNode(tmp, (int)placeX, (int)placeY, size, mass, 0);
 				map[j*width + i] = tmp+1; // index is stored so later nodes can connect to it
 				//Initialize connections
@@ -80,6 +82,7 @@ static void addHex(double x, double y, int width, int height, int* map, double f
 		}
 		placeY += spacing*sqrt3/2;
 	}
+	return ret;
 }
 static void addBridge(int ix1, int ix2, int numNodes, double height, double size, double mass, double fric, double tol, double str){//'height' is a fraction of the total distance.
 	double stepx = (nodes[ix2].x-nodes[ix1].x+nodes[ix2].px-nodes[ix1].px)/numNodes;
@@ -340,12 +343,9 @@ void lvlcave(){
 			         0,0,H,H,0,0,0,0,0,0,0,H,H,H,H,H,0,0,0,0,0,0,0,H,H,\
 			          0,H,H,H,0,0,0,0,0,0,H,H,H,H,H,H,0,0,0,0,0,0,H,H,H,\
 			           H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H};
-	addHex(-5*lvlcavesize, 0, 25, 12, hexArg, 0.9, lvlcavesize, 5, 3, lvlcavesize*.45, 8);
-	int ix = addNode();
-	newNode(ix, 0, 0, 1, 1, 0);
-	killNode(ix);//We just want the index
-	int i = ix - 1;
-	for(; i >= ix-25; i--){
+	int ix = 114+addHex(-5*lvlcavesize, 0, 25, 12, hexArg, 0.9, lvlcavesize, 5, 3, lvlcavesize*.45, 8);
+	int i = ix;
+	for(; i >= ix-24; i--){
 		taskfixedadd(i, 1);
 	}
 	taskgravityadd();
@@ -417,33 +417,54 @@ static int addPyramid(int x, int y){
 	double fric = 0.85;
 	int tol = 5;
 	double str = 2.3;
-	int ix = addNode();
-	newNode(ix, 0, 0, 1, 1, 0);
 	int hexArg[] = {0,0,H,H,H,0,0,0,0,0,H,H,H,\
 			 0,0,0,0,0,0,0,0,0,0,0,0,0,\
 			  0,0,0,0,0,H,H,H,0,0,0,0,0,\
 			   0,0,0,0,H,H,H,H,0,0,0,0,0,\
 			    H,H,H,H,H,H,H,H,H,H,H,0,0};
-	addHex(-7*size+x, y, 13, 5, hexArg, fric, size, tol, str, size*.45, 8);
+	int ix = addHex(-7*size+x, y, 13, 5, hexArg, fric, size, tol, str, size*.45, 8);
 
-	connectNodes(ix+14, ix+3, fric, tol, str);
+	connectNodes(ix+13, ix+2, fric, tol, str);
 
-	connectNodes(ix+24, ix+4, fric, tol, str);
+	connectNodes(ix+23, ix+3, fric, tol, str);
 
-	connectNodes(ix+14, ix+1, fric, tol, str);
-	connectNodes(ix+15, ix+1, fric, tol, str);
-	connectNodes(ix+17, ix+1, fric, tol, str);
+	connectNodes(ix+13, ix, fric, tol, str);
+	connectNodes(ix+14, ix, fric, tol, str);
+	connectNodes(ix+16, ix, fric, tol, str);
 
-	connectNodes(ix+21, ix+6, fric, tol, str);
-	connectNodes(ix+23, ix+6, fric, tol, str);
-	connectNodes(ix+24, ix+6, fric, tol, str);
+	connectNodes(ix+20, ix+5, fric, tol, str);
+	connectNodes(ix+22, ix+5, fric, tol, str);
+	connectNodes(ix+23, ix+5, fric, tol, str);
 
-	newNode(ix, x, y-200, 5, 1000, 0);
-	connectNodes(ix, ix+1, 0.7, tol*2, str*2);
-	connectNodes(ix, ix+6, 0.7, tol*2, str*2);
-	connectNodes(ix, ix+17, 0.7, tol*2, str*2);
-	connectNodes(ix, ix+21, 0.7, tol*2, str*2);
-	taskfixedadd(ix, 1);
+	newNode(addNode(), x, y-200, 5, 1000, 0);
+	connectNodes(ix+24, ix, 0.7, tol*2, str*2);
+	connectNodes(ix+24, ix+5, 0.7, tol*2, str*2);
+	connectNodes(ix+24, ix+16, 0.7, tol*2, str*2);
+	connectNodes(ix+24, ix+20, 0.7, tol*2, str*2);
+	taskfixedadd(ix+24, 1);
+	return ix;
+}
+
+static int addSplit(int x, int y){
+	int size = 25;
+	double fric = 0.85;
+	int tol = 5;
+	double str = 2.3;
+	int hexArg[] = {0,0,H,H,H,H,0,0,0,0,H,H,H,\
+			 0,0,0,0,0,0,0,0,H,H,0,0,0,\
+			  0,0,0,0,0,0,H,H,H,0,0,0,0,\
+			   0,0,0,0,H,H,H,H,0,0,0,0,0,\
+			    H,H,H,H,H,H,H,0,0,0,0,0,0};
+	int ix = addHex(-7*size+x, y, 13, 5, hexArg, fric, size, tol, str, size*.45, 8);
+
+	connectNodes(ix+16, ix, fric, tol, str);
+	connectNodes(ix+17, ix, fric, tol, str);
+
+	newNode(addNode(), x, y-200, 5, 1000, 0);
+	connectNodes(ix+23, ix, 0.7, tol*2, str*2);
+	connectNodes(ix+23, ix+6, 0.7, tol*2, str*2);
+	connectNodes(ix+23, ix+22, 0.7, tol*2, str*2);
+	taskfixedadd(ix+23, 1);
 	return ix;
 }
 
@@ -453,7 +474,8 @@ void lvlpyramid(){
 	if(players > 2) players = 2;
 	int ix1 = addPyramid(0, 0);
 	int ix2 = addElevator(600, -200);
-	addBridge(ix1+6, ix2+3, 12, .3, 14, 8, .95, 7, 4.4);
+	addSplit(1200, 0);
+	addBridge(ix1+5, ix2+3, 12, .3, 14, 8, .95, 7, 4.4);
 	taskgravityadd();
 	taskincineratoradd(300);
 	if(players < 1) return;
