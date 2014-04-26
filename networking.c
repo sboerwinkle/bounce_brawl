@@ -266,7 +266,6 @@ static void decolorize(int i){
 }
 
 static void keyAction(int code, char pressed){
-	puts("It's a key!");
 	int key = 0;
 	int p = 0;
 	if(code == otherKeys[1]){
@@ -333,27 +332,18 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 		addrSize = addrSize2;
 		if(0==recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize)) return 0;
 		if(code){
-			puts("Shucks.");
 			running = 0;
 			return 0;
 		}else{
-			puts("Hooray!");
 			setColorFromHue(128);
 			drawText(20-width2, 20+height2, TEXTSIZE, "ACKNOWLEDGED");
-			myDrawScreen();
+			myDrawScreenNoClear();
 			return 1;
 		}
 	}else if(phase == 1){
 		addrSize = addrSize2;
 		msgSize = recvfrom(sockfd, (char*)sizeData, 3, 0, (struct sockaddr*)&sender, &addrSize);
-		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
-			puts("E: Info from someone besides the server!");
-			return 1;
-		}
-		if(msgSize != 2){
-			if(msgSize != 0) puts("E: Read frame as length data");
-			return 1;
-		}
+		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr || msgSize != 2) return 1;
 		uint8_t* tmpPointer = sizeData;
 		size = ntohs(*((uint16_t*)tmpPointer));
 		if(size == 0){
@@ -362,16 +352,15 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 		}
 		return 2;
 	}else if(phase == 2){
+		glClear(GL_COLOR_BUFFER_BIT);
 		data = malloc(size);
 		addrSize = addrSize2;
 		msgSize = recvfrom(sockfd, (char*)data, size, 0, (struct sockaddr*)&sender, &addrSize);
 		if(sender.sin_addr.s_addr != servaddr.sin_addr.s_addr){
 			free(data);
-			puts("E: Info from someone besides the server! ");
 			return 2;
 		}
 		if(msgSize == 2){
-			puts("E: Read length data as frame");
 			size = ntohs(*((uint16_t*)data));
 			if(size == 0){
 				running = 0;
@@ -441,7 +430,7 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 			pointer+=6;
 		}
 		free(data);
-		myDrawScreen();
+		myDrawScreenNoClear();
 		return 1;
 	}
 	return 1;
@@ -501,15 +490,12 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 	running = 1;
 	myKeys[0] = 0;
 	myKeys[1] = 0;
-	puts("Entering loop...");
 	while(running){
 		SDL_WaitEvent(&e);
-		puts("Got an event!");
 		if(e.type == SDL_KEYDOWN)	keyAction(e.key.keysym.sym, 1);
 		else if(e.type == SDL_KEYUP)	keyAction(e.key.keysym.sym, 0);
-		else if(e.type == SDL_WINDOWEVENT) myDrawScreen();
+		else if(e.type == SDL_WINDOWEVENT) myDrawScreenNoClear();
 		else if(e.type == SDL_USEREVENT){
-			puts("Oh no.");
 			stage = netListen(stage);
 			sem_post(&mySem);
 		}
@@ -518,11 +504,11 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 			running = 0;
 		}
 	}
-	puts("Done with loop!");
 	sem_post(&secondSem);//Tells waitForNetStuff to kill itself
 	sem_post(&mySem);//In case he was in the middle of telling us about a packet: "Yes, yes, that't very nice, now kill yourself!"
 	pthread_join(netStuffId, NULL);
 	sem_trywait(&mySem);//In case he wasn't in the middle of telling us about a packet
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 void myHost(int max, char* playerNumbers){
 	playerNums = playerNumbers;

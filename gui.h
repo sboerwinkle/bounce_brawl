@@ -1,6 +1,8 @@
 #define NUMKEYS 6
 #define TEXTSIZE 2
 
+extern void myDrawScreenNoClear();
+
 extern void myDrawScreen();
 
 extern int players;

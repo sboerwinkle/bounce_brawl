@@ -77,11 +77,11 @@ void addMenuLevel(menu* where, int ix, void (*func)(), char* text){
 	item->text = text;
 }
 
+void myDrawScreenNoClear(){
+	SDL_GL_SwapWindow(window);
+}
+
 void myDrawScreen(){
-//	if(SDL_UpdateTexture(texture, NULL, screen, 750*4) < 0) puts(SDL_GetError());
-//	if(SDL_RenderClear(render) < 0) puts(SDL_GetError());
-//	if(SDL_RenderCopy(render, texture, NULL, NULL) < 0) puts(SDL_GetError());
-//	SDL_RenderPresent(render);
 	SDL_GL_SwapWindow(window);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
