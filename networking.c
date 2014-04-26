@@ -21,7 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <semaphore.h>
 #include <pthread.h>
+#include <poll.h>
 #include <GL/gl.h>
 #include "gui.h"
 #include "gfx.h"
@@ -44,7 +46,6 @@ typedef struct{
 static client *clients;
 
 static int running; // So keypresses can stop the connect function
-static char netListenKill = 0;
 
 static unsigned char myKeys[2]; // We could use the arrays defined in gui.h, but this way is more condusive to networking.
 
@@ -58,8 +59,9 @@ static char* playerNums;
 
 static pthread_mutex_t myMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t myCond = PTHREAD_COND_INITIALIZER;
-static char condVerifier=0;
-static struct imgData* dataToSend = NULL;
+static sem_t mySem, secondSem;
+static volatile struct imgData* dataToSend = NULL;
+static pthread_t hostThreadId;
 
 void addNetCircle(short x, short y, unsigned int r){
 	if(numCircles == maxCircles){
@@ -138,43 +140,46 @@ struct imgData{
 
 static void sendImgs(void* derp){
 	pthread_mutex_lock(&myMutex);
-	if(netListenKill){//You can't be too safe.
-		if(dataToSend!=NULL){
-			free(dataToSend->data);
-			free(dataToSend->centers);
-			free(dataToSend);
+	struct imgData* myDataToSend = (struct imgData*)dataToSend;
+	if(!sem_trywait(&mySem)){//You can't be too safe.
+		if(myDataToSend!=NULL){
+			free(myDataToSend->data);
+			free(myDataToSend->centers);
+			free(myDataToSend);
+			myDataToSend = NULL;
 			dataToSend = NULL;
 		}
 		pthread_mutex_unlock(&myMutex);
-		netListenKill = 0;
 		return;
 	}
 	while(1){
-		while(dataToSend==NULL){
+		while(myDataToSend==NULL){
 			pthread_cond_wait(&myCond, &myMutex);
-			if(netListenKill){
-				if(dataToSend!=NULL){
-					free(dataToSend->data);
-					free(dataToSend->centers);
-					free(dataToSend);
+			myDataToSend = (struct imgData*)dataToSend;
+			if(!sem_trywait(&mySem)){
+				if(myDataToSend!=NULL){
+					free(myDataToSend->data);
+					free(myDataToSend->centers);
+					free(myDataToSend);
+					myDataToSend = NULL;
 					dataToSend = NULL;
 				}
 				pthread_mutex_unlock(&myMutex);
-				netListenKill = 0;
 				return;
 			}
 		}
 		int i = 0;
 		for(; i < maxClients; i++){
 			if(!clients[i].dead){
-				memcpy((uint8_t*)dataToSend->data, (uint8_t*)(dataToSend->centers+2*i), 4);
-				sendto(sockfd, (char*)&dataToSend->sizeData, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
-				sendto(sockfd, dataToSend->data, dataToSend->size, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
+				memcpy((uint8_t*)myDataToSend->data, (uint8_t*)(myDataToSend->centers+2*i), 4);
+				sendto(sockfd, (char*)&myDataToSend->sizeData, 2, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
+				sendto(sockfd, myDataToSend->data, myDataToSend->size, 0, (struct sockaddr*)&clients[i].addr, sizeof(struct sockaddr_in));
 			}
 		}
-		free(dataToSend->data);
-		free(dataToSend->centers);
-		free(dataToSend);
+		free(myDataToSend->data);
+		free(myDataToSend->centers);
+		free(myDataToSend);
+		myDataToSend = NULL;
 		dataToSend = NULL;
 	}
 }
@@ -235,6 +240,8 @@ void writeImgs(){
 void initNetworking(){
 	addressString = malloc(16); //xxx.xxx.xxx.xxx is 15 chars.
 	strcpy(addressString, "127.0.0.1");
+	sem_init(&mySem, 0, 0);
+	sem_init(&secondSem, 0, 0);
 #ifdef WINDOWS
 	WSADATA derp;
 	WSAStartup(MAKEWORD(2, 2), &derp);
@@ -244,6 +251,8 @@ void initNetworking(){
 void stopNetworking(){
 	pthread_mutex_destroy(&myMutex);
 	pthread_cond_destroy(&myCond);
+	sem_destroy(&mySem);
+	sem_destroy(&secondSem);
 	free(addressString);
 #ifdef WINDOWS
 	WSACleanup();
@@ -264,7 +273,7 @@ static void keyAction(int code, char pressed){
 	}else if(code == otherKeys[0]){
 		if(pressed && zoom > 1) zoom /= 2;
 		return;
-	}else if(code == SDL_SCANCODE_ESCAPE){
+	}else if(code == SDLK_ESCAPE){
 		running = 0;
 		p=0;
 		key=255;
@@ -296,26 +305,17 @@ static void keyAction(int code, char pressed){
 }
 
 static void waitForNetStuff(){
-	struct timeval wait, waitClone = {.tv_sec = 1, .tv_usec = 0};
-	fd_set* fdSet = malloc(sizeof(fd_set));
-	FD_ZERO(fdSet);
+	struct pollfd myPollFd = {.events=POLLIN, .fd=sockfd};
 	SDL_Event e = {.type = SDL_USEREVENT}; //Since only the main thread can do anything of consequence, this is how we communicate that we have data to read.
 	while(1){
-		do{
-			if(netListenKill){
-				free(fdSet);
-				close(sockfd);
-				netListenKill = 0;
-				return;
-			}
-			FD_SET(sockfd, fdSet);
-			wait = waitClone;
-		}while(!select(sockfd+1, fdSet, NULL, NULL, &wait));
-		pthread_mutex_lock(&myMutex);
-		condVerifier = 0;
-		SDL_PushEvent(&e); 
-		while(!condVerifier) pthread_cond_wait(&myCond, &myMutex);
-		pthread_mutex_unlock(&myMutex);
+		if(!sem_trywait(&secondSem)){// If main thread sets mySem without me pushing an event, it's time to quit.
+			close(sockfd);
+			return;
+		}
+		poll(&myPollFd, 1, 1000);
+		if(myPollFd.revents & POLLIN){
+			if(!SDL_PushEvent(&e)) sem_wait(&mySem); // If we successfully pushed the event, wait for main thread to process it.
+		}
 	}
 }
 
@@ -440,7 +440,7 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 	return 1;
 }
 void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
-	if(netListenKill || pIndex[0] == -1) return; // The last one hasn't finished exitting.
+	if(pIndex[0] == -1) return;
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sockfd < 0) return;
 
@@ -475,8 +475,8 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 
 	zoom = 1;
 
-	pthread_t netListenID;
-	pthread_create(&netListenID, NULL, (void* (*)(void*))&waitForNetStuff, NULL);
+	pthread_t netStuffId;
+	pthread_create(&netStuffId, NULL, (void* (*)(void*))&waitForNetStuff, NULL);
 
 	uint32_t colors[2];
 	colors[0] = htonl(requests[pIndex[0]].color);
@@ -495,29 +495,24 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 	myKeys[1] = 0;
 	while(running){
 		SDL_WaitEvent(&e);
-		if(e.type == SDL_KEYDOWN)	keyAction(e.key.keysym.scancode, 1);
-		else if(e.type == SDL_KEYUP)	keyAction(e.key.keysym.scancode, 0);
+		if(e.type == SDL_KEYDOWN)	keyAction(e.key.keysym.sym, 1);
+		else if(e.type == SDL_KEYUP)	keyAction(e.key.keysym.sym, 0);
 		else if(e.type == SDL_WINDOWEVENT) myDrawScreen();
 		else if(e.type == SDL_USEREVENT){
 			stage = netListen(stage);
-			pthread_mutex_lock(&myMutex);
-			condVerifier = 1;
-			pthread_mutex_unlock(&myMutex);
-			pthread_cond_signal(&myCond);
+			sem_post(&mySem);
 		}
 		else if(e.type == SDL_QUIT){
 			SDL_PushEvent(&e);//Push it back on so main will exit, then hand control back in that direction.
 			running = 0;
 		}
 	}
-	netListenKill = 1; // socket is closed whenever netListen gets the message here sent.
-	pthread_join(netListenID, NULL);
+	sem_post(&secondSem);//Tells waitForNetStuff to kill itself
+	sem_post(&mySem);//In case he was in the middle of telling us about a packet: "Yes, yes, that't very nice, now kill yourself!"
+	pthread_join(netStuffId, NULL);
+	sem_trywait(&mySem);//In case he wasn't in the middle of telling us about a packet
 }
 void myHost(int max, char* playerNumbers){
-	if(netListenKill){
-		free(playerNumbers);
-		return;
-	}
 	playerNums = playerNumbers;
 
 	clients = malloc(max*sizeof(client));
@@ -544,18 +539,17 @@ void myHost(int max, char* playerNumbers){
 		return;
 	}
 
-	pthread_t id;
-	pthread_create(&id, NULL, (void* (*)(void*))&sendImgs, NULL);
-	pthread_detach(id);
+	pthread_create(&hostThreadId, NULL, (void* (*)(void*))&sendImgs, NULL);
 
 	netMode = 1;
 }
 
 void stopHosting(){
 	pthread_mutex_lock(&myMutex);
-	netListenKill = 1;
-	pthread_cond_signal(&myCond);
+	sem_post(&mySem);
 	pthread_mutex_unlock(&myMutex);
+	pthread_cond_signal(&myCond);
+	pthread_join(hostThreadId, NULL);
 	int i = 0;
 	uint16_t size = htons(0);
 	for(; i < maxClients; i++){
