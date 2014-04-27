@@ -459,10 +459,14 @@ static int addSplit(int x, int y){
 
 	connectNodes(ix+16, ix, fric, tol, str);
 	connectNodes(ix+17, ix, fric, tol, str);
+	connectNodes(ix+19, ix, fric, tol, str);
+
+	connectNodes(ix+22, ix+6, fric, tol, str);
 
 	newNode(addNode(), x, y-200, 5, 1000, 0);
 	connectNodes(ix+23, ix, 0.7, tol*2, str*2);
 	connectNodes(ix+23, ix+6, 0.7, tol*2, str*2);
+	connectNodes(ix+23, ix+19, 0.7, tol*2, str*2);
 	connectNodes(ix+23, ix+22, 0.7, tol*2, str*2);
 	taskfixedadd(ix+23, 1);
 	return ix;
@@ -474,7 +478,7 @@ void lvlpyramid(){
 	if(players > 2) players = 2;
 	int ix1 = addPyramid(0, 0);
 	int ix2 = addElevator(600, -200);
-	addSplit(1200, 0);
+	addSplit(-400, 0);
 	addBridge(ix1+5, ix2+3, 12, .3, 14, 8, .95, 7, 4.4);
 	taskgravityadd();
 	taskincineratoradd(300);
