@@ -276,7 +276,6 @@ static void keyAction(int code, char pressed){
 		return;
 	}else if(code == SDLK_ESCAPE){
 		running = 0;
-		p=0;
 		key=255;
 	}else{
 		int thing, j, i = 0;
@@ -296,8 +295,8 @@ static void keyAction(int code, char pressed){
 	if(key==0) return; // No need to send information, no vital keys changed.
 
 	char old = myKeys[p];
-	if(pressed)	myKeys[p] |= code;// Hence the resetting of 'code' shown above.
-	else 		myKeys[p] &= 255-code;
+	if(pressed)	myKeys[p] |= key;// Hence the resetting of 'code' shown above.
+	else 		myKeys[p] &= 255-key;
 	if(old!=myKeys[p]){//If it wasn't caused by a key repeat (such as "down ... downdowndowndownup"
 		unsigned char vhat = myKeys[p];
 		if(p) vhat|=128;

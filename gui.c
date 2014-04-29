@@ -306,7 +306,7 @@ static void spKeyAction(int bit, char pressed){
 				return;
 			}
 			if(bit == SDLK_h){
-				int *playerNumbers = calloc(1, 10);
+				char *playerNumbers = calloc(1, 10);
 				int numNet = 0;
 				int i = 0;
 				for(; i < 10; i++){

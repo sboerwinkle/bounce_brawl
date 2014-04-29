@@ -6,7 +6,7 @@ extern void initNetworking();
 extern void stopNetworking();
 
 extern void myConnect();
-extern void myHost(int max, int* playerNumbers);
+extern void myHost(int max, char* playerNumbers);
 extern void kickNoRoom();
 extern void readKeys();
 extern void stopHosting();
