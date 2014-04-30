@@ -609,6 +609,7 @@ static char taskguycontrol(void* where){
 		for(; i < 4; i++){
 			if(!data->exists[i]) continue;
 			if(nodes[index+i].dead){
+				if(data->controltype != -1 && data->connectedLeg==i) taskguycontroldisconnect(data);
 				data->exists[i] = 0;
 			}else{
 				counter++;
@@ -684,7 +685,7 @@ static char taskguycontrol(void* where){
 	}
 	if(frameCount == 0){
 		if(netMode)
-			addNetPlayerCircle(index, requests[data->num].color);
+			addNetPlayerCircle(nodes[index].netIndex, requests[data->num].color);
 		setColorFromHex(requests[data->num].color);
 		drawCircle(getScreenX(nodes[index].x*maxZoomIn-centerx), getScreenY(nodes[index].y*maxZoomIn-centery), (float)markSize/2/width2);
 	}

@@ -192,7 +192,7 @@ void writeImgs(){
 		uint8_t* realData = malloc(size);
 		uint8_t* data = realData+4;
 		*((short*)data) = htons(numToolMarks);
-		memcpy(data+=2, tools, numToolMarks);
+		memcpy(data+=2, toolMarks, numToolMarks);
 		*((short*)(data+=numToolMarks)) = htons(numCircles);
 		*((short*)(data+=2)) = htons(6*maxZoomIn);
 		memcpy(data+=2, circles, 6*numCircles);
@@ -368,15 +368,14 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 			free(data);
 			return 2;
 		}
-		uint16_t locX = ntohs(*(uint16_t*)data);
-		uint16_t locY = ntohs(*(uint16_t*)(data+2));
+		int16_t locX = ntohs(*(int16_t*)data);
+		int16_t locY = ntohs(*(int16_t*)(data+2));
 		uint8_t* pointer = data + 6 + ntohs(*(uint16_t*)(data+4));
 		uint8_t* toolColors = data+6;
 		size = ntohs(*(uint16_t*)pointer);
 		float myMarkSizef = (float)(ntohs(*((uint16_t*)(pointer+2)))/zoom)/width2/2;
 		pointer += 4;
-		uint16_t* circlePointer = (uint16_t*)pointer;
-		short x, y;
+		int16_t* circlePointer = (int16_t*)pointer;
 		float xf, yf;
 		uint16_t radius;
 		int i = 0;
@@ -384,10 +383,8 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 		setColorWhite();
 		for(; i < size; i++){
 			radius = ntohs(*((uint16_t*)(pointer+4)));
-			x = ( *(uint16_t*)pointer = (ntohs(*(uint16_t*)pointer)-locX)/zoom );
-			y = ( *(uint16_t*)(pointer+2) = (ntohs(*(uint16_t*)(pointer+2))-locY)/zoom );
-			xf = (float)x/width2;
-			yf = (float)y/height2;
+			xf = (float)( *(int16_t*)pointer = ((int16_t)ntohs(*(int16_t*)pointer)-locX)/zoom )/width2;
+			yf = (float)( *(int16_t*)(pointer+2) = ((int16_t)ntohs(*(int16_t*)(pointer+2))-locY)/zoom )/height2;
 			if(radius & 32768){
 				radius ^= 32768;
 				flag = 1;
@@ -442,7 +439,7 @@ void myConnect(){ // Entered by pressing 'c', not exited until you push 'esc'.
 	memset(&myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family = AF_INET;
 	myaddr.sin_addr.s_addr=htonl(INADDR_ANY);
-	myaddr.sin_port=htons(port);//8080);
+	myaddr.sin_port=htons(8080);
 	
 	if(0 > bind(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr))){
 		close(sockfd);

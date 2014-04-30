@@ -42,7 +42,6 @@ void initField(){// Here: init taskguycontrolindexes, alives, centers to proper 
 	int i = 0;
 	for(; i < numNodes; i++){
 		nodes[i].dead = 1;
-		nodes[i].netIndex = -1;
 	}
 	corpses = (char*)calloc(numNodes, sizeof(char));
 	firstTask = NULL;
@@ -80,9 +79,6 @@ void killNode(int where){
 	nodes[where].dead = 1;
 	corpses[where] = 2;
 	free(nodes[where].connections);
-	if(netMode){
-		for(; where < numNodes; where++) nodes[where].netIndex--;
-	}
 }
 
 /**
@@ -92,10 +88,6 @@ int addNode(){
 	int i = 0;
 	for(; i < numNodes; i++){
 		if(nodes[i].dead && corpses[i] == 0){
-			if(netMode){
-				int j = i;
-				for(; j < numNodes; j++) nodes[j].netIndex++;
-			}
 			return i;
 		}
 	}
@@ -107,12 +99,6 @@ int addNode(){
 	for(; j < numNodes; j++){
 		corpses[j] = 0;
 		nodes[j].dead = 1;
-	}
-	if(netMode){
-		int index = nodes[i-1].netIndex+1;
-		for(j = i; j < numNodes; j++){
-			nodes[j].netIndex = index;
-		}
 	}
 	return i;
 }
@@ -139,10 +125,6 @@ void ensureCapacity(int index){					//Just gonna stand there and watch me burn
 		nodes[i].dead = 1;
 		corpses[i] = 0;
 	}
-	if(netMode){
-		int index = nodes[numNodes-1].netIndex;
-		for(i = numNodes; i < index; i++) nodes[i].netIndex = index;
-	}
 	numNodes = index;
 }
 
@@ -157,8 +139,8 @@ void run(){
 //	SDL_SetRenderDrawColor(screen, 0, 0, 0, 255);
 //	SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
 //	SDL_RenderFillRect(screen, &a);
-	register int i;
-	register int j;
+	int i;
+	int j = 0;
 	//decay the corpses
 	for(i = 0; i < numNodes; i++){
 		if(corpses[i] != 0) corpses[i]--;
@@ -264,7 +246,7 @@ void run(){
 void draw(){
 	centerx = 0;
 	centery = 0;
-	int i, j;
+	int i, j=0;
 	int count = 0;
 	for(i = 0; i < 2; i++){
 		if(pIndex[i] != -1 && pIndex[i] < players && alives[pIndex[i]]){
@@ -280,6 +262,12 @@ void draw(){
 		centerx = width2;
 		centery = height2;
 	}*/
+	if(netMode){
+		for(i = 0; i < numNodes; i++){
+			if(nodes[i].dead) continue;
+			nodes[i].netIndex=j++;
+		}
+	}
 
 	int x, y, numActiveCons;
 	int netNumCons = 0;
