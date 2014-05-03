@@ -737,7 +737,7 @@ void taskguycontroladdLong(int x, int y, char flipped){
 //	newConnectionLong(i+3, 1, i+1, 0.6, 28, 39, 19, .35);
 	int controlMode = requests[playerNum].controlMode;
 	if(controlMode>=2 && controlMode<=4){
-		taskaicombatadd(playerNum, controlMode!=3);
+		taskaicombatadd(playerNum, controlMode==4);
 		if(controlMode==2){
 			int j;
 			for(ix=0; ix<4; ix++){
