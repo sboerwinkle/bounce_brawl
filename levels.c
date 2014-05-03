@@ -367,8 +367,8 @@ static int addElevator(int x, int y){
 
 	int ix = addNode();
 	newNode(ix, x, y-200, 5, 1000, 0);
-	newNode(addNode(), x-2*size, y, 11, 8, 0);
-	newNode(addNode(), x+2*size, y, 11, 8, 0);
+	newNode(addNode(), x-2*size, y, 13, 8, 0);
+	newNode(addNode(), x+2*size, y, 13, 8, 0);
 	addBlock(x+size*-5.5, y+100, 4, 1, fric, size, 0, tol, str, 11, 8);
 	addBlock(x+size*1.5, y+100, 4, 1, fric, size, 0, tol, str, 11, 8);
 
@@ -386,30 +386,17 @@ static int addElevator(int x, int y){
 	connectNodes(ix, ix+10, 0.7, tol*2, str*2);
 	taskfixedadd(ix, 1);
 
-	addBlock(x-size, y+100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str, 11, 8);
-	double distance = preciseDist(ix+13, ix+1);
-	newConnection(ix+13, createConnection(ix+13), ix+1, .6, size, distance, 0.02);
-	newConnection(ix+15, createConnection(ix+15), ix+2, .6, size, distance, 0.02);
+	addBlock(x-size, y+100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str, 11, 16);
+//	double distance = preciseDist(ix+13, ix+1);
+//	newConnection(ix+13, createConnection(ix+13), ix+1, .6, distance/2, distance, 0.015);
+//	newConnection(ix+15, createConnection(ix+15), ix+2, .6, distance/2, distance, 0.015);
+	//The new connection must be number 0 so that the tool works properly
 	int ix2 = createConnection(ix+14);
 	nodes[ix+14].connections[ix2] = nodes[ix+14].connections[0];
-	//The new connection must be number 0 so that the tool works properly
-	double dist = preciseDist(ix, ix+14);
-	newConnectionLong(ix+14, 0, ix, .6, dist, dist-100, 200, .03);
+	double dist = preciseDist(ix, ix+14)-35;
+	newConnectionLong(ix+14, 0, ix, .2, dist, dist-53, 120, .1);
 	addToolToggle(ix+14);
 	return ix;
-}
-
-void lvlelevator(){
-	initField();
-	maxZoomIn = 1.5;
-	if(players > 2) players = 2;
-	addElevator(0, 0);
-	taskgravityadd();
-	taskincineratoradd(300);
-	if(players < 1) return;
-	taskguycontroladd(-106, 24*sqrt3);
-	if(players < 2) return;
-	taskguycontroladd(86, 24*sqrt3);
 }
 
 static int addPyramid(int x, int y){
@@ -428,13 +415,13 @@ static int addPyramid(int x, int y){
 
 	connectNodes(ix+23, ix+3, fric, tol, str);
 
-	connectNodes(ix+13, ix, fric, tol, str);
+	connectNodes(ix+13, ix, fric, tol, str*2);
 	connectNodes(ix+14, ix, fric, tol, str);
 	connectNodes(ix+16, ix, fric, tol, str);
 
 	connectNodes(ix+20, ix+5, fric, tol, str);
 	connectNodes(ix+22, ix+5, fric, tol, str);
-	connectNodes(ix+23, ix+5, fric, tol, str);
+	connectNodes(ix+23, ix+5, fric, tol, str*2);
 
 	newNode(addNode(), x, y-200, 5, 1000, 0);
 	connectNodes(ix+24, ix, 0.7, tol*2, str*2);
@@ -450,25 +437,25 @@ static int addSplit(int x, int y){
 	double fric = 0.85;
 	int tol = 5;
 	double str = 2.3;
-	int hexArg[] = {0,0,H,H,H,H,0,0,0,0,H,H,H,\
-			 0,0,0,0,0,0,0,0,H,H,0,0,0,\
-			  0,0,0,0,0,0,H,H,H,0,0,0,0,\
-			   0,0,0,0,H,H,H,H,0,0,0,0,0,\
-			    H,H,H,H,H,H,H,0,0,0,0,0,0};
-	int ix = addHex(-7*size+x, y, 13, 5, hexArg, fric, size, tol, str, size*.45, 8);
+	int hexArg[] = {0,0,H,H,H,H,0,0,0,0,H,H,\
+			 0,0,0,0,0,0,0,0,H,H,H,0,\
+			  0,0,0,0,0,0,H,H,H,H,0,0,\
+			   0,0,0,0,H,H,H,H,0,0,0,0,\
+			    H,H,H,H,H,H,H,0,0,0,0,0};
+	int ix = addHex(-6.5*size+x, y, 12, 5, hexArg, fric, size, tol, str, size*.45, 8);
 
-	connectNodes(ix+16, ix, fric, tol, str);
 	connectNodes(ix+17, ix, fric, tol, str);
-	connectNodes(ix+19, ix, fric, tol, str);
+	connectNodes(ix+18, ix, fric, tol, str);
+	connectNodes(ix+20, ix, fric, tol, str);
 
-	connectNodes(ix+22, ix+6, fric, tol, str);
+//	connectNodes(ix+9, ix+6, fric, tol, str);
 
 	newNode(addNode(), x, y-200, 5, 1000, 0);
-	connectNodes(ix+23, ix, 0.7, tol*2, str*2);
-	connectNodes(ix+23, ix+6, 0.7, tol*2, str*2);
-	connectNodes(ix+23, ix+19, 0.7, tol*2, str*2);
-	connectNodes(ix+23, ix+22, 0.7, tol*2, str*2);
-	taskfixedadd(ix+23, 1);
+	connectNodes(ix+24, ix, 0.7, tol*2, str*2);
+	connectNodes(ix+24, ix+5, 0.7, tol*2, str*2);
+	connectNodes(ix+24, ix+20, 0.7, tol*2, str*2);
+	connectNodes(ix+24, ix+23, 0.7, tol*2, str*2);
+	taskfixedadd(ix+24, 1);
 	return ix;
 }
 
@@ -476,10 +463,10 @@ void lvlpyramid(){
 	initField();
 	maxZoomIn = 1.5;
 	if(players > 2) players = 2;
-	int ix1 = addPyramid(0, 0);
-	int ix2 = addElevator(600, -200);
+	int ix1 = addElevator(0, 0);
+	int ix2 = addPyramid(540, -200);
 	addSplit(-400, 0);
-	addBridge(ix1+5, ix2+3, 12, .3, 14, 8, .95, 7, 4.4);
+	addBridge(ix1+2, ix2+13, 12, .3, 14, 7, .95, 7, 4.2);
 	taskgravityadd();
 	taskincineratoradd(300);
 	if(players < 1) return;

@@ -550,7 +550,7 @@ int main(int argc, char** argv){
 	menu* mechMenu    = addMenuMenu(&topMenu, 5, 3, "MECHS...");
 	addMenuLevel(&topMenu, 6, &lvlcave, "CAVE");
 	addMenuLevel(&topMenu, 7, &lvltutorial, "TUTORIAL");
-	menu* tmpMenu    = addMenuMenu(&topMenu, 8, 2, "TEMPORARY TESTING STAGES...");
+	menu* tmpMenu    = addMenuMenu(&topMenu, 8, 1, "TEMPORARY TESTING STAGES...");
 
 	addMenuLevel(planetsMenu, 0, &lvlplanet, "SINGLE PLANET");
 	addMenuLevel(planetsMenu, 1, &lvl3rosette, "3-ROSETTE");
@@ -565,8 +565,7 @@ int main(int argc, char** argv){
 	addMenuLevel(mechMenu, 1, &lvlmechgun, "GUN VS MECH");
 	addMenuLevel(mechMenu, 2, &lvlmechmech, "MECH VS MECH");
 
-	addMenuLevel(tmpMenu, 0, &lvlpyramid, "PYRAMID");
-	addMenuLevel(tmpMenu, 1, &lvlelevator, "ELEVATOR");
+	addMenuLevel(tmpMenu, 0, &lvlpyramid, "GARDENS");
 	
 	fputs("Menu Created\n", logFile);
 
