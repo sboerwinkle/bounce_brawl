@@ -215,7 +215,7 @@ static void addBuilding(double x, double y, int stories){
 	newNode(addNode(), x+inc*2.0/3, y, BRNS, BNM/4.0, 1);
 	newConnection(ix+10, 1, ix, BCF, 80.0/3, 7, BCS/3);
 	newConnection(ix+10, 0, ix+11, BCF, 80.0/3, 7, BCS/3);
-	newConnectionLong(ix+11, 0, ix+1, BCF, 80.0/3, (80.0*1/2+80.0*.75)/2, 40, BCS/35);
+	newConnectionLong(ix+11, 0, ix+1, 0.2, 80.0/3, (80.0*1/2+80.0*.75)/2, 40, BCS/35);
 	addToolToggle(ix+11);
 
 	if(stories){
@@ -417,9 +417,9 @@ static int addPyramid(int x, int y){
 
 	connectNodes(ix+13, ix, fric, tol, str*2);
 	connectNodes(ix+14, ix, fric, tol, str);
-	connectNodes(ix+16, ix, fric, tol, str);
+	connectNodes(ix+16, ix, fric, tol, str*2);
 
-	connectNodes(ix+20, ix+5, fric, tol, str);
+	connectNodes(ix+20, ix+5, fric, tol, str*2);
 	connectNodes(ix+22, ix+5, fric, tol, str);
 	connectNodes(ix+23, ix+5, fric, tol, str*2);
 
@@ -469,6 +469,10 @@ void lvlpyramid(){
 	addBridge(ix1+2, ix2+13, 12, .3, 14, 7, .95, 7, 4.2);
 	addBridge(ix2+23, ix3, 12, .3, 14, 7, .95, 7, 4.2);
 	addBridge(ix1+10, ix3+17, 22, .2, 16, 7, .95, 7, 6);
+	int ix4 = addNode();
+	newNode(ix4, -500, -225, 14, 1000, 0);
+	addBridge(ix4, ix2, 12, .3, 14, 7, .95, 7, 4.2);
+	taskfixedadd(ix4, 1);
 	taskgravityadd();
 	taskincineratoradd(300);
 	if(players < 1) return;
