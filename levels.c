@@ -444,7 +444,7 @@ static int addSplit(int x, int y){
 			    H,H,H,H,H,H,H,0,0,0,0,0};
 	int ix = addHex(-6.5*size+x, y, 12, 5, hexArg, fric, size, tol, str, size*.45, 8);
 
-	connectNodes(ix+17, ix, fric, tol, str);
+	connectNodes(ix+17, ix, fric, tol, str*2);
 	connectNodes(ix+18, ix, fric, tol, str);
 	connectNodes(ix+20, ix, fric, tol, str);
 
@@ -463,16 +463,18 @@ void lvlpyramid(){
 	initField();
 	maxZoomIn = 1.5;
 	if(players > 2) players = 2;
-	int ix1 = addElevator(0, 0);
-	int ix2 = addPyramid(540, -200);
-	addSplit(-400, 0);
+	int ix1 = addElevator(-540, 0);
+	int ix2 = addPyramid(-20, -200);
+	int ix3 = addSplit(540, 0);
 	addBridge(ix1+2, ix2+13, 12, .3, 14, 7, .95, 7, 4.2);
+	addBridge(ix2+23, ix3, 12, .3, 14, 7, .95, 7, 4.2);
+	addBridge(ix1+10, ix3+17, 22, .2, 16, 7, .95, 7, 6);
 	taskgravityadd();
 	taskincineratoradd(300);
 	if(players < 1) return;
-	taskguycontroladd(-110, 25*sqrt3);
+	taskguycontroladd(-650, 25*sqrt3);
 	if(players < 2) return;
-	taskguycontroladd(90, 25*sqrt3);
+	taskguycontroladd(-450, 25*sqrt3);
 }
 
 void lvlbuilding(){
