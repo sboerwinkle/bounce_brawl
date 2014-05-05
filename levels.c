@@ -386,7 +386,7 @@ static int addElevator(int x, int y){
 	connectNodes(ix, ix+10, 0.7, tol*2, str*2);
 	taskfixedadd(ix, 1);
 
-	addBlock(x-size, y+100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str, 11, 16);
+	addBlock(x-size, y+100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str*1.5, 11, 16);
 //	double distance = preciseDist(ix+13, ix+1);
 //	newConnection(ix+13, createConnection(ix+13), ix+1, .6, distance/2, distance, 0.015);
 //	newConnection(ix+15, createConnection(ix+15), ix+2, .6, distance/2, distance, 0.015);
@@ -468,10 +468,10 @@ static int addPlatform(double x, double y, int count, double spacing, double siz
 	int i = 1;
 	for(; i < count; i++){
 		newNode(addNode(), x+spacing*i, y, size, mass, 1);
-		newConnection(ix+i, 0, ix+i-1, spacing, fric, tol, str);
+		newConnection(ix+i, 0, ix+i-1, fric, spacing, tol, str);
 	}
 	for(i--; i >= 0; i--){
-		newConnection(ix2, i, ix+i, preciseDist(ix2, ix+i), fric, tol, str*2);
+		newConnection(ix2, i, ix+i, fric, preciseDist(ix2, ix+i), tol, str*2);
 	}
 	taskfixedadd(ix2, 1);
 	return ix;
@@ -490,7 +490,7 @@ void lvlpyramid(){
 	int ix4 = addNode();
 	newNode(ix4, -500, -225, 14, 1000, 0);
 	addBridge(ix4, ix2, 12, .3, 14, 7, .95, 7, 4.2);
-	addPlatform(700, -100, 10, 22, 10, 7, .95, 10, 4);
+	addPlatform(-700, -100, 10, 22, 10, 7, .95, 10, 4);
 	taskfixedadd(ix4, 1);
 	taskgravityadd();
 	taskincineratoradd(300);
