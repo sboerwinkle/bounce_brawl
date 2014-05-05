@@ -459,6 +459,24 @@ static int addSplit(int x, int y){
 	return ix;
 }
 
+static int addPlatform(double x, double y, int count, double spacing, double size, double mass, double fric, double tol, double str){
+	int ix2 = addNode();
+	newNode(ix2, x, y-200, 5, 1000, count);
+	x -= (count-1)*spacing/2;
+	int ix = addNode();
+	newNode(ix, x, y, size, mass, 0);
+	int i = 1;
+	for(; i < count; i++){
+		newNode(addNode(), x+spacing*i, y, size, mass, 1);
+		newConnection(ix+i, 0, ix+i-1, spacing, fric, tol, str);
+	}
+	for(i--; i >= 0; i--){
+		newConnection(ix2, i, ix+i, preciseDist(ix2, ix+i), fric, tol, str*2);
+	}
+	taskfixedadd(ix2, 1);
+	return ix;
+}
+
 void lvlpyramid(){
 	initField();
 	maxZoomIn = 1.5;
@@ -472,6 +490,7 @@ void lvlpyramid(){
 	int ix4 = addNode();
 	newNode(ix4, -500, -225, 14, 1000, 0);
 	addBridge(ix4, ix2, 12, .3, 14, 7, .95, 7, 4.2);
+	addPlatform(700, -100, 10, 22, 10, 7, .95, 10, 4);
 	taskfixedadd(ix4, 1);
 	taskgravityadd();
 	taskincineratoradd(300);
