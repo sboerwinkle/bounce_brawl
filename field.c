@@ -146,8 +146,8 @@ void run(){
 		if(corpses[i] != 0) corpses[i]--;
 	}
 	//springs
-	double* frictionXs = calloc(sizeof(double), numNodes);
-	double* frictionYs = calloc(sizeof(double), numNodes);
+	double* forceXs = calloc(sizeof(double), numNodes);
+	double* forceYs = calloc(sizeof(double), numNodes);
 	for(i = 0; i < numNodes; i++){
 		if(nodes[i].dead){continue;}
 		current = nodes+i;
@@ -170,26 +170,22 @@ void run(){
 			uny = deltaY / currlengthNewX;
 			deltaY = current->connections[j].friction*((current->xmom - current2->xmom)*unx + (current->ymom - current2->ymom)*uny);
 			//deltaY = current->connections[j].friction*deltaY + current->connections[j].force*(current->connections[j].preflength - currlengthNewX);
+			deltaX = current->connections[j].force*(current->connections[j].preflength - currlengthNewX);
 			forceNewY = deltaY * current2->mass / (current->mass + current2->mass);
-			frictionXs[i] += forceNewY*unx;
-			frictionYs[i] += forceNewY*uny;
+			forceXs[i] += forceNewY*unx + deltaX*unx/current->mass;
+			forceYs[i] += forceNewY*uny + deltaX*uny/current->mass;;
 			forceNewY -= deltaY;
-			frictionXs[current->connections[j].id] += forceNewY*unx;
-			frictionYs[current->connections[j].id] += forceNewY*uny;
-			forceNewY = current->connections[j].force*(current->connections[j].preflength - currlengthNewX);
-			current->xmom += forceNewY*unx/current->mass;
-			current->ymom += forceNewY*uny/current->mass;
-			current2->xmom -= forceNewY*unx/current2->mass;
-			current2->ymom -= forceNewY*uny/current2->mass;
+			forceXs[current->connections[j].id] += forceNewY*unx - deltaX*unx/current2->mass;
+			forceYs[current->connections[j].id] += forceNewY*uny - deltaX*uny/current2->mass;;
 		}
 	}
 	for(i = 0; i < numNodes; i++){
 		if(nodes[i].dead) continue;
-		nodes[i].xmom += frictionXs[i];
-		nodes[i].ymom += frictionYs[i];
+		nodes[i].xmom += forceXs[i];
+		nodes[i].ymom += forceYs[i];
 	}
-	free(frictionXs);
-	free(frictionYs);
+	free(forceXs);
+	free(forceYs);
 	//collision detection (technically flawed)
 	char* check = calloc(numNodes, sizeof(char));
 	char* checkNext = calloc(numNodes, sizeof(char));
