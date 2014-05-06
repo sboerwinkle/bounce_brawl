@@ -393,8 +393,8 @@ static int addElevator(int x, int y){
 	//The new connection must be number 0 so that the tool works properly
 	int ix2 = createConnection(ix+14);
 	nodes[ix+14].connections[ix2] = nodes[ix+14].connections[0];
-	double dist = preciseDist(ix, ix+14)-35;
-	newConnectionLong(ix+14, 0, ix, .2, dist, dist-53, 120, .1);
+	double dist = preciseDist(ix, ix+14)-60;
+	newConnectionLong(ix+14, 0, ix, .2, dist, dist-53, 140, .1);
 	addToolToggle(ix+14);
 	return ix;
 }
@@ -490,7 +490,7 @@ void lvlpyramid(){
 	int ix4 = addNode();
 	newNode(ix4, -500, -225, 14, 1000, 0);
 	addBridge(ix4, ix2, 12, .3, 14, 7, .95, 7, 4.2);
-	addPlatform(-700, -100, 10, 22, 10, 7, .95, 10, 4);
+	addPlatform(-710, 0, 10, 22, 10, 7, .95, 10, 4);
 	taskfixedadd(ix4, 1);
 	taskgravityadd();
 	taskincineratoradd(300);
