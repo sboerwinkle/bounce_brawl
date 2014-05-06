@@ -554,7 +554,14 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 			nodes[index+3].connections[1].preflength = eleven0;
 	}
 }
-inline void taskguycontroldoBigLegs(taskguycontroldata* data){
+static void toolGravity(){
+	int i = 0;
+	for(; i < numNodes; i++){
+		if(nodes[i].dead) continue;
+		nodes[i].ymom -= .1*SPEEDFACTOR;
+	}
+}
+static inline void toolBigLegs(taskguycontroldata* data){
 	char* myKeys = data->myKeys;
 	int centerDists[4] = {42, 42, 42, 42};
 	int edgeLengths[4] = {60, 60, 60, 60};
@@ -677,8 +684,11 @@ static char taskguycontrol(void* where){
 	else if(data->controltype != -1 && (nodes[index+data->connectedLeg].connections[0].dead || nodes[data->controlindex].dead)){taskguycontroldisconnect(data);}
 	switch(data->controltype){
 	case 100:
-		taskguycontroldoBigLegs(data);
+		toolBigLegs(data);
 		break;
+	case 70:
+		toolGravity();
+		taskguycontroldoLegs(data);
 	default:
 		taskguycontroldoLegs(data); // Also handles some tools (gun)
 		break;
@@ -760,6 +770,8 @@ uint32_t getToolColor(int type){
 			return 0x00FF00FF;
 		case 10:
 			return 0xFF0000FF;
+		case 70:
+			return 0x5000FFFF;
 		case 100:
 			return 0xC04040FF;
 		default:
@@ -800,6 +812,9 @@ void addToolGrab(int ix){
 }
 void addToolToggle(int ix){
 	addGenericTool(ix, 2);
+}
+void addToolGravity(int ix){
+	addGenericTool(ix, 70);
 }
 
 static char taskincinerator(void* where){

@@ -484,11 +484,12 @@ void lvlpyramid(){
 	int ix1 = addElevator(-540, 0);
 	int ix2 = addPyramid(-20, -200);
 	int ix3 = addSplit(540, 0);
-	addBridge(ix1+2, ix2+13, 12, .3, 14, 7, .95, 7, 4.2);
-	addBridge(ix2+23, ix3, 12, .3, 14, 7, .95, 7, 4.2);
-	addBridge(ix1+10, ix3+16, 22, .2, 16, 6, .95, 7, 6);
 	int ix4 = addNode();
 	newNode(ix4, -500, -225, 14, 1000, 0);
+	addBridge(ix2+23, ix3, 12, .3, 14, 7, .95, 7, 4.2);
+	addToolGravity(ix4+1);
+	addBridge(ix1+2, ix2+13, 12, .3, 14, 7, .95, 7, 4.2);
+	addBridge(ix1+10, ix3+16, 22, .2, 16, 6, .95, 7, 6);
 	addBridge(ix4, ix2, 12, .3, 14, 7, .95, 7, 4.2);
 	addPlatform(-710, 0, 10, 22, 10, 7, .95, 10, 4);
 	taskfixedadd(ix4, 1);

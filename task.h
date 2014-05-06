@@ -48,6 +48,8 @@ extern void addToolGrab(int ix);
 
 extern void addToolToggle(int ix);
 
+extern void addToolGravity(int ix);
+
 extern void taskincineratoradd(long height);
 
 extern void taskincinerator2add(long height);
