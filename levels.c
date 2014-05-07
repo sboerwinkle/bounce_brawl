@@ -479,8 +479,8 @@ static int addPlatform(double x, double y, int count, double spacing, double siz
 
 void lvlpyramid(){
 	initField();
-	maxZoomIn = 1.5;
-	if(players > 2) players = 2;
+	maxZoomIn = 2.0;
+	zoom = 2;
 	int ix1 = addElevator(-540, 0, 100);
 	int ix2 = addPyramid(-20, -200);
 	int ix3 = addSplit(540, 0);
@@ -491,14 +491,19 @@ void lvlpyramid(){
 	addBridge(ix1+10, ix3+16, 22, .2, 16, 6, .95, 7, 6);
 	addBridge(ix4+7, ix2, 12, .3, 16, 7, .95, 7, 4.2);
 	addElevator(-800, -220, 320);
+	addToolMech1(-640, -270);
 	
 	taskfixedadd(ix4, 1);
 	taskgravityadd();
 	taskincineratoradd(300);
-	if(players < 1) return;
-	taskguycontroladd(-650, 25*sqrt3);
-	if(players < 2) return;
-	taskguycontroladd(-450, 25*sqrt3);
+	int halfPlayers = (players+1)/2;
+	double playerInc = 0;
+	if(players>2) playerInc = 200.0/((players+1)/2 - 1);
+	int i = 0;
+	for(; i < players; i++){
+		taskguycontroladd((i>=halfPlayers?-650:-910) + playerInc*(i%halfPlayers), 25*sqrt3);
+	}
+	addScores();
 }
 
 void lvlbuilding(){
