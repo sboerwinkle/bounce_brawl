@@ -359,7 +359,7 @@ void lvlcave(){
 	taskguycontroladd(lvlcavesize*12, sqrt3/2*lvlcavesize);
 }
 
-static int addElevator(int x, int y){
+static int addElevator(int x, int y, double h){
 	int size = 24;
 	double fric = 0.90;
 	int tol = 5;
@@ -369,8 +369,8 @@ static int addElevator(int x, int y){
 	newNode(ix, x, y-200, 5, 1000, 0);
 	newNode(addNode(), x-2*size, y, 13, 8, 0);
 	newNode(addNode(), x+2*size, y, 13, 8, 0);
-	addBlock(x+size*-5.5, y+100, 4, 1, fric, size, 0, tol, str, 11, 8);
-	addBlock(x+size*1.5, y+100, 4, 1, fric, size, 0, tol, str, 11, 8);
+	addBlock(x+size*-5.5, y+h, 4, 1, fric, size, 0, tol, str, 11, 8);
+	addBlock(x+size*1.5, y+h, 4, 1, fric, size, 0, tol, str, 11, 8);
 
 	int i = 0;
 	for(; i < 4; i++){
@@ -386,15 +386,15 @@ static int addElevator(int x, int y){
 	connectNodes(ix, ix+10, 0.7, tol*2, str*2);
 	taskfixedadd(ix, 1);
 
-	addBlock(x-size, y+100+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str*1.5, 11, 16);
+	addBlock(x-size, y+h+sqrt3/2*size, 2, 2, fric, size, -sqrt3/2*size, tol, str*1.5, 11, 16);
 //	double distance = preciseDist(ix+13, ix+1);
 //	newConnection(ix+13, createConnection(ix+13), ix+1, .6, distance/2, distance, 0.015);
 //	newConnection(ix+15, createConnection(ix+15), ix+2, .6, distance/2, distance, 0.015);
 	//The new connection must be number 0 so that the tool works properly
 	int ix2 = createConnection(ix+14);
 	nodes[ix+14].connections[ix2] = nodes[ix+14].connections[0];
-	double dist = preciseDist(ix, ix+14)-60;
-	newConnectionLong(ix+14, 0, ix, .2, dist, dist-53, 140, .1);
+	double dist = preciseDist(ix, ix+14)-63;
+	newConnectionLong(ix+14, 0, ix, .2, dist, dist-h/2, h/2+63+20, .1);
 	addToolToggle(ix+14);
 	return ix;
 }
@@ -481,17 +481,17 @@ void lvlpyramid(){
 	initField();
 	maxZoomIn = 1.5;
 	if(players > 2) players = 2;
-	int ix1 = addElevator(-540, 0);
+	int ix1 = addElevator(-540, 0, 100);
 	int ix2 = addPyramid(-20, -200);
 	int ix3 = addSplit(540, 0);
-	int ix4 = addNode();
-	newNode(ix4, -500, -225, 14, 1000, 0);
+	int ix4 = addPlatform(-640, -220, 8, 22, 10, 7, .95, 10, 4);
 	addBridge(ix2+23, ix3, 12, .3, 14, 7, .95, 7, 4.2);
-	addToolGravity(ix4+1);
+	addToolGravity(ix4+8);
 	addBridge(ix1+2, ix2+13, 12, .3, 14, 7, .95, 7, 4.2);
 	addBridge(ix1+10, ix3+16, 22, .2, 16, 6, .95, 7, 6);
-	addBridge(ix4, ix2, 12, .3, 14, 7, .95, 7, 4.2);
-	addPlatform(-710, 0, 10, 22, 10, 7, .95, 10, 4);
+	addBridge(ix4+7, ix2, 12, .3, 16, 7, .95, 7, 4.2);
+	addElevator(-800, -220, 320);
+	
 	taskfixedadd(ix4, 1);
 	taskgravityadd();
 	taskincineratoradd(300);
