@@ -853,14 +853,15 @@ void lvl3rosette(){
 
 void lvlbigplanet(){
 	initField();
-	zoom = 2;
+	maxZoomIn = 2.2;
+	zoom = 4;
 	double rads = players == 0?0:M_PI*2/players;
 	register int i = 0;
 	for(; i < players; i++){
-		taskguycontroladd(-10-300*cos(i*rads), -10+300*sin(i*rads));
+		taskguycontroladd(-10-520*cos(i*rads), -10+520*sin(i*rads));
 	}
 	int layers[] = {5, 6, 2, 1, 3, 3};
-	int ix1 = addGenericPlanet(0,    0, 27, .20, .23, .97, 5, .22, layers);
+	int ix1 = addGenericPlanet(0,    0, 52, .20, .23, .97, 5, .22, layers);
 	int ix2 = addNode();
 	taskcenteradd(ix1);
 	while(ix1 < ix2-1) addToolDestroy(++ix1);
@@ -871,7 +872,7 @@ void lvlbigplanet(){
 //	ixs[1]=addGenericPlanet(0, 1000, 27, .20, .23, .97, 5, .22, layers);
 //	taskcenteraddLong(2, ixs);
 
-	taskuniversalgravityadd(0.004);
+	taskuniversalgravityadd(0.0022);
 //	addToolGun(0, -300);
 //	addToolGun(0, 300);
 	taskincinerator2add(2000);
