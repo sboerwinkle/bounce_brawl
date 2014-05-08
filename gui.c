@@ -629,7 +629,7 @@ int main(int argc, char** argv){
 	while(running){
 		if(netMode) readKeys();
 		paint();///Also runs the thing if relevant.
-		if(!(cheats & CHEAT_SPEED) && frameCount==SHOWEVERYNTHFRAME){
+		if(!(cheats & CHEAT_SPEED && mode) && frameCount==SHOWEVERYNTHFRAME){
 #ifndef WINDOWS
 			clock_gettime(CLOCK_MONOTONIC, &otherTime);
 			long int sleep = (long int)((cheats&CHEAT_SLOMO)?250000000*SPEEDFACTOR*SHOWEVERYNTHFRAME:25000000*SPEEDFACTOR*SHOWEVERYNTHFRAME) - (otherTime.tv_nsec-lastTime.tv_nsec+1000000000l*(otherTime.tv_sec-lastTime.tv_sec));

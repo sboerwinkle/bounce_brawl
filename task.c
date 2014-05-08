@@ -733,12 +733,12 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	nodes[i+1].connections[0].dead = 1;
 	nodes[i+2].connections[0].dead = 1;
 	nodes[i+3].connections[0].dead = 1;
-	newConnectionLong(i+2, 1, i+3, 0.6, 20, 35, 23, .35);
-	newConnectionLong(i+2, 2, i+1, 0.6, 20, 35, 23, .35);
-	newConnectionLong(i,   1, i+3, 0.6, 20, 35, 23, .35);
-	newConnectionLong(i,   2, i+1, 0.6, 20, 35, 23, .35);
-	newConnectionLong(i,   3, i+2, 0.6, 28, 49, 32.2, .35);
-	newConnectionLong(i+3, 1, i+1, 0.6, 28, 49, 32.2, .35);
+	newConnectionLong(i+2, 1, i+3, 0.5, 20, 35, 23, .35);
+	newConnectionLong(i+2, 2, i+1, 0.5, 20, 35, 23, .35);
+	newConnectionLong(i,   1, i+3, 0.5, 20, 35, 23, .35);
+	newConnectionLong(i,   2, i+1, 0.5, 20, 35, 23, .35);
+	newConnectionLong(i,   3, i+2, 0.5, 28, 49, 32.2, .35);
+	newConnectionLong(i+3, 1, i+1, 0.5, 28, 49, 32.2, .35);
 //	newConnectionLong(i+2, 1, i+3, 0.6, 20, 27, 15, .35);
 //	newConnectionLong(i+2, 2, i+1, 0.6, 20, 27, 15, .35);
 //	newConnectionLong(i,   1, i+3, 0.6, 20, 27, 15, .35);
