@@ -411,6 +411,8 @@ typedef struct{
 	tool* controlData;
 	int connectedLeg;
 	char exists[4];
+
+	double ten0, ten1, nine0, nine1, nine2, eleven0; // Arm lengths, named after the indices which certain nodes got when I was still testing taskguycontrol
 }taskguycontroldata;
 
 static inline void taskguycontroldisconnect(taskguycontroldata* data){
@@ -485,15 +487,20 @@ static void taskguycontroldoRoll(taskguycontroldata* data){
 		}
 	}
 }
+static void shrinkArm(double* what, double size){
+	if(*what == size) return;
+	*what -= 4.0*SPEEDFACTOR;
+	if(*what < size) *what = size;
+}
 static void taskguycontroldoLegs(taskguycontroldata* data){
 	int index = data->index;
 	char* myKeys = data->myKeys;
-	short ten0 = 20;
-	short ten1 = 20;
-	short nine0 = 20;
-	short nine1 = 20;
-	short nine2 = 28;
-	short eleven0 = 28;
+	shrinkArm(&data->ten0, 20);
+	shrinkArm(&data->ten1, 20);
+	shrinkArm(&data->nine0, 20);
+	shrinkArm(&data->nine1, 20);
+	shrinkArm(&data->nine2, 28);
+	shrinkArm(&data->eleven0, 28);
 //	short sl = 35;
 //	short ll = 49;
 	if(myKeys[5]){
@@ -518,40 +525,40 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 		ll = 28+28/count;
 	}
 	if(myKeys[0]){
-		nine0 = sl;
-		nine1 = sl;
-		nine2 = ll;
+		data->nine0 = sl;
+		data->nine1 = sl;
+		data->nine2 = ll;
 	}
 	if(myKeys[2]){
-		ten0 = sl;
-		ten1 = sl;
-		nine2 = ll;
+		data->ten0 = sl;
+		data->ten1 = sl;
+		data->nine2 = ll;
 	}
 	if(myKeys[3]){
-		ten0 = sl;
-		nine0 = sl;
-		eleven0 = ll;
+		data->ten0 = sl;
+		data->nine0 = sl;
+		data->eleven0 = ll;
 	}
 	if(myKeys[1]){
-		ten1 = sl;
-		nine1 = sl;
-		eleven0 = ll;
+		data->ten1 = sl;
+		data->nine1 = sl;
+		data->eleven0 = ll;
 	}
 	if(!nodes[index].connections[2].dead)
-		nodes[index].connections[2].preflength = nine1;
+		nodes[index].connections[2].preflength = data->nine1;
 	if(data->exists[2]){
 		if(!nodes[index].connections[3].dead)
-			nodes[index].connections[3].preflength = nine2;
+			nodes[index].connections[3].preflength = data->nine2;
 		if(!nodes[index+2].connections[1].dead)
-			nodes[index+2].connections[1].preflength = ten0;
+			nodes[index+2].connections[1].preflength = data->ten0;
 		if(!nodes[index+2].connections[2].dead)
-			nodes[index+2].connections[2].preflength = ten1;
+			nodes[index+2].connections[2].preflength = data->ten1;
 	}
 	if(data->exists[3]){
 		if(!nodes[index].connections[1].dead)
-			nodes[index].connections[1].preflength = nine0;
+			nodes[index].connections[1].preflength = data->nine0;
 		if(!nodes[index+3].connections[1].dead)
-			nodes[index+3].connections[1].preflength = eleven0;
+			nodes[index+3].connections[1].preflength = data->eleven0;
 	}
 }
 static void toolGravity(){
@@ -725,6 +732,8 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	int ix = 0;
 	for(; ix < 4; ix++) data->exists[ix] = 1;
 	data->lastpress = 0;
+	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
+	data->nine2 = data->eleven0 = 28;
 
 	newNode(addNode(), x+(flipped?0:20), y+(flipped?20:0), 6, 2, 1);
 	newNode(addNode(), x+(flipped?-20:20), y+20, 6, 2, 3);
@@ -733,12 +742,12 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	nodes[i+1].connections[0].dead = 1;
 	nodes[i+2].connections[0].dead = 1;
 	nodes[i+3].connections[0].dead = 1;
-	newConnectionLong(i+2, 1, i+3, 0.5, 20, 35, 23, .35);
-	newConnectionLong(i+2, 2, i+1, 0.5, 20, 35, 23, .35);
-	newConnectionLong(i,   1, i+3, 0.5, 20, 35, 23, .35);
-	newConnectionLong(i,   2, i+1, 0.5, 20, 35, 23, .35);
-	newConnectionLong(i,   3, i+2, 0.5, 28, 49, 32.2, .35);
-	newConnectionLong(i+3, 1, i+1, 0.5, 28, 49, 32.2, .35);
+	newConnectionLong(i+2, 1, i+3, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i+2, 2, i+1, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   1, i+3, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   2, i+1, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   3, i+2, 0.7, 28, 49, 32.2, .35);
+	newConnectionLong(i+3, 1, i+1, 0.7, 28, 49, 32.2, .35);
 //	newConnectionLong(i+2, 1, i+3, 0.6, 20, 27, 15, .35);
 //	newConnectionLong(i+2, 2, i+1, 0.6, 20, 27, 15, .35);
 //	newConnectionLong(i,   1, i+3, 0.6, 20, 27, 15, .35);
