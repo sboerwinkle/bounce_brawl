@@ -200,7 +200,7 @@ typedef struct {
 static char taskasteroids(void* where){
 	taskasteroidsdata* data = (taskasteroidsdata*)where;
 	if(data->cool-- <= 0){
-		newNodeLong(addNode(), (float)rand()/RAND_MAX*400, 0, 0, 0, (float)rand()/RAND_MAX*4-2, 0, data->size, data->mass, 0);
+		newNodeLong((float)rand()/RAND_MAX*400, 0, 0, 0, (float)rand()/RAND_MAX*4-2, 0, data->size, data->mass, 0);
 		data->cool = data->maxcool;
 	}
 	return 0;
@@ -447,9 +447,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 		dx /= dist;
 		dy /= dist;
 	}
-	int ix = addNode();
-	one = nodes + data->index+aimingLeg;//addNode can reassign nodes, so this needs to be recomputed.
-	newNodeLong(ix, one->x, one->y, one->px, one->py, one->xmom+dx, one->ymom+dy, 2, 4, 0);
+	int ix = newNodeLong(one->x, one->y, one->px, one->py, one->xmom+dx, one->ymom+dy, 2, 4, 0);
 	taskdestroyadd(ix, 100);
 }
 static void taskguycontroldoRoll(taskguycontroldata* data){
@@ -712,8 +710,7 @@ static char taskguycontrol(void* where){
 	return 0;
 }
 void taskguycontroladdLong(int x, int y, char flipped){
-	int i = addNode();
-	newNode(i, x, y, 6, 2, 4);
+	int i = newNode(x, y, 6, 2, 4);
 	task* current = (task*)malloc(sizeof(task));
 	addTask(current);
 	taskguycontrolindexes[playerNum] = i;
@@ -735,9 +732,9 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
 	data->nine2 = data->eleven0 = 28;
 
-	newNode(addNode(), x+(flipped?0:20), y+(flipped?20:0), 6, 2, 1);
-	newNode(addNode(), x+(flipped?-20:20), y+20, 6, 2, 3);
-	newNode(addNode(), x+(flipped?-20:0), y+(flipped?0:20), 6, 2, 2);
+	newNode(x+(flipped?0:20), y+(flipped?20:0), 6, 2, 1);
+	newNode(x+(flipped?-20:20), y+20, 6, 2, 3);
+	newNode(x+(flipped?-20:0), y+(flipped?0:20), 6, 2, 2);
 	nodes[ i ].connections[0].dead = 1;
 	nodes[i+1].connections[0].dead = 1;
 	nodes[i+2].connections[0].dead = 1;
@@ -794,13 +791,12 @@ void addGenericTool(int ix, int type){
 	tools[i].inUse = 0;
 }
 void addToolMech1(int x, int y){
-	int ix = addNode();
-	newNode(ix, x, y, 6, 18, 4);
+	int ix = newNode(x, y, 6, 18, 4);
 	addGenericTool(ix, 100);
-	newNode(addNode(), x-30, y-30, 10, 18, 1);
-	newNode(addNode(), x+30, y-30, 10, 18, 1);
-	newNode(addNode(), x+30, y+30, 10, 18, 1);
-	newNode(addNode(), x-30, y+30, 10, 18, 1);
+	newNode(x-30, y-30, 10, 18, 1);
+	newNode(x+30, y-30, 10, 18, 1);
+	newNode(x+30, y+30, 10, 18, 1);
+	newNode(x-30, y+30, 10, 18, 1);
 	int i = 1;
 	for(; i < 5; i++){
 		newConnectionLong(ix, i-1, ix+i, .6, i>2?74:42, 58, 34, 1.05);
@@ -808,8 +804,7 @@ void addToolMech1(int x, int y){
 	}
 }
 void addToolGun(double x, double y){
-	int ix = addNode();
-	newNode(ix, x, y, 3, 1, 0);
+	int ix = newNode(x, y, 3, 1, 0);
 	addGenericTool(ix, 10);
 	taskinflateadd(ix, .1, 3);
 }

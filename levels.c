@@ -45,9 +45,8 @@ static int addHex(double x, double y, int width, int height, int* map, double fr
 		placeX = x + j*spacing/2;
 		for(i = 0; i < width; i++){
 			if(map[j*width + i]){
-				tmp = addNode();
+				tmp = newNode((int)placeX, (int)placeY, size, mass, 0);
 				if(ret==-1) ret=tmp;
-				newNode(tmp, (int)placeX, (int)placeY, size, mass, 0);
 				map[j*width + i] = tmp+1; // index is stored so later nodes can connect to it
 				//Initialize connections
 				int subI, subJ;
@@ -90,12 +89,11 @@ static void addBridge(int ix1, int ix2, int numNodes, double height, double size
 	double stepDist = sqrt(stepx*stepx + stepy*stepy);
 	double x = nodes[ix1].x+nodes[ix1].px;
 	double y = nodes[ix1].y+nodes[ix1].py;
-	int ix = addNode();
 	int i = 1;
 	height *= numNodes;
-	newNode(ix, x + stepx*numNodes/2 + stepy*height, y + stepy*numNodes/2 - stepx*height, size, mass*3, 3);
+	int ix = newNode(x + stepx*numNodes/2 + stepy*height, y + stepy*numNodes/2 - stepx*height, size, mass*3, 3);
 	for(; i < numNodes; i++){
-		newNode(addNode(), x+=stepx, y+=stepy, size, mass, 1);
+		newNode(x+=stepx, y+=stepy, size, mass, 1);
 		newConnection(ix+i, 0, ix+i+1, fric, stepDist, tol, str);
 	}
 	nodes[ix+numNodes-1].connections[0].id = ix2;
@@ -113,8 +111,7 @@ static void addLoop(int centerX, int centerY, double radius, int num, double the
 	for(; i < num; i++){
 		xpart = radius*cos(theta);
 		ypart = radius*sin(theta);
-		ix = addNode();
-		newNodeLong(ix, (int)xpart+centerX, (int)ypart+centerY, xpart-(int)xpart, ypart-(int)ypart, 0, 0, size, mass, 1);
+		ix = newNodeLong((int)xpart+centerX, (int)ypart+centerY, xpart-(int)xpart, ypart-(int)ypart, 0, 0, size, mass, 1);
 		newConnection(ix, 0, ix+1, fric, len, tol, str);
 		theta += angleInc;
 	}
@@ -130,8 +127,7 @@ static void addBlock(int x, int y, int width, int height, double fric, int spaci
 	for(; i < height-1; i++){
 		X = indented?x+spacing/2:x;
 		y = (int)Y;
-		ix = addNode();
-		newNode(ix, X, y, size, mass, (indented&&width>1)?3:2);
+		ix = newNode(X, y, size, mass, (indented&&width>1)?3:2);
 		int connection = 0;
 		if(!(indented && width == 1))
 			newConnection(ix, connection++, ix+1, fric, spacing, tolerance, str);
@@ -140,16 +136,14 @@ static void addBlock(int x, int y, int width, int height, double fric, int spaci
 		newConnection(ix, connection++, ix+width+1, fric, spacing, tolerance, str);
 		X += spacing;
 		for(j = indented?2:1; j < width; j++){
-			ix = addNode();
-			newNode(ix, X, y, size, mass, 3);
+			ix = newNode(X, y, size, mass, 3);
 			newConnection(ix, 0, ix+1, fric, spacing, tolerance, str);
 			newConnection(ix, 1, ix+width, fric, spacing, tolerance, str);
 			newConnection(ix, 2, ix+width+1, fric, spacing, tolerance, str);
 			X += spacing;
 		}
 		if(width > 1 || !indented){
-			ix = addNode();
-			newNode(ix, X, y, size, mass, indented?2:1);
+			ix = newNode(X, y, size, mass, indented?2:1);
 			newConnection(ix, 0, ix+width, fric, spacing, tolerance, str);
 			if(indented)
 				newConnection(ix, 1, ix+width+1, fric, spacing, tolerance, str);
@@ -161,12 +155,11 @@ static void addBlock(int x, int y, int width, int height, double fric, int spaci
 	X = indented?x+spacing/2:x;
 	y = (int)Y;
 	for(j = indented?1:0; j < width; j++){
-		ix = addNode();
-		newNode(ix, X, y, size, mass, 1);
+		ix = newNode(X, y, size, mass, 1);
 		newConnection(ix, 0, ix+1, fric, spacing, tolerance, str);
 		X += spacing;
 	}
-	newNode(addNode(), X, y, size, mass, 0);
+	newNode(X, y, size, mass, 0);
 }
 #define BCS 12.5
 #define BMCS 17.5
@@ -179,20 +172,19 @@ static void addBlock(int x, int y, int width, int height, double fric, int spaci
 #define BNUM 12
 #define BHT 75
 static void addBuilding(double x, double y, int stories){
-	int ix = addNode();
 	int inc = stories%2?-80:80;
 	if(stories%2) x += 80*3;
-	newNode(ix, x, y, BMNS, BMNM, stories?3:1);
-	newNode(addNode(), x+inc, y, BMNS, BMNM, stories?3:1);
-	newNode(addNode(), x+2*inc, y, BMNS, BMNM, stories?3:1);
-	newNode(addNode(), x+3*inc, y, BMNS, BMNM, stories?1:0);
+	int ix = newNode(x, y, BMNS, BMNM, stories?3:1);
+	newNode(x+inc, y, BMNS, BMNM, stories?3:1);
+	newNode(x+2*inc, y, BMNS, BMNM, stories?3:1);
+	newNode(x+3*inc, y, BMNS, BMNM, stories?1:0);
 	newConnection(ix, 0, ix+1, .9, 80, 7, BMCS);
 	newConnection(ix+1, 0, ix+2, .9, 80, 7, BMCS);
 	newConnection(ix+2, 0, ix+3, .9, 80, 7, BMCS);
 
-	newNode(addNode(), x+inc*1.25, y, BNS, BNM, 2);
-	newNode(addNode(), x+inc*1.50, y, BNS, BNM, 1);
-	newNode(addNode(), x+inc*1.75, y, BNS, BNM, 1);
+	newNode(x+inc*1.25, y, BNS, BNM, 2);
+	newNode(x+inc*1.50, y, BNS, BNM, 1);
+	newNode(x+inc*1.75, y, BNS, BNM, 1);
 	newConnection(ix+4, 0, ix+1, BCF, 20, 4, BCS);
 	newConnection(ix+4, 1, ix+5, BCF, 20, 4, BCS);
 	newConnection(ix+5, 0, ix+6, BCF, 20, 4, BCS);
@@ -203,16 +195,16 @@ static void addBuilding(double x, double y, int stories){
 	double diag = sqrt(BHT*BHT + 80*80);
 	double diagTol = diag*7/40;
 
-		newNode(addNode(), x+inc*2.25, y, BNS, BNM, 2);
-		newNode(addNode(), x+inc*2.50, y, BNS, BNM, 1);
-		newNode(addNode(), x+inc*2.75, y, BNS, BNM, 1);
+		newNode(x+inc*2.25, y, BNS, BNM, 2);
+		newNode(x+inc*2.50, y, BNS, BNM, 1);
+		newNode(x+inc*2.75, y, BNS, BNM, 1);
 		newConnection(ix+7, 0, ix+2, BCF, 20, 4, BCS);
 		newConnection(ix+7, 1, ix+8, BCF, 20, 4, BCS);
 		newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
 		newConnection(ix+9, 0, ix+3, BCF, 20, 4, BCS);
 
-	newNode(addNode(), x+inc*1.0/3, y, BRNS, BNM/4.0, 2);
-	newNode(addNode(), x+inc*2.0/3, y, BRNS, BNM/4.0, 1);
+	newNode(x+inc*1.0/3, y, BRNS, BNM/4.0, 2);
+	newNode(x+inc*2.0/3, y, BRNS, BNM/4.0, 1);
 	newConnection(ix+10, 1, ix, BCF, 80.0/3, 7, BCS/3);
 	newConnection(ix+10, 0, ix+11, BCF, 80.0/3, 7, BCS/3);
 	newConnectionLong(ix+11, 0, ix+1, 0.2, 80.0/3, (80.0*1/2+80.0*.75)/2, 40, BCS/35);
@@ -230,26 +222,6 @@ static void addBuilding(double x, double y, int stories){
 
 		newConnection(ix+3, 0, ix+BNUM  , .9, BHT, 7, BMCS);
 
-/*		newNode(addNode(), x+inc*3, y-BHT/3.0, BNS, BNM, 2);
-		newNode(addNode(), x+inc*3, y-BHT*2.0/3, BNS, BNM, 1);
-//		newNode(addNode(), x+inc*3, y-60, BNS, BNM, 2);
-		newConnection(ix+10, 0, ix+11, BCF, 20, 4, BCS);
-		newConnection(ix+11, 0, ix+12, BCF, 20, 4, BCS);
-//		newConnection(ix+12, 0, ix+13, BCF, 20, 4, BCS);
-		newConnection(ix+10, 1, ix+3, BCF, 20, 4, BCS);*/
-
-/*		newNode(addNode(), x+inc*2.25, y-BHT*0/9.0, BRNS, BNM, 2);
-		newNode(addNode(), x+inc*2.50, y-BHT*1/9.0, BRNS, BNM, 1);
-		newNode(addNode(), x+inc*2.75, y-BHT*2/9.0, BRNS, BNM, 2);
-		newNode(addNode(), x+inc*2.85, y-BHT*4/9.0, BRNS, BNM, 1);
-		newConnection(ix+7, 0, ix+2, BCF, 20, 4, BCS);
-		newConnection(ix+7, 1, ix+8, BCF, 20, 4, BCS);
-		newConnection(ix+8, 0, ix+9, BCF, 20, 4, BCS);
-		newConnection(ix+9, 0, ix+10, BCF, 20, 4, BCS);
-		newConnection(ix+9, 1, ix+3, BCF, 25, 4, BCS);
-		newConnection(ix+10, 0, ix+11, BCF, 40, 6, BCS);
-//		newConnection(ix+9, 1, ix+12, BCF, 55, 4*M_SQRT2, BCS);*/
-
 		addBuilding(stories%2?x-80*3:x, y-BHT, stories-1);
 	}
 }
@@ -257,7 +229,7 @@ static void addBuilding(double x, double y, int stories){
 void lvltest(){
 	initField();
 	maxZoomIn = 1.5;
-	newNode(addNode(), 247, 4000, 3600, 1000, 0);
+	newNode(247, 4000, 3600, 1000, 0);
 	taskfixedaddLong(0, 247l, 4000l, .4);
 	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
 	taskfixedadd(1, .5);
@@ -296,7 +268,7 @@ void lvltutorial(){
 	tasktextadd(-30, -90, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
 	tasktextadd(230, -90, "Try holding 'Z' with\n'A' or 'D' to\nroll.");
 	tasktextadd(500, -90, "Press 'X' to interact with\nobjects marked with squares.\nSome of these change\nthe functions of your keys.");
-	newNode(addNode(), 650, 140+20*sqrt3*2, 16, 150, 4);
+	newNode(650, 140+20*sqrt3*2, 16, 150, 4);
 	int hexArg[] = {H,0,0,0,H,0,0,\
 			 H,0,0,0,H,H,H,\
 			  H,0,0,0,0,0,H,\
@@ -365,10 +337,9 @@ static int addElevator(int x, int y, double h){
 	int tol = 5;
 	double str = 2.3;
 
-	int ix = addNode();
-	newNode(ix, x, y-200, 5, 1000, 0);
-	newNode(addNode(), x-2*size, y, 13, 8, 0);
-	newNode(addNode(), x+2*size, y, 13, 8, 0);
+	int ix = newNode(x, y-200, 5, 1000, 0);
+	newNode(x-2*size, y, 13, 8, 0);
+	newNode(x+2*size, y, 13, 8, 0);
 	addBlock(x+size*-5.5, y+h, 4, 1, fric, size, 0, tol, str, 11, 8);
 	addBlock(x+size*1.5, y+h, 4, 1, fric, size, 0, tol, str, 11, 8);
 
@@ -423,7 +394,7 @@ static int addPyramid(int x, int y){
 	connectNodes(ix+22, ix+5, fric, tol, str);
 	connectNodes(ix+23, ix+5, fric, tol, str*2);
 
-	newNode(addNode(), x, y-200, 5, 1000, 0);
+	newNode(x, y-200, 5, 1000, 0);
 	connectNodes(ix+24, ix, 0.7, tol*2, str*2);
 	connectNodes(ix+24, ix+5, 0.7, tol*2, str*2);
 	connectNodes(ix+24, ix+16, 0.7, tol*2, str*2);
@@ -450,7 +421,7 @@ static int addSplit(int x, int y){
 
 //	connectNodes(ix+9, ix+6, fric, tol, str);
 
-	newNode(addNode(), x, y-200, 5, 1000, 0);
+	newNode(x, y-200, 5, 1000, 0);
 	connectNodes(ix+23, ix, 0.7, tol*2, str*2);
 	connectNodes(ix+23, ix+4, 0.7, tol*2, str*2);
 	connectNodes(ix+23, ix+19, 0.7, tol*2, str*2);
@@ -460,14 +431,12 @@ static int addSplit(int x, int y){
 }
 
 static int addPlatform(double x, double y, int count, double spacing, double size, double mass, double fric, double tol, double str){
-	int ix2 = addNode();
-	newNode(ix2, x, y-200, 5, 1000, count);
+	int ix2 = newNode(x, y-200, 5, 1000, count);
 	x -= (count-1)*spacing/2;
-	int ix = addNode();
-	newNode(ix, x, y, size, mass, 0);
+	int ix = newNode(x, y, size, mass, 0);
 	int i = 1;
 	for(; i < count; i++){
-		newNode(addNode(), x+spacing*i, y, size, mass, 1);
+		newNode(x+spacing*i, y, size, mass, 1);
 		newConnection(ix+i, 0, ix+i-1, fric, spacing, tol, str);
 	}
 	for(i--; i >= 0; i--){
@@ -573,8 +542,8 @@ void lvltilt(){
 		System.arraycopy(current.connections, 0, newcon, 0, current.connections.length);
 	}*/
 	addBlock(185, 300, 13, 2, .8/*fric*/, 10/*spacing*/, 7/*vertSpacing*/, 10/*tol*/, 2.5/*str*/, 5/*size*/, 4/*mass*/);
-	newNode(addNode(), 262, 370, 6, 16, 14);
-	newNode(addNode(), 237, 370, 6, 16, 14);
+	newNode(262, 370, 6, 16, 14);
+	newNode(237, 370, 6, 16, 14);
 	taskfixedadd(27, .5);
 	taskfixedadd(28, .5);
 	int i = 0;
@@ -600,85 +569,85 @@ static void make(){
 	double mass = 9;
 	double str = 6.76;
 	double tol = 6.3;
-newNodeLong(addNode(), 152, 308, -0.332000, 0.142000, -.574, -1.763, size, mass, 1);
+newNodeLong(152, 308, -0.332000, 0.142000, -.574, -1.763, size, mass, 1);
 newConnectionLong(8, 0, 9, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 154, 321, 0.637000, -0.785000, .072, .061, size, mass, 1);
+newNodeLong(154, 321, 0.637000, -0.785000, .072, .061, size, mass, 1);
 newConnectionLong(9, 0, 10, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 157, 333, -0.274000, -0.623000, .157, .071, size, mass, 1);
+newNodeLong(157, 333, -0.274000, -0.623000, .157, .071, size, mass, 1);
 newConnectionLong(10, 0, 11, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 159, 345, 0.101000, -0.654000, .042, .154, size, mass, 1);
+newNodeLong(159, 345, 0.101000, -0.654000, .042, .154, size, mass, 1);
 newConnectionLong(11, 0, 12, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 162, 356, -0.169000, 0.051000, .010, .114, size, mass, 1);
+newNodeLong(162, 356, -0.169000, 0.051000, .010, .114, size, mass, 1);
 newConnectionLong(12, 0, 13, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 165, 368, 0.062000, -0.416000, -.042, .238, size, mass, 1);
+newNodeLong(165, 368, 0.062000, -0.416000, -.042, .238, size, mass, 1);
 newConnectionLong(13, 0, 14, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 168, 379, 0.352000, -0.081000, -.098, .207, size, mass, 1);
+newNodeLong(168, 379, 0.352000, -0.081000, -.098, .207, size, mass, 1);
 newConnectionLong(14, 0, 15, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 172, 391, -0.265000, -0.839000, .063, -.009, size, mass, 2);
+newNodeLong(172, 391, -0.265000, -0.839000, .063, -.009, size, mass, 2);
 newConnectionLong(15, 0, 16, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 175, 402, -0.122000, -0.528000, .162, -.041, size, mass, 1);
+newNodeLong(175, 402, -0.122000, -0.528000, .162, -.041, size, mass, 1);
 newConnectionLong(16, 0, 17, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 179, 413, -0.787000, -0.378000, -.146, -.002, size, mass, 1);
+newNodeLong(179, 413, -0.787000, -0.378000, -.146, -.002, size, mass, 1);
 newConnectionLong(17, 0, 18, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 183, 424, -0.055000, -0.814000, -.096, .023, size, mass, 1);
+newNodeLong(183, 424, -0.055000, -0.814000, -.096, .023, size, mass, 1);
 newConnectionLong(18, 0, 19, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 188, 434, -0.581000, -0.284000, -.089, .060, size, mass, 1);
+newNodeLong(188, 434, -0.581000, -0.284000, -.089, .060, size, mass, 1);
 newConnectionLong(19, 0, 20, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 192, 444, 0.295000, -0.016000, .070, -.013, size, mass, 1);
+newNodeLong(192, 444, 0.295000, -0.016000, .070, -.013, size, mass, 1);
 newConnectionLong(20, 0, 21, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 198, 454, -0.812000, 0.222000, .073, .148, size, mass, 1);
+newNodeLong(198, 454, -0.812000, 0.222000, .073, .148, size, mass, 1);
 newConnectionLong(21, 0, 22, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 204, 463, -0.601000, 0.513000, -.069, .226, size, mass, 1);
+newNodeLong(204, 463, -0.601000, 0.513000, -.069, .226, size, mass, 1);
 newConnectionLong(22, 0, 23, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 210, 472, 0.334000, 0.045000, -.081, .065, size, mass, 1);
+newNodeLong(210, 472, 0.334000, 0.045000, -.081, .065, size, mass, 1);
 newConnectionLong(23, 0, 24, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 217, 480, 0.640000, 0.203000, .068, -.039, size, mass, 1);
+newNodeLong(217, 480, 0.640000, 0.203000, .068, -.039, size, mass, 1);
 newConnectionLong(24, 0, 25, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 226, 486, 0.281000, 0.705000, -.008, .294, size, mass, 1);
+newNodeLong(226, 486, 0.281000, 0.705000, -.008, .294, size, mass, 1);
 newConnectionLong(25, 0, 26, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 235, 491, 0.782000, 0.534000, .175, .034, size, mass, 1);
+newNodeLong(235, 491, 0.782000, 0.534000, .175, .034, size, mass, 1);
 newConnectionLong(26, 0, 27, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 246, 493, 0.027000, 0.782000, .077, .071, size, mass, 1);
+newNodeLong(246, 493, 0.027000, 0.782000, .077, .071, size, mass, 1);
 newConnectionLong(27, 0, 28, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 256, 494, 0.469000, -0.583000, .057, .090, size, mass, 1);
+newNodeLong(256, 494, 0.469000, -0.583000, .057, .090, size, mass, 1);
 newConnectionLong(28, 0, 29, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 266, 491, 0.430000, -0.597000, -.057, -.043, size, mass, 1);
+newNodeLong(266, 491, 0.430000, -0.597000, -.057, -.043, size, mass, 1);
 newConnectionLong(29, 0, 30, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 275, 486, 0.546000, -0.632000, .007, .191, size, mass, 1);
+newNodeLong(275, 486, 0.546000, -0.632000, .007, .191, size, mass, 1);
 newConnectionLong(30, 0, 31, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 284, 479, -0.100000, -0.102000, -.129, -.060, size, mass, 1);
+newNodeLong(284, 479, -0.100000, -0.102000, -.129, -.060, size, mass, 1);
 newConnectionLong(31, 0, 32, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 291, 471, -0.127000, -0.070000, -.013, .165, size, mass, 1);
+newNodeLong(291, 471, -0.127000, -0.070000, -.013, .165, size, mass, 1);
 newConnectionLong(32, 0, 33, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 298, 463, -0.408000, -0.432000, .034, .172, size, mass, 1);
+newNodeLong(298, 463, -0.408000, -0.432000, .034, .172, size, mass, 1);
 newConnectionLong(33, 0, 34, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 303, 454, 0.231000, -0.749000, -.160, -.002, size, mass, 1);
+newNodeLong(303, 454, 0.231000, -0.749000, -.160, -.002, size, mass, 1);
 newConnectionLong(34, 0, 35, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 309, 444, -0.625000, -0.387000, .047, .257, size, mass, 1);
+newNodeLong(309, 444, -0.625000, -0.387000, .047, .257, size, mass, 1);
 newConnectionLong(35, 0, 36, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 313, 434, 0.558000, -0.253000, .150, .178, size, mass, 1);
+newNodeLong(313, 434, 0.558000, -0.253000, .150, .178, size, mass, 1);
 newConnectionLong(36, 0, 37, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 318, 423, -0.151000, 0.384000, -.145, .028, size, mass, 1);
+newNodeLong(318, 423, -0.151000, 0.384000, -.145, .028, size, mass, 1);
 newConnectionLong(37, 0, 38, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 322, 413, -0.663000, -0.387000, -.111, .065, size, mass, 1);
+newNodeLong(322, 413, -0.663000, -0.387000, -.111, .065, size, mass, 1);
 newConnectionLong(38, 0, 39, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 325, 402, 0.496000, -0.102000, .170, .126, size, mass, 1);
+newNodeLong(325, 402, 0.496000, -0.102000, .170, .126, size, mass, 1);
 newConnectionLong(39, 0, 40, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 329, 391, 0.177000, -0.046000, .119, .088, size, mass, 2);
+newNodeLong(329, 391, 0.177000, -0.046000, .119, .088, size, mass, 2);
 newConnectionLong(40, 0, 41, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 332, 379, 0.235000, 0.727000, -.110, -.029, size, mass, 1);
+newNodeLong(332, 379, 0.235000, 0.727000, -.110, -.029, size, mass, 1);
 newConnectionLong(41, 0, 42, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 335, 368, -0.289000, 0.256000, -.179, .054, size, mass, 1);
+newNodeLong(335, 368, -0.289000, 0.256000, -.179, .054, size, mass, 1);
 newConnectionLong(42, 0, 43, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 338, 356, -0.297000, 0.713000, .019, .144, size, mass, 1);
+newNodeLong(338, 356, -0.297000, 0.713000, .019, .144, size, mass, 1);
 newConnectionLong(43, 0, 44, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 341, 345, -0.218000, 0.056000, .136, .274, size, mass, 1);
+newNodeLong(341, 345, -0.218000, 0.056000, .136, .274, size, mass, 1);
 newConnectionLong(44, 0, 45, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 344, 333, -0.164000, 0.218000, .068, .282, size, mass, 1);
+newNodeLong(344, 333, -0.164000, 0.218000, .068, .282, size, mass, 1);
 newConnectionLong(45, 0, 46, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 346, 321, 0.088000, 0.082000, -.155, .184, size, mass, 1);
+newNodeLong(346, 321, 0.088000, 0.082000, -.155, .184, size, mass, 1);
 newConnectionLong(46, 0, 47, 1.000000, 10, 10, tol, str);
-newNodeLong(addNode(), 349, 308, -0.983000, 0.827000, .123, -1.702, size, mass, 0);
+newNodeLong(349, 308, -0.983000, 0.827000, .123, -1.702, size, mass, 0);
 }
 void lvlswing(){
 	if(players > 2) players = 2;
@@ -686,7 +655,7 @@ void lvlswing(){
 	maxZoomIn = 2.55;
 
 	int i = 0;
-	for(; i < 8; i++) newNode(addNode(), 100, 100, 2, 2, 0); //This has to be done so 'make' works properly
+	for(; i < 8; i++) newNode(100, 100, 2, 2, 0); //This has to be done so 'make' works properly
 	
 	//addBlock(150, 300, 40, 1, 1/*fric*/, 10/*spacing*/, 11/*vertSpacing*/, 10/*tol*/, 3.38/*str*/, 4.8/*size*/, 4.5/*mass*/);
 	make();
@@ -728,8 +697,7 @@ void lvldrop(){
 	int n, i = 0;
 	for(; i < 43; i += 6){
 		addToolDestroy(i);
-		n = addNode();
-		newNode(n, (int)nodes[i].x, 100, 10, 20, 1);
+		n = newNode((int)nodes[i].x, 100, 10, 20, 1);
 		newConnection(n, 0, i, .5, 180, 10, 3);
 		taskfixedadd(n, .3);
 	}
@@ -750,8 +718,7 @@ void lvldrop(){
 #define STR_1 5
 #define TOL_1 2.8
 int addPlanet(int x, int y){
-	int ix = addNode();
-	newNode(ix, x, y, 18, 20, 6);
+	int ix = newNode(x, y, 18, 20, 6);
 	addLoop(x, y, 40, 6, 0, 18, 20, 1, TOL_1, STR_1);
 	addLoop(x, y, 80, 12, 0, 20, 20, 1, TOL_1, STR_1);
 	int i = 0;
@@ -769,8 +736,7 @@ int addGenericPlanet(int x, int y, int size, double density, double surfaceDensi
 		fprintf(stderr, "Strange number of layers to addGenericPlanet: %d\n", *layers);
 		return -1;
 	}
-	int ix = addNode();
-	newNode(ix, x, y, size, size*size*density, 0);
+	int ix = newNode(x, y, size, size*size*density, 0);
 	int precedingStart = 0;
 	int currentCount = 1;
 	int precedingCount = 1;
@@ -862,10 +828,10 @@ void lvlbigplanet(){
 	}
 	int layers[] = {5, 6, 2, 1, 3, 3};
 	int ix1 = addGenericPlanet(0,    0, 52, .20, .23, .97, 5, .22, layers);
-	int ix2 = addNode();
+	int ix2 = newNode(0, 0, 1, 1, 0);
 	taskcenteradd(ix1);
 	while(ix1 < ix2-1) addToolDestroy(++ix1);
-	newNode(ix2, 0, 0, 1, 1, 0);
+	
 	killNode(ix2);//We just want the index
 //	int ixs[2];
 //	ixs[0]=addGenericPlanet(0,    0, 27, .20, .23, .97, 5, .22, layers);
@@ -882,7 +848,7 @@ void lvlbigplanet(){
 void lvlmech(){
 	initField();
 	maxZoomIn = 1.5;
-	newNode(addNode(), 247, 4000, 3600, 1000, 0);
+	newNode(247, 4000, 3600, 1000, 0);
 	taskfixedaddLong(0, 247l, 4000l, .4);
 	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
 	taskfixedadd(1, .5);
