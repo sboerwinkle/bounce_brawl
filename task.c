@@ -493,12 +493,6 @@ static void shrinkArm(double* what, double size){
 static void taskguycontroldoLegs(taskguycontroldata* data){
 	int index = data->index;
 	char* myKeys = data->myKeys;
-	shrinkArm(&data->ten0, 20);
-	shrinkArm(&data->ten1, 20);
-	shrinkArm(&data->nine0, 20);
-	shrinkArm(&data->nine1, 20);
-	shrinkArm(&data->nine2, 28);
-	shrinkArm(&data->eleven0, 28);
 //	short sl = 35;
 //	short ll = 49;
 	if(myKeys[5]){
@@ -511,6 +505,12 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 				return;
 		}
 	}
+	shrinkArm(&data->ten0, 20);
+	shrinkArm(&data->ten1, 20);
+	shrinkArm(&data->nine0, 20);
+	shrinkArm(&data->nine1, 20);
+	shrinkArm(&data->nine2, 28);
+	shrinkArm(&data->eleven0, 28);
 	short sl = 0, ll = 0;
 	int count = 0;
 	int i = 0;
