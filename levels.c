@@ -516,7 +516,7 @@ void lvltipsy(){
 		taskfixedadd(i, .5);
 	}
 	if(players > 0){
-		taskguycontroladdLong(220, 270, 1);
+		taskguycontroladd(220, 270);
 		taskscoreadd(0);
 	}
 	if(players > 1){
@@ -553,7 +553,7 @@ void lvltilt(){
 		newConnection(28, i, 13+i, .95, dist(nodes+28, target), 18, 0.5);
 	}
 	if(players > 0){
-		taskguycontroladdLong(225, 270, 1);
+		taskguycontroladd(225, 270);
 		taskscoreadd(0);
 	}
 	if(players > 1){

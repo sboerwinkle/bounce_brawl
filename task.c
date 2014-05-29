@@ -709,32 +709,11 @@ static char taskguycontrol(void* where){
 	data->lastpress = myKeys[4];
 	return 0;
 }
-void taskguycontroladdLong(int x, int y, char flipped){
+static int taskguycontrolcreateBody(taskguycontroldata* data, int x, int y){
 	int i = newNode(x, y, 6, 2, 4);
-	task* current = (task*)malloc(sizeof(task));
-	addTask(current);
-	taskguycontrolindexes[playerNum] = i;
-	centers[playerNum].x = x+(flipped?-10:10);
-	centers[playerNum].y = y+10;
-	alives[playerNum] = 1;
-
-	current->func = &taskguycontrol;
-	taskguycontroldata* data = (taskguycontroldata*)malloc(sizeof(taskguycontroldata));
-	current->dataUsed = 1;
-	current->data = data;
-	data->myKeys = masterKeys+NUMKEYS*playerNum;
-	data->index = i;
-	data->num = playerNum;
-	data->controltype = -1;
-	int ix = 0;
-	for(; ix < 4; ix++) data->exists[ix] = 1;
-	data->lastpress = 0;
-	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
-	data->nine2 = data->eleven0 = 28;
-
-	newNode(x+(flipped?0:20), y+(flipped?20:0), 6, 2, 1);
-	newNode(x+(flipped?-20:20), y+20, 6, 2, 3);
-	newNode(x+(flipped?-20:0), y+(flipped?0:20), 6, 2, 2);
+	newNode(x+20, y+0 , 6, 2, 1);
+	newNode(x+20, y+20, 6, 2, 3);
+	newNode(x+0 , y+20, 6, 2, 2);
 	nodes[ i ].connections[0].dead = 1;
 	nodes[i+1].connections[0].dead = 1;
 	nodes[i+2].connections[0].dead = 1;
@@ -745,13 +724,33 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	newConnectionLong(i,   2, i+1, 0.7, 20, 35, 23, .35);
 	newConnectionLong(i,   3, i+2, 0.7, 28, 49, 32.2, .35);
 	newConnectionLong(i+3, 1, i+1, 0.7, 28, 49, 32.2, .35);
-//	newConnectionLong(i+2, 1, i+3, 0.6, 20, 27, 15, .35);
-//	newConnectionLong(i+2, 2, i+1, 0.6, 20, 27, 15, .35);
-//	newConnectionLong(i,   1, i+3, 0.6, 20, 27, 15, .35);
-//	newConnectionLong(i,   2, i+1, 0.6, 20, 27, 15, .35);
-//	newConnectionLong(i,   3, i+2, 0.6, 28, 39, 19, .35);
-//	newConnectionLong(i+3, 1, i+1, 0.6, 28, 39, 19, .35);
-	int controlMode = requests[playerNum].controlMode;
+	taskguycontrolindexes[data->num] = i;
+	alives[data->num] = 1;
+	injured[data->num] = 0;
+	data->index = i;
+	int ix = 0;
+	for(; ix < 4; ix++) data->exists[ix] = 1;
+	return i;
+}
+void taskguycontroladd(int x, int y){
+	task* current = (task*)malloc(sizeof(task));
+	addTask(current);
+	centers[playerNum].x = x+10;
+	centers[playerNum].y = y+10;
+
+	current->func = &taskguycontrol;
+	taskguycontroldata* data = (taskguycontroldata*)malloc(sizeof(taskguycontroldata));
+	data->num = playerNum;
+	int i = taskguycontrolcreateBody(data, x, y);
+	current->dataUsed = 1;
+	current->data = data;
+	data->myKeys = masterKeys+NUMKEYS*playerNum;
+	data->controltype = -1;
+	data->lastpress = 0;
+	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
+	data->nine2 = data->eleven0 = 28;
+
+	int ix, controlMode = requests[playerNum].controlMode;
 	if(controlMode>=2 && controlMode<=4){
 		taskaicombatadd(playerNum, controlMode==4);
 		if(controlMode==2){
@@ -765,7 +764,6 @@ void taskguycontroladdLong(int x, int y, char flipped){
 	else if(controlMode==5 || controlMode==6) taskaispacecombatadd(playerNum, controlMode==6);
 	playerNum++;
 }
-void taskguycontroladd(int x, int y){taskguycontroladdLong(x, y, 0);}
 uint32_t getToolColor(int type){
 	switch(type){
 		case 0:

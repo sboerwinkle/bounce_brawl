@@ -30,8 +30,6 @@ extern void taskfrictionadd();
 
 extern void taskgravityadd();
 
-extern void taskguycontroladdLong(int x, int y, char flipped);
-
 extern void taskguycontroladd(int x, int y);
 
 extern uint32_t getToolColor(int type);
