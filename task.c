@@ -727,6 +727,8 @@ static int taskguycontrolcreateBody(taskguycontroldata* data, int x, int y){
 	taskguycontrolindexes[data->num] = i;
 	alives[data->num] = 1;
 	injured[data->num] = 0;
+	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
+	data->nine2 = data->eleven0 = 28;
 	data->index = i;
 	int ix = 0;
 	for(; ix < 4; ix++) data->exists[ix] = 1;
@@ -747,8 +749,6 @@ void taskguycontroladd(int x, int y){
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
 	data->controltype = -1;
 	data->lastpress = 0;
-	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
-	data->nine2 = data->eleven0 = 28;
 
 	int ix, controlMode = requests[playerNum].controlMode;
 	if(controlMode>=2 && controlMode<=4){
