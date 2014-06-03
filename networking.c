@@ -74,14 +74,16 @@ void addNetCircle(short x, short y, unsigned int r){
 	*(data+1) = htons(y);
 	*(data+2) = htons(r);
 }
-void addNetPlayerCircle(uint16_t ix, uint32_t color){
+void addNetPlayerCircle(uint16_t ix, short x, short y, uint32_t color){
 	if(numPlayerCircles == maxPlayerCircles){
 		maxPlayerCircles++;
-		playerCircles = realloc(playerCircles, 6*maxPlayerCircles);
+		playerCircles = realloc(playerCircles, 10*maxPlayerCircles);
 	}
-	uint16_t* data = (uint16_t*)(playerCircles + 6*numPlayerCircles++);
+	uint16_t* data = (uint16_t*)(playerCircles + 10*numPlayerCircles++);
 	*data = htons(ix);
 	*(uint32_t*)(data+1) = htonl(color);
+	data[3] = htons(x);
+	data[4] = htons(y);
 }
 static void addNetLineSomething(){
 	if(numLineBytes == maxLineBytes){
@@ -187,7 +189,7 @@ static void sendImgs(void* derp){
 
 void writeImgs(){
 	if(!pthread_mutex_trylock(&myMutex)){//If trylock doesn't fail, the other thread is waiting on a condition.
-		uint16_t size = 4+2+numToolMarks+4+6*numCircles+2+numLineBytes+2+6*numPlayerCircles;
+	uint16_t size = 4+2+numToolMarks+4+6*numCircles+2+numLineBytes+2+10*numPlayerCircles;
 		uint16_t sizeData = htons(size);
 		uint8_t* realData = malloc(size);
 		uint8_t* data = realData+4;
@@ -199,7 +201,7 @@ void writeImgs(){
 		*((short*)(data+=6*numCircles)) = htons(numLines);
 		memcpy(data+=2, lines, numLineBytes);
 		*((short*)(data+=numLineBytes)) = htons(numPlayerCircles);
-		memcpy(data+=2, playerCircles, 6*numPlayerCircles);
+		memcpy(data+=2, playerCircles, 10*numPlayerCircles);
 
 		uint16_t* netCenters = malloc(2*2*maxClients);
 		int i = 0;
@@ -423,7 +425,9 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 			ix = 3*ntohs(*(uint16_t*)pointer);
 			setColorFromHex(ntohl(*(uint32_t*)(pointer+2)));
 			drawCircle((float)*(circlePointer+ix)/width2, (float)*(circlePointer+ix+1)/height2, myMarkSizef);
-			pointer+=6;
+			drawCircle((float)((*(int16_t*)(pointer+6)-locX)/zoom)/width2,
+					(float)((*(int16_t*)(pointer+8)-locY)/zoom)/width2, myMarkSizef);
+			pointer+=10;
 		}
 		free(data);
 		myDrawScreenNoClear();

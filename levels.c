@@ -853,13 +853,19 @@ void lvlmech(){
 	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
 	taskfixedadd(1, .5);
 	taskfixedadd(33, .5);
-	double placeInc;
-	if(players>1) placeInc = 397.0/(players-1);
-	else placeInc=0;
-	int i = 0;
-	for(; i < players; i++){
-		taskguycontroladd(49+i*placeInc, 366);
+
+	int i;
+	double playerInc;
+	double scoreInc;
+	if(players>1){
+		playerInc = 446.0/(players-1);
+		scoreInc = 602.0/(players-1);
+	}else playerInc=scoreInc=0;
+	for(i=0; i < players; i++){
+		taskguycontroladd(14+i*playerInc, 366);
+		taskscoreaddLong(i, 20+i*scoreInc, 20);
 	}
+
 	taskgravityadd();
 	taskincineratoradd(410);
 	addToolMech1(371, 326);

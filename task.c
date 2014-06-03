@@ -404,7 +404,7 @@ typedef struct{
 	int controltype;
 	int controlindex;
 	//int controlvar;//Currently unused, but intended as a multi-purpose variable for the current tool.
-	char lastpress; // If the connect key was pressed last time
+	int lastpress; // If the connect key was pressed last time
 	char lastpressAction; // ditto for action key
 	char* myKeys;
 	int num;
@@ -413,6 +413,7 @@ typedef struct{
 	char exists[4];
 
 	double ten0, ten1, nine0, nine1, nine2, eleven0; // Arm lengths, named after the indices which certain nodes got when I was still testing taskguycontrol
+	long int respawnx, respawny;
 }taskguycontroldata;
 
 static inline void taskguycontroldisconnect(taskguycontroldata* data){
@@ -602,6 +603,33 @@ static inline void toolBigLegs(taskguycontroldata* data){
 		drawCircle(getScreenX(x-centerx), getScreenY(y-centery), (double)size/zoom/width2);
 	}
 }
+static int taskguycontrolcreateBody(taskguycontroldata* data){
+	int x = data->respawnx-10;
+	int y = data->respawny-10;
+	int i = newNode(x, y, 6, 2, 4);
+	newNode(x+20, y   , 6, 2, 1);
+	newNode(x+20, y+20, 6, 2, 3);
+	newNode(x+0 , y+20, 6, 2, 2);
+	nodes[ i ].connections[0].dead = 1;
+	nodes[i+1].connections[0].dead = 1;
+	nodes[i+2].connections[0].dead = 1;
+	nodes[i+3].connections[0].dead = 1;
+	newConnectionLong(i+2, 1, i+3, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i+2, 2, i+1, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   1, i+3, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   2, i+1, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   3, i+2, 0.7, 28, 49, 32.2, .35);
+	newConnectionLong(i+3, 1, i+1, 0.7, 28, 49, 32.2, .35);
+	data->index = i;
+	taskguycontrolindexes[data->num] = i;
+	alives[data->num] = 1;
+	injured[data->num] = 0;
+	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
+	data->nine2 = data->eleven0 = 28;
+	int ix = 0;
+	for(; ix < 4; ix++) data->exists[ix] = 1;
+	return i;
+}
 static char taskguycontrol(void* where){
 	taskguycontroldata* data = (taskguycontroldata*)where;
 	int num = data->num;
@@ -700,50 +728,38 @@ static char taskguycontrol(void* where){
 	}
 	if(frameCount == 0){
 		if(netMode)
-			addNetPlayerCircle(nodes[index].netIndex, requests[data->num].color);
+			addNetPlayerCircle(nodes[index].netIndex, data->respawnx*maxZoomIn, data->respawny*maxZoomIn, requests[data->num].color);
 		setColorFromHex(requests[data->num].color);
 		drawCircle(getScreenX(nodes[index].x*maxZoomIn-centerx), getScreenY(nodes[index].y*maxZoomIn-centery), (float)markSize/2/width2);
+		drawCircle(getScreenX(data->respawnx*maxZoomIn-centerx), getScreenY(data->respawny*maxZoomIn-centery), (float)markSize/2/width2);
 	}
 
 	data->lastpressAction = myKeys[5];
-	data->lastpress = myKeys[4];
+	if(myKeys[4])
+		data->lastpress++;
+	else
+		data->lastpress = 0;
+	if(data->lastpress == 30/SPEEDFACTOR){
+		if(myKeys[5]){
+			if(data->controltype!=-1) taskguycontroldisconnect(data);
+			taskguycontrolcreateBody(data);
+		}else{
+			data->respawnx=centers[num].x;
+			data->respawny=centers[num].y;
+		}
+	}
 	return 0;
-}
-static int taskguycontrolcreateBody(taskguycontroldata* data, int x, int y){
-	int i = newNode(x, y, 6, 2, 4);
-	newNode(x+20, y+0 , 6, 2, 1);
-	newNode(x+20, y+20, 6, 2, 3);
-	newNode(x+0 , y+20, 6, 2, 2);
-	nodes[ i ].connections[0].dead = 1;
-	nodes[i+1].connections[0].dead = 1;
-	nodes[i+2].connections[0].dead = 1;
-	nodes[i+3].connections[0].dead = 1;
-	newConnectionLong(i+2, 1, i+3, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i+2, 2, i+1, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   1, i+3, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   2, i+1, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   3, i+2, 0.7, 28, 49, 32.2, .35);
-	newConnectionLong(i+3, 1, i+1, 0.7, 28, 49, 32.2, .35);
-	taskguycontrolindexes[data->num] = i;
-	alives[data->num] = 1;
-	injured[data->num] = 0;
-	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
-	data->nine2 = data->eleven0 = 28;
-	data->index = i;
-	int ix = 0;
-	for(; ix < 4; ix++) data->exists[ix] = 1;
-	return i;
 }
 void taskguycontroladd(int x, int y){
 	task* current = (task*)malloc(sizeof(task));
 	addTask(current);
-	centers[playerNum].x = x+10;
-	centers[playerNum].y = y+10;
 
 	current->func = &taskguycontrol;
 	taskguycontroldata* data = (taskguycontroldata*)malloc(sizeof(taskguycontroldata));
+	data->respawnx = centers[playerNum].x = x+10;
+	data->respawny = centers[playerNum].y = y+10;
 	data->num = playerNum;
-	int i = taskguycontrolcreateBody(data, x, y);
+	int i = taskguycontrolcreateBody(data);
 	current->dataUsed = 1;
 	current->data = data;
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
