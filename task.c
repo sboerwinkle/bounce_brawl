@@ -735,19 +735,19 @@ static char taskguycontrol(void* where){
 	}
 
 	data->lastpressAction = myKeys[5];
-	if(myKeys[4])
+	if(myKeys[4]){
 		data->lastpress++;
-	else
-		data->lastpress = 0;
-	if(data->lastpress == 30/SPEEDFACTOR){
-		if(myKeys[5]){
-			if(data->controltype!=-1) taskguycontroldisconnect(data);
-			taskguycontrolcreateBody(data);
-		}else{
-			data->respawnx=centers[num].x;
-			data->respawny=centers[num].y;
+		if(data->lastpress == 30/SPEEDFACTOR){
+			if(myKeys[5]){
+				if(data->controltype!=-1) taskguycontroldisconnect(data);
+				taskguycontrolcreateBody(data);
+			}else{
+				data->respawnx=centers[num].x;
+				data->respawny=centers[num].y;
+			}
 		}
-	}
+	}else
+		data->lastpress = 0;
 	return 0;
 }
 void taskguycontroladd(int x, int y){
