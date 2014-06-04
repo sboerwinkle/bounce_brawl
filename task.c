@@ -634,14 +634,7 @@ static char taskguycontrol(void* where){
 	taskguycontroldata* data = (taskguycontroldata*)where;
 	int num = data->num;
 	int index = data->index;
-	if(nodes[index].dead){
-		if(data->controltype!=-1) data->controlData->type = data->controltype;
-		alives[num] = 0;
-		injured[num] = 1;
-		free(data);
-		return 1;
-	}
-	{
+	if(alives[num]){
 		int counter = 0;
 		double myCenters[2] = {0, 0};
 		int i = 0;
@@ -651,6 +644,7 @@ static char taskguycontrol(void* where){
 			if(nodes[index+i].dead){
 				if(data->controltype != -1 && data->connectedLeg==i) taskguycontroldisconnect(data);
 				data->exists[i] = 0;
+				injured[num] = 1;
 			}else{
 				counter++;
 				myCenters[0] += nodes[index+i].x;
@@ -665,8 +659,12 @@ static char taskguycontrol(void* where){
 				}
 			}
 		}
-		centers[num].x = myCenters[0]/counter;
-		centers[num].y = myCenters[1]/counter;
+		if(counter == 0){
+			alives[num] = 0;
+		}else{
+			centers[num].x = myCenters[0]/counter;
+			centers[num].y = myCenters[1]/counter;
+		}
 	}
 	char* myKeys = data->myKeys;
 	if(!data->lastpress&&myKeys[4]){
@@ -726,7 +724,7 @@ static char taskguycontrol(void* where){
 		taskguycontroldoLegs(data); // Also handles some tools (gun)
 		break;
 	}
-	if(frameCount == 0){
+	if(frameCount == 0 && data->exists[0]){
 		if(netMode)
 			addNetPlayerCircle(nodes[index].netIndex, data->respawnx*maxZoomIn, data->respawny*maxZoomIn, requests[data->num].color);
 		setColorFromHex(requests[data->num].color);
@@ -737,7 +735,7 @@ static char taskguycontrol(void* where){
 	data->lastpressAction = myKeys[5];
 	if(myKeys[4]){
 		data->lastpress++;
-		if(data->lastpress == 30/SPEEDFACTOR){
+		if(data->lastpress == (int)(30/SPEEDFACTOR)){
 			if(myKeys[5]){
 				if(data->controltype!=-1) taskguycontroldisconnect(data);
 				taskguycontrolcreateBody(data);
