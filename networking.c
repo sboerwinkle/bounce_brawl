@@ -331,7 +331,7 @@ static int netListen(int phase){ // Helper to myConnect. Is called whenever ther
 	if(phase == 0){
 		uint8_t code;
 		addrSize = addrSize2;
-		if(0==recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize)) return 0;
+		if(0>=recvfrom(sockfd, (char*)&code, 1, 0, (struct sockaddr*)&sender, &addrSize)) return 0;
 		if(code){
 			running = 0;
 			return 0;
