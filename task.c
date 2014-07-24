@@ -543,19 +543,21 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 		data->nine1 = sl;
 		data->eleven0 = ll;
 	}
-	if(!nodes[index].connections[2].dead)
-		nodes[index].connections[2].preflength = data->nine1;
-	if(data->exists[2]){
+	if(data->exists[0]){
+		if(!nodes[index].connections[2].dead)
+			nodes[index].connections[2].preflength = data->nine1;
 		if(!nodes[index].connections[3].dead)
 			nodes[index].connections[3].preflength = data->nine2;
+		if(!nodes[index].connections[1].dead)
+			nodes[index].connections[1].preflength = data->nine0;
+	}
+	if(data->exists[2]){
 		if(!nodes[index+2].connections[1].dead)
 			nodes[index+2].connections[1].preflength = data->ten0;
 		if(!nodes[index+2].connections[2].dead)
 			nodes[index+2].connections[2].preflength = data->ten1;
 	}
 	if(data->exists[3]){
-		if(!nodes[index].connections[1].dead)
-			nodes[index].connections[1].preflength = data->nine0;
 		if(!nodes[index+3].connections[1].dead)
 			nodes[index+3].connections[1].preflength = data->eleven0;
 	}
