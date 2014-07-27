@@ -7,15 +7,10 @@
 #include "gui.h"
 #include "task.h"
 #include "networking.h"
+#include "field.h"
 #include <math.h>
 
-typedef struct{
-	int x, y;
-}orderedPair;
 node* nodes;
-orderedPair *centers;
-char* alives;
-char* injured;
 int numNodes;
 static char *corpses;//prevents a node from being placed in the spot of a recently slain node, preventing confusion.
 tool *tools;
@@ -31,12 +26,13 @@ static double uny;
 double maxZoomIn;
 int zoom;
 
+taskguycontroldata* guyDatas;
 int playerNum;
 int centerx;
 int centery;
 int markSize;//Invented for networking, but also used by task.c to do player marks.
 
-void initField(){// Here: init taskguycontrolindexes, alives, centers to proper number of players
+void initField(){
 	numNodes = 100;
 	nodes = (node*)malloc(numNodes*sizeof(node));
 	int i = 0;
@@ -50,11 +46,7 @@ void initField(){// Here: init taskguycontrolindexes, alives, centers to proper 
 	playerNum = 0;
 	maxZoomIn = 2.25;
 	zoom = 1;
-	taskguycontrolindexes = malloc(sizeof(int)*players);
-	alives = malloc(players);
-	injured = malloc(players);
-	for(i = 0; i < players; i++) injured[i] = 0;
-	centers = malloc(sizeof(orderedPair)*players);
+	guyDatas = malloc(sizeof(taskguycontroldata)*players);
 }
 
 void stopField(){
@@ -65,10 +57,7 @@ void stopField(){
 		free(iterator->connections);
 	}
 	numNodes = 0;
-	free(taskguycontrolindexes);
-	free(alives);
-	free(injured);
-	free(centers);
+	free(guyDatas);
 	free(nodes);			//If Heaven and Hell
 	free(corpses);			//Are both satisfied
 	free(tools);			//Then I'll follow you

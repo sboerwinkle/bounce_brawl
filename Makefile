@@ -20,7 +20,7 @@ remake:
 	$(MAKE) clean
 	$(MAKE)
 
-field.o: field.c structs.h gfx.h node.h gui.h task.h networking.h
+field.o: field.c structs.h gfx.h node.h gui.h task.h networking.h field.h
 	$(CC) $(CFLAGS) field.c
 
 font.o: font.c fontData.h gfx.h

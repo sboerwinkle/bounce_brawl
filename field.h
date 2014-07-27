@@ -1,10 +1,23 @@
 typedef struct{
-	int x, y;
-}orderedPair;
+	node *(myNodes[4]);
+	int controltype;
+	int controlindex;
+	//int controlvar;//Currently unused, but intended as a multi-purpose variable for the current tool.
+	int lastpress; // If the connect key was pressed last time
+	char lastpressAction; // ditto for action key
+	char* myKeys;
+	int num;
+	tool* controlData;
+	int connectedLeg;
+	char exists[4];
+	char alive, injured;
+
+	double ten0, ten1, nine0, nine1, nine2, eleven0; // Arm lengths, named after the indices which certain nodes got when I was still testing taskguycontrol
+	long int respawnx, respawny;
+	int centerX, centerY;
+}taskguycontroldata;
+
 extern node* nodes;
-extern orderedPair *centers;
-extern char* alives;
-extern char* injured;
 extern int numNodes;
 extern tool* tools;
 extern int numTools;
@@ -12,6 +25,7 @@ extern double maxZoomIn;
 extern int zoom;
 extern int centerx;
 extern int centery;
+extern taskguycontroldata* guyDatas;
 extern int playerNum;//How many created
 extern int markSize;
 
