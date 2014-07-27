@@ -595,7 +595,6 @@ static int taskguycontrolcreateBody(taskguycontroldata* data){
 	data->myNodes[1] = nodes+i1;
 	data->myNodes[2] = nodes+i2;
 	data->myNodes[3] = nodes+i3;
-	taskguycontrolindexes[data->num] = i;
 	data->alive = 1;
 	data->injured = 0;
 	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
