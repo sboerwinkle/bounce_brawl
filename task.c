@@ -537,7 +537,7 @@ static void toolGravity(){
 		nodes[i].ymom -= .1*SPEEDFACTOR;
 	}
 }
-static inline void toolBigLegs(taskguycontroldata* data){
+static void toolBigLegs(taskguycontroldata* data){
 	char* myKeys = data->myKeys;
 	int centerDists[4] = {42, 42, 42, 42};
 	int edgeLengths[4] = {60, 60, 60, 60};
@@ -584,12 +584,12 @@ static int taskguycontrolcreateBody(taskguycontroldata* data){
 	nodes[i1].connections[0].dead = 1;
 	nodes[i2].connections[0].dead = 1;
 	nodes[i3].connections[0].dead = 1;
-	newConnectionLong(i2, 1, i+3, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i2, 2, i+1, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   1, i+3, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   2, i+1, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   3, i+2, 0.7, 28, 49, 32.2, .35);
-	newConnectionLong(i3, 1, i+1, 0.7, 28, 49, 32.2, .35);
+	newConnectionLong(i2, 1, i3, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i2, 2, i1, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   1, i3, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   2, i1, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,   3, i2, 0.7, 28, 49, 32.2, .35);
+	newConnectionLong(i3, 1, i1, 0.7, 28, 49, 32.2, .35);
 
 	data->myNodes[0] = nodes+i;
 	data->myNodes[1] = nodes+i1;
