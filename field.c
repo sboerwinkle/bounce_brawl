@@ -78,7 +78,6 @@ void stopField(){
 void killNode(int where){
 	nodes[where].dead = 1;
 	corpses[where] = 2;
-	free(nodes[where].connections);
 }
 
 /**
@@ -143,7 +142,9 @@ void run(){
 	int j = 0;
 	//decay the corpses
 	for(i = 0; i < numNodes; i++){
-		if(corpses[i] != 0) corpses[i]--;
+		if(corpses[i] != 0){
+			if(--corpses[i] == 0) free(nodes[i].connections);
+		}
 	}
 	//springs
 	double* forceXs = calloc(sizeof(double), numNodes);
