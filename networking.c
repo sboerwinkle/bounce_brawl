@@ -208,15 +208,15 @@ void writeImgs(){
 		for(; i < maxClients; i++){
 			if(clients[i].dead) continue;
 			int x=0, y=0, count=0;
-			if(alives[clients[i].playerNum1]){
+			if(guyDatas[clients[i].playerNum1].alive){
 				count=1;
-				x = centers[clients[i].playerNum1].x;
-				y = centers[clients[i].playerNum1].y;
+				x = guyDatas[clients[i].playerNum1].centerX;
+				y = guyDatas[clients[i].playerNum1].centerY;
 			}
-			if(clients[i].playerNum2!=255 && alives[clients[i].playerNum2]){
+			if(clients[i].playerNum2!=255 && guyDatas[clients[i].playerNum2].alive){
 				count++;
-				x += centers[clients[i].playerNum2].x;
-				y += centers[clients[i].playerNum2].y;
+				x += guyDatas[clients[i].playerNum2].centerX;
+				y += guyDatas[clients[i].playerNum2].centerY;
 			}
 			if(count == 2){
 				x/=2;

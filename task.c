@@ -85,7 +85,7 @@ static char taskaicombat(void* where){
 	}
 	if(ret == 0) return 0;
 
-	char dir = guyDatas[data->target]->centerX > guyDatas[data->player]->centerX;
+	char dir = guyDatas[data->target].centerX > guyDatas[data->player].centerX;
 	long maxHeight = 0;
 	int ix = -1;
 	int i = 0;
@@ -427,9 +427,9 @@ static void taskguycontroldoRoll(taskguycontroldata* data){
 	if(data->myKeys[1]) rollAmt -= rollInc;
 	if(!rollAmt) return;
 	int i, j;
-	if(rollInc > 5 && alives[data->num]){
-		alives[data->num] = 0;
-		injured[data->num] = 1;
+	if(rollInc > 5 && data->alive){
+		data->alive = 0;
+		data->injured = 1;
 		for(i=0; i<4; i++){
 			if(data->exists[i]) myNodes[i]->mass *= 10;
 		}
@@ -620,8 +620,8 @@ static char taskguycontrol(void* where){
 				data->injured = 1;
 			}else{
 				counter++;
-				data->centerX += nodes[index+i].x;
-				data->centerY += nodes[index+i].y;
+				data->centerX += myNodes[i]->x;
+				data->centerY += myNodes[i]->y;
 			}
 			if(data->injured){
 				for(j = myNodes[i]->numConnections-1; j >= 1; j--){
@@ -671,7 +671,7 @@ static char taskguycontrol(void* where){
 			if(data->controlData != NULL){
 				data->controltype = data->controlData->type;
 				data->controlindex = data->controlData->where;
-				newConnection(index+data->connectedLeg, 0, data->controlindex, (double)0.8, (int)nodes[data->controlindex].size+8, 10, 0.8);
+				newConnection((int)(myNodes[data->connectedLeg]-nodes), 0, data->controlindex, (double)0.8, (int)nodes[data->controlindex].size+8, 10, 0.8);
 				data->controlData->inUse = 1;
 				if(data->controltype == 0){
 						killNode(data->controlindex);
@@ -699,7 +699,7 @@ static char taskguycontrol(void* where){
 	}
 	if(frameCount == 0 && data->exists[0]){
 		if(netMode)
-			addNetPlayerCircle(nodes[index].netIndex, data->respawnx*maxZoomIn, data->respawny*maxZoomIn, requests[data->num].color);
+			addNetPlayerCircle(myNodes[0]->netIndex, data->respawnx*maxZoomIn, data->respawny*maxZoomIn, requests[data->num].color);
 		setColorFromHex(requests[data->num].color);
 		drawCircle(getScreenX(myNodes[0]->x*maxZoomIn-centerx), getScreenY(myNodes[0]->y*maxZoomIn-centery), (float)markSize/2/width2);
 		drawCircle(getScreenX(data->respawnx*maxZoomIn-centerx), getScreenY(data->respawny*maxZoomIn-centery), (float)markSize/2/width2);
@@ -730,7 +730,7 @@ void taskguycontroladd(int x, int y){
 	data->respawnx = data->centerX = x+10;
 	data->respawny = data->centerY = y+10;
 	data->num = playerNum;
-	int i = taskguycontrolcreateBody(data);
+	taskguycontrolcreateBody(data);
 	current->dataUsed = 0;//Set to 0 so it isn't free'd when the task exits.
 	current->data = data;
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
@@ -937,7 +937,7 @@ typedef struct{
 static char taskscore(void* where){
 	taskscoredata* data = (taskscoredata*)where;
 	if(!data->done){
-		if(injured[data->index]) data->done = 1;
+		if(guyDatas[data->index].injured) data->done = 1;
 		else{
 			data->score++;
 			if(data->score == 999999) data->done = 1;//So we don't overflow our char*

@@ -235,10 +235,10 @@ void draw(){
 	int i, j=0;
 	int count = 0;
 	for(i = 0; i < 2; i++){
-		if(pIndex[i] != -1 && pIndex[i] < players && alives[pIndex[i]]){
+		if(pIndex[i] != -1 && pIndex[i] < players && guyDatas[pIndex[i]].alive){
 			count++;
-			centerx += centers[pIndex[i]].x;
-			centery += centers[pIndex[i]].y;
+			centerx += guyDatas[pIndex[i]].centerX;
+			centery += guyDatas[pIndex[i]].centerY;
 		}
 	}
 	if(count != 0){
