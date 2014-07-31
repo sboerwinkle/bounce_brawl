@@ -1,5 +1,5 @@
 typedef struct{
-	node *(myNodes[4]);
+	int myNodes[4];
 	int controltype;
 	int controlindex;
 	//int controlvar;//Currently unused, but intended as a multi-purpose variable for the current tool.

@@ -404,8 +404,8 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 	if(aimingLeg == -1) aimingLeg = data->connectedLeg;
 	if(!data->exists[(aimingLeg+2)%4]) return;
 	nodes[data->controlindex].size -= 1;
-	node* one = current+data->myNodes[aimingLeg];
-	node* two = current+data->myNodes[(aimingLeg+2)%4];
+	node* one = nodes+data->myNodes[aimingLeg];
+	node* two = nodes+data->myNodes[(aimingLeg+2)%4];
 	double dx = one->x - two->x + one->px - two->px;
 	double dy = one->y - two->y + one->py - two->py;
 	double dist = sqrt(dx*dx + dy*dy) / 10.0 / SPEEDFACTOR; // Velocity of the bullet
@@ -438,7 +438,7 @@ static void taskguycontroldoRoll(taskguycontroldata* data){
 	double dx, dy, dist;
 	for(i=0; i < 4; i++){
 		if(!data->exists[i]) continue;
-		me = current+myNodes[i];
+		me = nodes+myNodes[i];
 		for(j=me->numConnections-1; j > 0; j--){
 			if(me->connections[j].dead) continue;
 			him = nodes+me->connections[j].id;
@@ -516,19 +516,21 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 		if(!current->connections[2].dead)
 			current->connections[2].preflength = data->nine1;
 		if(!current->connections[3].dead)
-			myNodes[0]->connections[3].preflength = data->nine2;
-		if(!myNodes[0]->connections[1].dead)
-			myNodes[0]->connections[1].preflength = data->nine0;
+			current->connections[3].preflength = data->nine2;
+		if(!current->connections[1].dead)
+			current->connections[1].preflength = data->nine0;
 	}
 	if(data->exists[2]){
-		if(!myNodes[2]->connections[1].dead)
-			myNodes[2]->connections[1].preflength = data->ten0;
-		if(!myNodes[2]->connections[2].dead)
-			myNodes[2]->connections[2].preflength = data->ten1;
+		node* current = nodes + myNodes[2];
+		if(!current->connections[1].dead)
+			current->connections[1].preflength = data->ten0;
+		if(!current->connections[2].dead)
+			current->connections[2].preflength = data->ten1;
 	}
 	if(data->exists[3]){
-		if(!myNodes[3]->connections[1].dead)
-			myNodes[3]->connections[1].preflength = data->eleven0;
+		node* current = nodes + myNodes[3];
+		if(!current->connections[1].dead)
+			current->connections[1].preflength = data->eleven0;
 	}
 }
 static void toolGravity(){
@@ -592,10 +594,10 @@ static int taskguycontrolcreateBody(taskguycontroldata* data){
 	newConnectionLong(i,   3, i2, 0.7, 28, 49, 32.2, .35);
 	newConnectionLong(i3, 1, i1, 0.7, 28, 49, 32.2, .35);
 
-	data->myNodes[0] = nodes+i;
-	data->myNodes[1] = nodes+i1;
-	data->myNodes[2] = nodes+i2;
-	data->myNodes[3] = nodes+i3;
+	data->myNodes[0] = i;
+	data->myNodes[1] = i1;
+	data->myNodes[2] = i2;
+	data->myNodes[3] = i3;
 	data->alive = 1;
 	data->injured = 0;
 	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
@@ -606,7 +608,7 @@ static int taskguycontrolcreateBody(taskguycontroldata* data){
 }
 static char taskguycontrol(void* where){
 	taskguycontroldata* data = (taskguycontroldata*)where;
-	node** myNodes = data->myNodes;
+	int* myNodes = data->myNodes;
 	if(data->alive){
 		int counter = 0;
 		data->centerX = data->centerY = 0;
@@ -614,18 +616,19 @@ static char taskguycontrol(void* where){
 		int j;
 		for(; i < 4; i++){
 			if(!data->exists[i]) continue;
-			if(myNodes[i]->dead){
+			node* current = nodes + myNodes[i];
+			if(current->dead){
 				if(data->controltype != -1 && data->connectedLeg==i) taskguycontroldisconnect(data);
 				data->exists[i] = 0;
 				data->injured = 1;
 			}else{
 				counter++;
-				data->centerX += myNodes[i]->x;
-				data->centerY += myNodes[i]->y;
+				data->centerX += current->x;
+				data->centerY += current->y;
 			}
 			if(data->injured){
-				for(j = myNodes[i]->numConnections-1; j >= 1; j--){
-					if(myNodes[i]->connections[j].dead){
+				for(j = current->numConnections-1; j >= 1; j--){
+					if(current->connections[j].dead){
 						data->injured = 1;
 						break;
 					}
@@ -642,7 +645,7 @@ static char taskguycontrol(void* where){
 	char* myKeys = data->myKeys;
 	if(!data->lastpress&&myKeys[4]){
 		if(data->controltype != -1){
-			myNodes[data->connectedLeg]->connections[0].dead = 1;
+			nodes[myNodes[data->connectedLeg]].connections[0].dead = 1;
 			taskguycontroldisconnect(data);
 		}else{
 			int min = 0;//I feel kinda bad doing this, as I'm only trying to stop the appearance of a warning about uninitialized variables... I do, though, have the uninitialized variable situation under control. Not to worry.
@@ -654,8 +657,8 @@ static char taskguycontrol(void* where){
 			int i;
 			for(; leg < 4; leg++){
 				if(!data->exists[leg]) continue;
-				int mx = (int)myNodes[leg]->x;
-				int my = (int)myNodes[leg]->y;
+				int mx = (int)nodes[myNodes[leg]].x;
+				int my = (int)nodes[myNodes[leg]].y;
 				for(i = 0; i < numTools; i++){
 					if(tools[i].where==-1 || tools[i].inUse || nodes[tools[i].where].dead) continue;
 					deltax = (int)(mx - nodes[tools[i].where].x);
@@ -671,7 +674,7 @@ static char taskguycontrol(void* where){
 			if(data->controlData != NULL){
 				data->controltype = data->controlData->type;
 				data->controlindex = data->controlData->where;
-				newConnection((int)(myNodes[data->connectedLeg]-nodes), 0, data->controlindex, (double)0.8, (int)nodes[data->controlindex].size+8, 10, 0.8);
+				newConnection(myNodes[data->connectedLeg], 0, data->controlindex, (double)0.8, (int)nodes[data->controlindex].size+8, 10, 0.8);
 				data->controlData->inUse = 1;
 				if(data->controltype == 0){
 						killNode(data->controlindex);
@@ -680,12 +683,12 @@ static char taskguycontrol(void* where){
 					connection* con = nodes[data->controlindex].connections;
 					if(!con->dead) con->preflength -= 2*(con->preflength - con->midlength);
 					taskguycontroldisconnect(data);
-					myNodes[data->connectedLeg]->connections[0].dead = 1;
+					nodes[myNodes[data->connectedLeg]].connections[0].dead = 1;
 				}
 			}
 		}
 	}
-	else if(data->controltype != -1 && (myNodes[data->connectedLeg]->connections[0].dead || nodes[data->controlindex].dead)){taskguycontroldisconnect(data);}
+	else if(data->controltype != -1 && (nodes[myNodes[data->connectedLeg]].connections[0].dead || nodes[data->controlindex].dead)){taskguycontroldisconnect(data);}
 	switch(data->controltype){
 	case 100:
 		toolBigLegs(data);
@@ -699,9 +702,9 @@ static char taskguycontrol(void* where){
 	}
 	if(frameCount == 0 && data->exists[0]){
 		if(netMode)
-			addNetPlayerCircle(myNodes[0]->netIndex, data->respawnx*maxZoomIn, data->respawny*maxZoomIn, requests[data->num].color);
+			addNetPlayerCircle(nodes[myNodes[0]].netIndex, data->respawnx*maxZoomIn, data->respawny*maxZoomIn, requests[data->num].color);
 		setColorFromHex(requests[data->num].color);
-		drawCircle(getScreenX(myNodes[0]->x*maxZoomIn-centerx), getScreenY(myNodes[0]->y*maxZoomIn-centery), (float)markSize/2/width2);
+		drawCircle(getScreenX(nodes[myNodes[0]].x*maxZoomIn-centerx), getScreenY(nodes[myNodes[0]].y*maxZoomIn-centery), (float)markSize/2/width2);
 		drawCircle(getScreenX(data->respawnx*maxZoomIn-centerx), getScreenY(data->respawny*maxZoomIn-centery), (float)markSize/2/width2);
 	}
 
@@ -739,13 +742,15 @@ void taskguycontroladd(int x, int y){
 
 	int ix, controlMode = requests[playerNum].controlMode;
 	if(controlMode>=2 && controlMode<=4){
-		node** myNodes = data->myNodes;
+		int* myNodes = data->myNodes;
 		taskaicombatadd(playerNum, controlMode==4);
 		if(controlMode==2){
 			int j;
+			node* current;
 			for(ix=0; ix<4; ix++){
-				myNodes[ix]->mass /= 2;
-				for(j=1; j<myNodes[ix]->numConnections; j++) myNodes[ix]->connections[j].force /= 2;
+				current = nodes + myNodes[ix];
+				current->mass /= 2;
+				for(j=1; j<current->numConnections; j++) current->connections[j].force /= 2;
 			}
 		}
 	}
