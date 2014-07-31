@@ -77,7 +77,7 @@ static char taskaibasiccycle(taskaidata* data, int delay){
 
 static char taskaicombat(void* where){
 	taskaidata* data = (taskaidata*)where;
-	node** myNodes = guyDatas[data->player].myNodes;
+	int* myNodes = guyDatas[data->player].myNodes;
 	char ret = taskaibasiccycle(data, 10/SPEEDFACTOR);
 	if(ret == 2){
 		free(where);
@@ -90,8 +90,8 @@ static char taskaicombat(void* where){
 	int ix = -1;
 	int i = 0;
 	for(; i < 4; i++){
-		if(myNodes[i]->dead) continue;
-		long fitness = myNodes[i]->y+(dir?-myNodes[i]->x:myNodes[i]->x);
+		if(nodes[myNodes[i]].dead) continue;
+		long fitness = nodes[myNodes[i]].y+(dir?-nodes[myNodes[i]].x:nodes[myNodes[i]].x);
 		if(fitness > maxHeight || ix == -1){
 			ix = i;
 			maxHeight = fitness;
@@ -131,7 +131,7 @@ static char taskaispacecombat(void* where){
 	int dx = guyDatas[data->target].centerX - guyDatas[data->player].centerX;
 	int dy = guyDatas[data->target].centerY - guyDatas[data->player].centerY;
 	node* current;
-	node** myNodes = guyDatas[data->player].myNodes;
+	int* myNodes = guyDatas[data->player].myNodes;
 	double dist, bestDist = 100000;
 	double tmpdx, tmpdy, bestdx = 0, bestdy = 0;
 	int avgx = guyDatas[data->player].centerX;
@@ -139,7 +139,7 @@ static char taskaispacecombat(void* where){
 	int ix = 0, i;
 	for(i=0; i<4; i++){
 		if(!guyDatas[data->player].exists[i]) continue;
-		current = myNodes[i];
+		current = nodes+myNodes[i];
 		tmpdx = current->x+current->px-avgx;
 		tmpdy = current->y+current->py-avgy;
 		dist = tmpdx*tmpdx + tmpdy*tmpdy;
@@ -404,8 +404,8 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 	if(aimingLeg == -1) aimingLeg = data->connectedLeg;
 	if(!data->exists[(aimingLeg+2)%4]) return;
 	nodes[data->controlindex].size -= 1;
-	node* one = data->myNodes[aimingLeg];
-	node* two = data->myNodes[(aimingLeg+2)%4];
+	node* one = current+data->myNodes[aimingLeg];
+	node* two = current+data->myNodes[(aimingLeg+2)%4];
 	double dx = one->x - two->x + one->px - two->px;
 	double dy = one->y - two->y + one->py - two->py;
 	double dist = sqrt(dx*dx + dy*dy) / 10.0 / SPEEDFACTOR; // Velocity of the bullet
@@ -421,7 +421,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 }
 static void taskguycontroldoRoll(taskguycontroldata* data){
 	double rollAmt = 0;
-	node** myNodes = data->myNodes;
+	int* myNodes = data->myNodes;
 	double rollInc = (data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?10:0.03*SPEEDFACTOR;
 	if(data->myKeys[3]) rollAmt += rollInc;
 	if(data->myKeys[1]) rollAmt -= rollInc;
@@ -431,14 +431,14 @@ static void taskguycontroldoRoll(taskguycontroldata* data){
 		data->alive = 0;
 		data->injured = 1;
 		for(i=0; i<4; i++){
-			if(data->exists[i]) myNodes[i]->mass *= 10;
+			if(data->exists[i]) nodes[myNodes[i]].mass *= 10;
 		}
 	}
 	node *me, *him;
 	double dx, dy, dist;
 	for(i=0; i < 4; i++){
 		if(!data->exists[i]) continue;
-		me = myNodes[i];
+		me = current+myNodes[i];
 		for(j=me->numConnections-1; j > 0; j--){
 			if(me->connections[j].dead) continue;
 			him = nodes+me->connections[j].id;
@@ -460,7 +460,7 @@ static void shrinkArm(double* what, double size){
 	if(*what < size) *what = size;
 }
 static void taskguycontroldoLegs(taskguycontroldata* data){
-	node** myNodes = data->myNodes;
+	int* myNodes = data->myNodes;
 	char* myKeys = data->myKeys;
 //	short sl = 35;
 //	short ll = 49;
@@ -512,9 +512,10 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 		data->eleven0 = ll;
 	}
 	if(data->exists[0]){
-		if(!myNodes[0]->connections[2].dead)
-			myNodes[0]->connections[2].preflength = data->nine1;
-		if(!myNodes[0]->connections[3].dead)
+		node* current = nodes + myNodes[0];
+		if(!current->connections[2].dead)
+			current->connections[2].preflength = data->nine1;
+		if(!current->connections[3].dead)
 			myNodes[0]->connections[3].preflength = data->nine2;
 		if(!myNodes[0]->connections[1].dead)
 			myNodes[0]->connections[1].preflength = data->nine0;
