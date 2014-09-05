@@ -10,7 +10,7 @@ typedef struct{
 	tool* controlData;
 	int connectedLeg;
 	char exists[4];
-	char alive, injured;
+	char alive, injured, firstLife;
 
 	double ten0, ten1, nine0, nine1, nine2, eleven0; // Arm lengths, named after the indices which certain nodes got when I was still testing taskguycontrol
 	long int respawnx, respawny;

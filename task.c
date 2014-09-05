@@ -600,6 +600,7 @@ static int taskguycontrolcreateBody(taskguycontroldata* data){
 	data->myNodes[3] = i3;
 	data->alive = 1;
 	data->injured = 0;
+	data->firstLife = 0;
 	data->ten0 = data->ten1 = data->nine0 = data->nine1 = 20;
 	data->nine2 = data->eleven0 = 28;
 	int ix = 0;
@@ -626,7 +627,7 @@ static char taskguycontrol(void* where){
 				data->centerX += current->x;
 				data->centerY += current->y;
 			}
-			if(data->injured){
+			if(!data->injured){
 				for(j = current->numConnections-1; j >= 1; j--){
 					if(current->connections[j].dead){
 						data->injured = 1;
@@ -734,6 +735,7 @@ void taskguycontroladd(int x, int y){
 	data->respawny = data->centerY = y+10;
 	data->num = playerNum;
 	taskguycontrolcreateBody(data);
+	data->firstLife = 1;
 	current->dataUsed = 0;//Set to 0 so it isn't free'd when the task exits.
 	current->data = data;
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
@@ -942,7 +944,7 @@ typedef struct{
 static char taskscore(void* where){
 	taskscoredata* data = (taskscoredata*)where;
 	if(!data->done){
-		if(guyDatas[data->index].injured) data->done = 1;
+		if(guyDatas[data->index].injured || guyDatas[data->index].firstLife!=1) data->done = 1;
 		else{
 			data->score++;
 			if(data->score == 999999) data->done = 1;//So we don't overflow our char*

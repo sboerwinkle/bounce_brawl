@@ -16,9 +16,7 @@ No installation, just compile and run the executable.
 
 ====COMPILING====
 
-Windows users get a pre-compiled binary because compiling on Windows is so damn hard (pardon my French)
-
-You'll need the following libraries: (Actually, this is just a list of the interesting stuff I linked in. If something breaks, poke around yourself or use Teh Googles to look for similar errors.)
+You'll need the following libraries: (Actually, this is just a list of the interesting stuff I linked in. If something breaks, poke around yourself or use Teh Googles to look for similar errors. Don't worry: I think it will work.)
 
 SDL2
 GLEW
@@ -31,7 +29,11 @@ Just run 'make'. The executable is called 'game'.
 
 ----Windows----
 
-Use 'make windows' to compile, assuming you have make, gcc, MinGW, etc. Unfortunately, since my development computer has an Intel graphics card and can't openGL to save it's life, this is a rather graphically derpy version. All the circles are octogons, though it's rather efficient. If you want to fix it, feel free to try.
+Ah yes. I remember the days when I had a Windows computer available to develop on. It was a nightmare.
+
+I left the stuff in the Makefile. Assuming you have make, gcc, MinGW, etc., 'make windows' is the command to run. This may or may not work. I've added a lot since I had access to Windows.
+
+Unfortunately, since my development computer had an Intel graphics card and couldn't use openGL to save it's life, this is a rather graphically derpy version. All the circles are octogons, though it's rather efficient. If you want to fix it, feel free to try.
 
 ----Twiddling Performance----
 

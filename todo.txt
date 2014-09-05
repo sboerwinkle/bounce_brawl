@@ -1,6 +1,5 @@
-Onslaugt
 Achievements
-Space ships
+Update that tutorial
 source forge
 
 Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
