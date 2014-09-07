@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 #ifdef WINDOWS
 	#include <stdio.h>
-	#include <string.h>
 #endif
 #include "structs.h"
 #include "gui.h"
@@ -422,18 +422,11 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 static void taskguycontroldoRoll(taskguycontroldata* data){
 	double rollAmt = 0;
 	int* myNodes = data->myNodes;
-	double rollInc = ((data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?10:0.03)*SPEEDFACTOR;
+	double rollInc = ((data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?20:0.03)*SPEEDFACTOR;
 	if(data->myKeys[3]) rollAmt += rollInc;
 	if(data->myKeys[1]) rollAmt -= rollInc;
 	if(!rollAmt) return;
 	int i, j;
-	if(rollInc > 5 && data->alive){
-		data->alive = 0;
-		data->injured = 1;
-		for(i=0; i<4; i++){
-			if(data->exists[i]) nodes[myNodes[i]].mass *= 10;
-		}
-	}
 	node *me, *him;
 	double dx, dy, dist;
 	for(i=0; i < 4; i++){
@@ -452,6 +445,14 @@ static void taskguycontroldoRoll(taskguycontroldata* data){
 			him->xmom += dy;
 			him->ymom -= dx;
 		}
+	}
+	if(rollInc > 5*SPEEDFACTOR && data->alive){
+		data->alive = 0;
+		data->injured = 1;
+		for(i=0; i<4; i++){
+			if(data->exists[i]) nodes[myNodes[i]].mass *= 10;
+		}
+		memset(data->exists, 0, 4);
 	}
 }
 static void shrinkArm(double* what, double size){

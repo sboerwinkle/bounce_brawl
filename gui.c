@@ -57,7 +57,13 @@ char frameCount = SHOWEVERYNTHFRAME;
 
 FILE* logFile;
 
-menu* addMenuMenu(menu* parent, int numItems, char* text){
+static void freeMenu(menu* who){
+	int i = who->numItems-1;
+	for(; i >= 0; i--) free(who->items[i].target);
+	free(who->items);
+}
+
+static menu* addMenuMenu(menu* parent, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
 	ret->parent = parent;
 	ret->numItems = 0;
@@ -69,7 +75,7 @@ menu* addMenuMenu(menu* parent, int numItems, char* text){
 	return ret;
 }
 
-void addMenuLevel(menu* where, void (*func)(), char* text){
+static void addMenuLevel(menu* where, void (*func)(), char* text){
 	menuItem* item = where->items+where->numItems++;
 	item->menu = 0;
 	item->target = malloc(sizeof(void (*)()));
@@ -656,21 +662,20 @@ int main(int argc, char** argv){
 			else if (evnt.type == SDL_WINDOWEVENT)	nothingChanged = 0;//Just to be safe, in case something was occluded.
 		}
 	}
-	free(topMenu.items);
-	free(flatMenu->items);
-	free(flatMenu);
-	free(mechMenu->items);
-	free(mechMenu);
-	free(suspendedMenu->items);
-	free(suspendedMenu);
+	freeMenu(flatMenu); // Do these from the bottom of the menu tree up
+	freeMenu(mechMenu);
+	freeMenu(suspendedMenu);
+	freeMenu(planetsMenu);
+	freeMenu(&topMenu);
 	fclose(logFile);
 	if(netMode) stopHosting();
 	stopNetworking();
+	quitGfx();
+	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 #ifdef WINDOWS
 	CloseHandle(hTimer);
 #endif
-	SDL_GL_DeleteContext(context);
 	SDL_Quit();
 	return 0;
 }

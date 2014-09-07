@@ -1,5 +1,10 @@
 Struggle mightily w/ memory leaks
 Achievements
+Space windmills!!!
+Why not:
+  Beanstalk
+  Spaceships
+  Warehouse w/ grabber
 Add comments, separate readme for creating levels
 source forge
 

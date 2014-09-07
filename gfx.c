@@ -38,6 +38,10 @@ void gettinRealSickOfThis(){
 	}
 }
 
+void quitGfx(){
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void initGfx(FILE* logFile){
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();

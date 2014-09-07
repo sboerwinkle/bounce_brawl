@@ -761,12 +761,12 @@ void lvlplanet(){
 	double rads = players == 0?0:M_PI*2/players;
 	register int i = 0;
 	for(; i < players; i++){
-		taskguycontroladd(240-130*cos(i*rads), 240+130*sin(i*rads));
+		taskguycontroladd(-130*cos(i*rads), 130*sin(i*rads));
 	}
-	taskcenteradd(addPlanet(250, 250));
+	taskcenteradd(addPlanet(0, 0));
 	taskuniversalgravityadd(0.02);
-	addToolGun(250, 250-130);
-	addToolGun(250, 250+130);
+	addToolGun(0, -130);
+	addToolGun(0, 130);
 	taskincinerator2add(1000);
 	addScores();
 }
