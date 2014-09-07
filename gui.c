@@ -57,20 +57,20 @@ char frameCount = SHOWEVERYNTHFRAME;
 
 FILE* logFile;
 
-menu* addMenuMenu(menu* parent, int ix, int numItems, char* text){
+menu* addMenuMenu(menu* parent, int numItems, char* text){
 	menu* ret = malloc(sizeof(menu));
 	ret->parent = parent;
-	ret->numItems = numItems;
+	ret->numItems = 0;
 	ret->items = malloc(numItems*sizeof(menuItem));
-	menuItem* item = parent->items+ix;
+	menuItem* item = parent->items+parent->numItems++;
 	item->menu = 1;
 	item->target = ret;
 	item->text = text;
 	return ret;
 }
 
-void addMenuLevel(menu* where, int ix, void (*func)(), char* text){
-	menuItem* item = where->items+ix;
+void addMenuLevel(menu* where, void (*func)(), char* text){
+	menuItem* item = where->items+where->numItems++;
 	item->menu = 0;
 	item->target = malloc(sizeof(void (*)()));
 	*((void (**)())item->target) = func;
@@ -537,35 +537,34 @@ int main(int argc, char** argv){
 	menu topMenu;
 	currentMenu = &topMenu;
 	topMenu.parent = NULL;
-	topMenu.numItems = 9;
-	topMenu.items = malloc(topMenu.numItems*sizeof(menuItem));
-//	menu* asteroidsMenu = addMenuMenu(&topMenu, 0, 2, "ASTEROID SURVIVAL...");
-	menu* planetsMenu = addMenuMenu(&topMenu, 0, 3, "PLANET STAGES...");
-	menu* flatMenu    = addMenuMenu(&topMenu, 1, 4, "FLAT STAGES...");
-	addMenuLevel(&topMenu, 2, &lvlsumo, "SUMO");
-//	addMenuLevel(&topMenu, 3, &lvltipsy, "UNSTABLE STAGE");
-//	addMenuLevel(&topMenu, 4, &lvltilt, "TILTY STAGE");
-	addMenuLevel(&topMenu, 3, &lvlswing, "WALLED STAGE");
-	addMenuLevel(&topMenu, 4, &lvldrop, "DROPAWAY FLOOR");
-	menu* mechMenu    = addMenuMenu(&topMenu, 5, 3, "MECHS...");
-	addMenuLevel(&topMenu, 6, &lvlcave, "CAVE");
-	addMenuLevel(&topMenu, 7, &lvltutorial, "TUTORIAL");
-	menu* tmpMenu    = addMenuMenu(&topMenu, 8, 1, "TEMPORARY TESTING STAGES...");
+	topMenu.numItems = 0;
+	topMenu.items = malloc(7*sizeof(menuItem));
+	menu* planetsMenu = addMenuMenu(&topMenu, 3, "PLANET STAGES...");
+	menu* flatMenu    = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
+	menu* suspendedMenu    = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
+	menu* mechMenu    = addMenuMenu(&topMenu, 3, "MECHS...");
+	addMenuLevel(&topMenu, &lvlsumo, "SUMO");
+//	addMenuLevel(&topMenu, &lvltipsy, "UNSTABLE STAGE");
+//	addMenuLevel(&topMenu, &lvltilt, "TILTY STAGE");
+	addMenuLevel(&topMenu, &lvlcave, "CAVE");
+	addMenuLevel(&topMenu, &lvltutorial, "TUTORIAL");
 
-	addMenuLevel(planetsMenu, 0, &lvlplanet, "SINGLE PLANET");
-	addMenuLevel(planetsMenu, 1, &lvl3rosette, "3-ROSETTE");
-	addMenuLevel(planetsMenu, 2, &lvlbigplanet, "BIG PLANET");
+	addMenuLevel(planetsMenu, &lvlplanet, "SINGLE PLANET");
+	addMenuLevel(planetsMenu, &lvl3rosette, "3-ROSETTE");
+	addMenuLevel(planetsMenu, &lvlbigplanet, "BIG PLANET");
 
-	addMenuLevel(flatMenu, 0, &lvltest, "PLAIN STAGE");
-	addMenuLevel(flatMenu, 1, &lvlsurvive, "ASTEROID SURVIVAL");
-	addMenuLevel(flatMenu, 2, &lvlbuilding, "BUILDING STAGE");
-	addMenuLevel(flatMenu, 3, &lvlboulder, "BOULDER");
+	addMenuLevel(flatMenu, &lvltest, "PLAIN STAGE");
+	addMenuLevel(flatMenu, &lvlsurvive, "ASTEROID SURVIVAL");
+	addMenuLevel(flatMenu, &lvlbuilding, "BUILDING STAGE");
+	addMenuLevel(flatMenu, &lvlboulder, "BOULDER");
 
-	addMenuLevel(mechMenu, 0, &lvlmech, "MAN VS MECH");
-	addMenuLevel(mechMenu, 1, &lvlmechgun, "GUN VS MECH");
-	addMenuLevel(mechMenu, 2, &lvlmechmech, "MECH VS MECH");
+	addMenuLevel(mechMenu, &lvlmech, "MAN VS MECH");
+	addMenuLevel(mechMenu, &lvlmechgun, "GUN VS MECH");
+	addMenuLevel(mechMenu, &lvlmechmech, "MECH VS MECH");
 
-	addMenuLevel(tmpMenu, 0, &lvlpyramid, "GARDENS");
+	addMenuLevel(suspendedMenu, &lvlgardens, "GARDENS");
+	addMenuLevel(suspendedMenu, &lvlswing, "WALLED STAGE");
+	addMenuLevel(suspendedMenu, &lvldrop, "DROPAWAY FLOOR");
 	
 	fputs("Menu Created\n", logFile);
 
@@ -657,6 +656,13 @@ int main(int argc, char** argv){
 			else if (evnt.type == SDL_WINDOWEVENT)	nothingChanged = 0;//Just to be safe, in case something was occluded.
 		}
 	}
+	free(topMenu.items);
+	free(flatMenu->items);
+	free(flatMenu);
+	free(mechMenu->items);
+	free(mechMenu);
+	free(suspendedMenu->items);
+	free(suspendedMenu);
 	fclose(logFile);
 	if(netMode) stopHosting();
 	stopNetworking();

@@ -1,5 +1,6 @@
+Struggle mightily w/ memory leaks
 Achievements
-Update that tutorial
+Add comments, separate readme for creating levels
 source forge
 
 Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml

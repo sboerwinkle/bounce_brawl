@@ -185,7 +185,7 @@ typedef struct {
 static char taskasteroids(void* where){
 	taskasteroidsdata* data = (taskasteroidsdata*)where;
 	if(data->cool-- <= 0){
-		newNodeLong((float)rand()/RAND_MAX*400, 0, 0, 0, (float)rand()/RAND_MAX*4-2, 0, data->size, data->mass, 0);
+		newNodeLong((double)rand()/RAND_MAX*400-200, -400, 0, 0, ((double)rand()/RAND_MAX*4-2)*SPEEDFACTOR, 0, data->size, data->mass, 0);
 		data->cool = data->maxcool;
 	}
 	return 0;
@@ -422,7 +422,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 static void taskguycontroldoRoll(taskguycontroldata* data){
 	double rollAmt = 0;
 	int* myNodes = data->myNodes;
-	double rollInc = (data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?10:0.03*SPEEDFACTOR;
+	double rollInc = ((data->myKeys[0] && (cheats&CHEAT_NUCLEAR))?10:0.03)*SPEEDFACTOR;
 	if(data->myKeys[3]) rollAmt += rollInc;
 	if(data->myKeys[1]) rollAmt -= rollInc;
 	if(!rollAmt) return;

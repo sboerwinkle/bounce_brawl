@@ -226,48 +226,45 @@ static void addBuilding(double x, double y, int stories){
 	}
 }
 
-void lvltest(){
+static void lvlbasic(){
 	initField();
 	maxZoomIn = 1.5;
-	newNode(247, 4000, 3600, 1000, 0);
-	taskfixedaddLong(0, 247l, 4000l, .4);
-	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
+	newNode(0, 4000, 4000, 1000, 0);
+	taskfixedadd(0, .4);
+	addBlock(-247, -5, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
 	taskfixedadd(1, .5);
 	taskfixedadd(33, .5);
 	int i;
 	double playerInc;
-	double scoreInc;
 	if(players>1){
 		playerInc = 446.0/(players-1);
-		scoreInc = 602.0/(players-1);
-	}else playerInc=scoreInc=0;
+	}else playerInc=0;
 	for(i=0; i < players; i++){
-		taskguycontroladd(14+i*playerInc, 366);
-		taskscoreaddLong(i, 20+i*scoreInc, 20);
+		taskguycontroladd(i*playerInc-233, -34);
 	}
-	//taskblorbcontrol.add(200, 363, 0);
-	//addBlock(30, 336, 6, 7, .9/*fric*/, 12/*spacing*/, 7/*vertspacing*/, 6, 3, 4, 7);
-	//addBlock(300, 336, 6, 7, .9/*fric*/, 12/*spacing*/, 7/*vertspacing*/, 6, 3, 4, 7);
-	//taskguycontrol.addWalker(60, 360);
+	addScores();
 	taskgravityadd();
-	addToolGun(247, -600);
-	//taskasteroids.add(10, 8, 25);
-	taskincineratoradd(410);
+	taskincineratoradd(10);
+}
+
+void lvltest(){
+	lvlbasic();
+	addToolGun(0, -1000);
 }
 
 void lvltutorial(){
 	initField();
 	maxZoomIn = 2.0;
-	players = 1;
 	addBlock(0, 0, 60, 2, .95, 12, 8, 3, 5, 5, 10);
 	int i = 60;
 	for(; i < 121; i++) taskfixedadd(i, .4);
 	taskgravityadd();
 	taskincineratoradd(1550);
 	tasktextadd(-40, -150, "Press 'esc' at any time to return to main menu.");
+	tasktextadd(250, -170, "Hold 'X' to set your spawn\nHold 'X'+'Z' to respawn");
 	tasktextadd(-30, -90, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
 	tasktextadd(230, -90, "Try holding 'Z' with\n'A' or 'D' to\nroll.");
-	tasktextadd(500, -90, "Press 'X' to interact with\nobjects marked with squares.\nSome of these change\nthe functions of your keys.");
+	tasktextadd(500, -90, "Press 'X' to interact with\nobjects marked with squares.\nPress 'Z' to fire the gun.");
 	newNode(650, 140+20*sqrt3*2, 16, 150, 4);
 	int hexArg[] = {H,0,0,0,H,0,0,\
 			 H,0,0,0,H,H,H,\
@@ -284,7 +281,10 @@ void lvltutorial(){
 	tasktextadd(730, -20, "Try falling off\nthis edge.\nHold the SAD keys\nto soften your\nlanding.");
 	tasktextadd(680, 270, "If you've gotten into the stocking\nwithout breaking any limbs, congrats!\nYou can use +/- to admire your\
 \nsurroundings.\n\n'esc' for main menu");
-	taskguycontroladd(10*11, -30);
+	if(players >= 1){
+		players = 1;
+		taskguycontroladd(10*11, -30);
+	}
 	addToolGun(550, -90);
 }
 
@@ -295,7 +295,7 @@ void lvlboulder(){
 			  0,H,H,H,0,\
 			   H,H,H,H,0,\
 			    0,H,0,0,0};
-	addHex(247-15*3, 330, 5, 5, hexArg, 0.80, 15, 4, 1.3, 6, 3);
+	addHex(-15*3, -70, 5, 5, hexArg, 0.80, 15, 4, 1.3, 6, 3);
 }
 
 void lvlcave(){
@@ -315,7 +315,7 @@ void lvlcave(){
 			         0,0,H,H,0,0,0,0,0,0,0,H,H,H,H,H,0,0,0,0,0,0,0,H,H,\
 			          0,H,H,H,0,0,0,0,0,0,H,H,H,H,H,H,0,0,0,0,0,0,H,H,H,\
 			           H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H};
-	int ix = 114+addHex(-5*lvlcavesize, 0, 25, 12, hexArg, 0.9, lvlcavesize, 5, 3, lvlcavesize*.45, 8);
+	int ix = 114+addHex(-17.5*lvlcavesize, -4*lvlcavesize, 25, 12, hexArg, 0.9, lvlcavesize, 5, 3, lvlcavesize*.45, 8);
 	int i = ix;
 	for(; i >= ix-24; i--){
 		taskfixedadd(i, 1);
@@ -324,11 +324,11 @@ void lvlcave(){
 	taskincineratoradd(300);
 	addScores();
 	if(players < 1) return;
-	taskguycontroladd(lvlcavesize*4.5, 9*sqrt3/2*lvlcavesize);
+	taskguycontroladd(lvlcavesize*-7-10, 9*sqrt3/2*lvlcavesize-4*lvlcavesize);
 	if(players < 2) return;
-	taskguycontroladd(lvlcavesize*19.5+1, 9*sqrt3/2*lvlcavesize);
+	taskguycontroladd(lvlcavesize*7-10, 9*sqrt3/2*lvlcavesize-4*lvlcavesize);
 	if(players < 3) return;
-	taskguycontroladd(lvlcavesize*12, sqrt3/2*lvlcavesize);
+	taskguycontroladd(-10, sqrt3/2*lvlcavesize-4*lvlcavesize);
 }
 
 static int addElevator(int x, int y, double h){
@@ -446,7 +446,7 @@ static int addPlatform(double x, double y, int count, double spacing, double siz
 	return ix;
 }
 
-void lvlpyramid(){
+void lvlgardens(){
 	initField();
 	maxZoomIn = 2.0;
 	zoom = 2;
@@ -478,14 +478,14 @@ void lvlpyramid(){
 void lvlbuilding(){
 	if(players>2) players = 2;
 	lvltest();
-	addBuilding(127, 379, 5);
+	addBuilding(-120, -21, 5);
 }
 
 void lvlsumo(){
 	if(players > 2) players = 2;
 	initField();
 	maxZoomIn = 3.75;
-	addBlock(180, 300, 14, 10, .83/*fric*/, 10/*spacing*/, 6.7/*vertSpacing*/, 3.3/*tol*/, 2.8/*str*/, 2/*size*/, 8/*mass*/);
+	addBlock(-75, 0, 14, 10, .83/*fric*/, 10/*spacing*/, 6.7/*vertSpacing*/, 3.3/*tol*/, 2.8/*str*/, 2/*size*/, 8/*mass*/);
 	int i = 0;
 	for(; i < 29; i++){
 		nodes[i].size = 5;
@@ -494,10 +494,10 @@ void lvlsumo(){
 		taskfixedadd(i, .5);
 	}
 	if(players > 0){
-		taskguycontroladd(200, 270);
+		taskguycontroladd(-55, -30);
 	}
 	if(players > 1){
-		taskguycontroladd(280, 270);
+		taskguycontroladd(25, -30);
 	}
 	addScores();
 
@@ -510,7 +510,6 @@ void lvltipsy(){
 	initField();
 	maxZoomIn = 2;
 	addBlock(180, 300, 14, 20, 0.89/*fric*/, 10/*spacing*/, 6.75/*vertSpacing*/, 4.8/*tol*/, 0.6/*str*/, 4.42/*size*/, 4.0/3/*mass*/);
-	//addBlock(180, 300, 14, 20, 1/*fric*/, 10/*spacing*/, 7/*vertSpacing*/, 100/*tol*/, 5/*str*/, 4/*size*/, 8/*mass*/);
 	int i = 275;
 	for(; i < 290; i++){
 		taskfixedadd(i, .5);
@@ -531,16 +530,6 @@ void lvltipsy(){
 void lvltilt(){
 	if(players > 2) players = 2;
 	initField();
-	//addBlock(185, 300, 13, 4, .7/*fric*/, 10/*spacing*/, 7/*vertSpacing*/, 10/*tol*/, 10/*str*/, 5/*size*/, 16/*mass*/);
-	/*addBlock(240, 332, 2,  2, 1         , 10           ,-7               , 10        , 5         , 3        , 16       );
-	for(int i = 62; i < 67; i++)
-		taskfixed.add(i, (long)nodes[i].x, (long)nodes[i].y, .5);
-	for(int i = 64; i < 67; i++){
-		node current = nodes[i];
-		node.connection[] newcon  = new node.connection[current.connections.length+2];
-		newcon[current.connections.length] = current.new connection(i-9, 1, 10, 20, 3);
-		System.arraycopy(current.connections, 0, newcon, 0, current.connections.length);
-	}*/
 	addBlock(185, 300, 13, 2, .8/*fric*/, 10/*spacing*/, 7/*vertSpacing*/, 10/*tol*/, 2.5/*str*/, 5/*size*/, 4/*mass*/);
 	newNode(262, 370, 6, 16, 14);
 	newNode(237, 370, 6, 16, 14);
@@ -660,10 +649,11 @@ void lvlswing(){
 	//addBlock(150, 300, 40, 1, 1/*fric*/, 10/*spacing*/, 11/*vertSpacing*/, 10/*tol*/, 3.38/*str*/, 4.8/*size*/, 4.5/*mass*/);
 	make();
 	for(i = 8; i < 48; i++){
-		nodes[i].y -= 100;
+		nodes[i].y -= 350;
+		nodes[i].x -= 255;
 	}
-	taskfixedaddLong(8, 150, 200, .4);
-	taskfixedaddLong(47, 350, 200, .4);
+	taskfixedadd(8, .4);
+	taskfixedadd(47, .4);
 	int x1 = (int)nodes[15].x;
 	int x2 = (int)nodes[40].x;
 	double dx = (x2-x1)/13.0;
@@ -678,10 +668,10 @@ void lvlswing(){
 		killNode(i);
 	}
 	if(players > 0){
-		taskguycontroladd(200, 240);
+		taskguycontroladd(-55, -10);
 	}
 	if(players > 1){
-		taskguycontroladd(280, 240);
+		taskguycontroladd(25, -10);
 	}
 	addScores();
 	taskgravityadd();
@@ -692,27 +682,24 @@ void lvldrop(){
 	initField();
 	maxZoomIn = 3.0;
 	zoom = 2;
-	addBlock(30, 280, 43, 2, 1, 10, 7, 4, 6, 4.5, 10);
-	//f.addBlock(
+	addBlock(-210, 30, 43, 2, 1, 10, 7, 4, 6, 4.5, 10);
 	int n, i = 0;
 	for(; i < 43; i += 6){
 		addToolDestroy(i);
-		n = newNode((int)nodes[i].x, 100, 10, 20, 1);
+		n = newNode((int)nodes[i].x, -150, 10, 20, 1);
 		newConnection(n, 0, i, .5, 180, 10, 3);
 		taskfixedadd(n, .3);
 	}
 	double playerInc;
-	double scoreInc;
 	if(players>1){
-		playerInc = 306.0/(players-1);
-		scoreInc = 602.0/(players-1);
-	}else playerInc=scoreInc=0;
+		playerInc = 300.0/(players-1);
+	}else playerInc=0;
 	for(i=0; i < players; i++){
-		taskguycontroladd(92+i*playerInc, 250);
-		taskscoreaddLong(i, 20+i*scoreInc, 20);
+		taskguycontroladd(-155+i*playerInc, 0);
 	}
+	addScores();
 	taskgravityadd();
-	taskincineratoradd(500);
+	taskincineratoradd(250);
 }
 
 #define STR_1 5
@@ -846,40 +833,19 @@ void lvlbigplanet(){
 }
 
 void lvlmech(){
-	initField();
-	maxZoomIn = 1.5;
-	newNode(247, 4000, 3600, 1000, 0);
-	taskfixedaddLong(0, 247l, 4000l, .4);
-	addBlock(0, 395, 33, 1, .7/*fric*/, 15/*spacing*/, 9/*vertSpacing*/, 6/*tol*/, 10/*str*/, 7/*size*/, 16/*mass*/);
-	taskfixedadd(1, .5);
-	taskfixedadd(33, .5);
-
-	int i;
-	double playerInc;
-	double scoreInc;
-	if(players>1){
-		playerInc = 446.0/(players-1);
-		scoreInc = 602.0/(players-1);
-	}else playerInc=scoreInc=0;
-	for(i=0; i < players; i++){
-		taskguycontroladd(14+i*playerInc, 366);
-		taskscoreaddLong(i, 20+i*scoreInc, 20);
-	}
-
-	taskgravityadd();
-	taskincineratoradd(410);
-	addToolMech1(371, 326);
+	lvlbasic();
+	addToolMech1(124, -74);
 	addScores();
 }
 
 void lvlmechmech(){
 	lvlmech();
-	addToolMech1(124, 326);
+	addToolMech1(-124, -74);
 }
 
 void lvlmechgun(){
 	lvlmech();
-	addToolGun(124, 326);
+	addToolGun(-124, -74);
 }
 
 void lvlsurvive(){
