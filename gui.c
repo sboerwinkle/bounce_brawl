@@ -21,15 +21,16 @@
 typedef struct{
 	char menu;
 	void* target;
+	char* achievementText;
+	char achievementUnlocked;
 	char* text;
 } menuItem;
 
-struct menu{
+typedef struct menu{
 	struct menu* parent;
 	int numItems;
 	menuItem* items;
-};
-typedef struct menu menu;
+}menu;
 
 menu* currentMenu;
 
@@ -51,6 +52,7 @@ int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 char mode = 0, cheats = 0;
 static int running = 1;
 static char inputMode = 0;
+static char achievementView = 0;
 static char nothingChanged = 0;
 char frameCount = SHOWEVERYNTHFRAME;
 //static char frameFlag;
@@ -72,15 +74,19 @@ static menu* addMenuMenu(menu* parent, int numItems, char* text){
 	item->menu = 1;
 	item->target = ret;
 	item->text = text;
+	item->achievementText = "COMPLETE ALL SUB-ACHIEVEMENTS";
+	item->achievementUnlocked = 0;
 	return ret;
 }
 
-static void addMenuLevel(menu* where, void (*func)(), char* text){
+static void addMenuLevel(menu* where, void (*func)(), char* text, char* achievementText){
 	menuItem* item = where->items+where->numItems++;
 	item->menu = 0;
 	item->target = malloc(sizeof(void (*)()));
 	*((void (**)())item->target) = func;
 	item->text = text;
+	item->achievementText = achievementText;
+	item->achievementUnlocked = 0;
 }
 
 void myDrawScreenNoClear(){
@@ -120,6 +126,7 @@ static inline void simpleDrawText(int line, char* text){
 }
 
 static void paint(){
+	static char line[40];
 	GLenum error = glGetError();
 	if(error){
 		fputs((const char*)gluErrorString(error), logFile);
@@ -133,20 +140,37 @@ static void paint(){
 //		SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
 //		SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
 //		SDL_RenderFillRect(render, &a);
-		char* line = malloc(40*sizeof(char));
 		setColorWhite();
 		simpleDrawText(30, "ESC: CANCEL / GO BACK");
 		if(inputMode == -1){
 			simpleDrawText(3, "REALLY QUIT? PRESS ANY KEY TO EXIT");
 		}else if(inputMode == 0){
 			int i = 0;
-			for(; i < currentMenu->numItems; i++){
-				sprintf(line, " %d : %s", i+1, currentMenu->items[i].text);
-				simpleDrawText(i, line);
+			strcpy(line, "   : ");
+			if(achievementView){
+				for(; i < currentMenu->numItems; i++){
+					if(currentMenu->items[i].achievementUnlocked){
+						setColorFromHue((i%6)*64);
+						line[1] = 15;
+					}else{
+						setColorWhite();
+						line[1] = ' ';
+					}
+					strcpy(line + 5, currentMenu->items[i].achievementText);
+					simpleDrawText(i, line);
+				}
+				simpleDrawText(11, " V : REGULAR VIEW");
+			}else{
+				for(; i < currentMenu->numItems; i++){
+					strcpy(line + 5, currentMenu->items[i].text);
+					line[1] = '1' + i;
+					simpleDrawText(i, line);
+				}
+				simpleDrawText(11, " V : ACHEIVEMENT VIEW");
 			}
-			simpleDrawText(11, " M : MANAGE PLAYERS");
-			simpleDrawText(12, " K : SET KEYS");
-			simpleDrawText(16, netMode?(netMode==2?"CONNECTING":"LISTENING"):"NETWORK INACTIVE");
+			simpleDrawText(12, " M : MANAGE PLAYERS");
+			simpleDrawText(13, " K : SET KEYS");
+			simpleDrawText(16, netMode?"LISTENING":"NETWORK INACTIVE");
 			simpleDrawText(17, " H : HOST A GAME");
 			if(pIndex[0] != -1) simpleDrawText(18, " C : CONNECT");
 			sprintf(line, " P : PORT : %d", port);
@@ -208,7 +232,6 @@ static void paint(){
 			setColorWhite();
 			simpleDrawText(3+(players&(~1024)), (players&1024)?"=":">");
 		}
-		free(line);
 		nothingChanged = 1;
 		myDrawScreen();
 	}else{
@@ -308,6 +331,11 @@ static void spKeyAction(int bit, char pressed){
 			}
 			if(bit == SDLK_c){
 				myConnect();
+				nothingChanged = 0;
+				return;
+			}
+			if(bit == SDLK_v){
+				achievementView = !achievementView;
 				nothingChanged = 0;
 				return;
 			}
@@ -549,28 +577,28 @@ int main(int argc, char** argv){
 	menu* flatMenu    = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
 	menu* suspendedMenu    = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
 	menu* mechMenu    = addMenuMenu(&topMenu, 3, "MECHS...");
-	addMenuLevel(&topMenu, &lvlsumo, "SUMO");
+	addMenuLevel(&topMenu, &lvlsumo, "SUMO", "DESTRUCTION");
 //	addMenuLevel(&topMenu, &lvltipsy, "UNSTABLE STAGE");
 //	addMenuLevel(&topMenu, &lvltilt, "TILTY STAGE");
-	addMenuLevel(&topMenu, &lvlcave, "CAVE");
-	addMenuLevel(&topMenu, &lvltutorial, "TUTORIAL");
+	addMenuLevel(&topMenu, &lvlcave, "CAVE", "SPELUNKER");
+	addMenuLevel(&topMenu, &lvltutorial, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
-	addMenuLevel(planetsMenu, &lvlplanet, "SINGLE PLANET");
-	addMenuLevel(planetsMenu, &lvl3rosette, "3-ROSETTE");
-	addMenuLevel(planetsMenu, &lvlbigplanet, "BIG PLANET");
+	addMenuLevel(planetsMenu, &lvlplanet, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
+	addMenuLevel(planetsMenu, &lvl3rosette, "3-ROSETTE", "POTENTIAL WELL");
+	addMenuLevel(planetsMenu, &lvlbigplanet, "BIG PLANET", "EVERYTHING BUT THE SEED");
 
-	addMenuLevel(flatMenu, &lvltest, "PLAIN STAGE");
-	addMenuLevel(flatMenu, &lvlsurvive, "ASTEROID SURVIVAL");
-	addMenuLevel(flatMenu, &lvlbuilding, "BUILDING STAGE");
-	addMenuLevel(flatMenu, &lvlboulder, "BOULDER");
+	addMenuLevel(flatMenu, &lvltest, "PLAIN STAGE", "PACIFISM");
+	addMenuLevel(flatMenu, &lvlsurvive, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
+	addMenuLevel(flatMenu, &lvlbuilding, "BUILDING STAGE", "MOUNTAINEER");
+	addMenuLevel(flatMenu, &lvlboulder, "BOULDER", "GRAVEL");
 
-	addMenuLevel(mechMenu, &lvlmech, "MAN VS MECH");
-	addMenuLevel(mechMenu, &lvlmechgun, "GUN VS MECH");
-	addMenuLevel(mechMenu, &lvlmechmech, "MECH VS MECH");
+	addMenuLevel(mechMenu, &lvlmech, "MAN VS MECH", "BEACHED");
+	addMenuLevel(mechMenu, &lvlmechgun, "GUN VS MECH", "MOAR PACIFISM");
+	addMenuLevel(mechMenu, &lvlmechmech, "MECH VS MECH", "CHANGE PLACES!");
 
-	addMenuLevel(suspendedMenu, &lvlgardens, "GARDENS");
-	addMenuLevel(suspendedMenu, &lvlswing, "WALLED STAGE");
-	addMenuLevel(suspendedMenu, &lvldrop, "DROPAWAY FLOOR");
+	addMenuLevel(suspendedMenu, &lvlgardens, "HANGING GARDENS", "FLOOD");
+	addMenuLevel(suspendedMenu, &lvlswing, "WALLED STAGE", "MOAR DESTRUCTION");
+	addMenuLevel(suspendedMenu, &lvldrop, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
 	
 	fputs("Menu Created\n", logFile);
 
