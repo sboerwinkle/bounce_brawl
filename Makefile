@@ -7,8 +7,8 @@ LFLAGS=-lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
 
 .PHONY: debug windows remake clean
 
-game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o
-	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o -o game $(LFLAGS)
+game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o
+	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o -o game $(LFLAGS)
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
@@ -29,7 +29,7 @@ font.o: font.c fontData.h gfx.h
 gfx.o: gfx.c gfx.h gui.h
 	$(CC) $(CFLAGS) gfx.c
 
-gui.o: gui.c gfx.h structs.h font.h levels.h field.h networking.h task.h gui.h
+gui.o: gui.c gfx.h structs.h font.h levels.h field.h networking.h task.h gui.h achievements.h
 	$(CC) $(CFLAGS) gui.c
 
 levels.o: levels.c structs.h field.h task.h node.h gui.h
@@ -43,6 +43,9 @@ node.o: node.c structs.h field.h
 
 task.o: task.c structs.h gui.h field.h node.h font.h gfx.h networking.h
 	$(CC) $(CFLAGS) task.c
+
+achievements.o: achievements.c structs.h field.h gui.h
+	$(CC) $(CFLAGS) achievements.c
 
 clean:
 	rm -f *.o game game.exe

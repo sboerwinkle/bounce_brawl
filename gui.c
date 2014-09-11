@@ -13,24 +13,34 @@
 #include "networking.h"
 #include "task.h"
 #include "gui.h"
+#include "achievements.h"
 
 #ifdef WINDOWS
 #include <windows.h>
 #endif
 
-typedef struct{
-	char menu;
-	void* target;
-	char* achievementText;
-	char achievementUnlocked;
-	char* text;
-} menuItem;
+struct menuItem;
 
 typedef struct menu{
 	struct menu* parent;
 	int numItems;
-	menuItem* items;
+	struct menuItem *items;
 }menu;
+
+typedef struct menuItem{
+	char* achievementText;
+	char achievementUnlocked;
+	char* text;
+	char menu;
+	union {
+		menu menu;
+		struct {
+			void (*initFunc)();
+			int (*achievementFunc)();
+		} level;
+	} contents;
+} menuItem; // HAHAHA Obfuscation!!!
+
 
 menu* currentMenu;
 
@@ -59,31 +69,32 @@ char frameCount = SHOWEVERYNTHFRAME;
 
 FILE* logFile;
 
-static void freeMenu(menu* who){
+/*static void freeMenu(menu* who){
 	int i = who->numItems-1;
-	for(; i >= 0; i--) free(who->items[i].target);
+	for(; i >= 0; i--){
+		if(who->items[i].menu) freeMenu(&who->items[i].contents.menu);
+	}
 	free(who->items);
-}
+}*/
 
 static menu* addMenuMenu(menu* parent, int numItems, char* text){
-	menu* ret = malloc(sizeof(menu));
-	ret->parent = parent;
-	ret->numItems = 0;
-	ret->items = malloc(numItems*sizeof(menuItem));
 	menuItem* item = parent->items+parent->numItems++;
 	item->menu = 1;
-	item->target = ret;
+	menu* m = &item->contents.menu;
+	m->parent = parent;
+	m->numItems = 0;
+	m->items = malloc(numItems*sizeof(menuItem));
 	item->text = text;
 	item->achievementText = "COMPLETE ALL SUB-ACHIEVEMENTS";
 	item->achievementUnlocked = 0;
-	return ret;
+	return m;
 }
 
-static void addMenuLevel(menu* where, void (*func)(), char* text, char* achievementText){
+static void addMenuLevel(menu* where, void (*initFunc)(), int (*achievementFunc)(), char* text, char* achievementText){
 	menuItem* item = where->items+where->numItems++;
 	item->menu = 0;
-	item->target = malloc(sizeof(void (*)()));
-	*((void (**)())item->target) = func;
+	item->contents.level.initFunc = initFunc;
+	item->contents.level.achievementFunc = achievementFunc;
 	item->text = text;
 	item->achievementText = achievementText;
 	item->achievementUnlocked = 0;
@@ -135,39 +146,33 @@ static void paint(){
 	}
 	if(mode == 0){
 		if(nothingChanged) return;
-//		boxColor(render, 0, 0, 500, 500, 0x000000FF);
-//		memset(screen, 0, 750*750*4);
-//		SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-//		SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
-//		SDL_RenderFillRect(render, &a);
 		setColorWhite();
 		simpleDrawText(30, "ESC: CANCEL / GO BACK");
 		if(inputMode == -1){
 			simpleDrawText(3, "REALLY QUIT? PRESS ANY KEY TO EXIT");
 		}else if(inputMode == 0){
 			int i = 0;
-			strcpy(line, "   : ");
-			if(achievementView){
-				for(; i < currentMenu->numItems; i++){
-					if(currentMenu->items[i].achievementUnlocked){
-						setColorFromHue((i%6)*64);
-						line[1] = 15;
-					}else{
-						setColorWhite();
-						line[1] = ' ';
-					}
-					strcpy(line + 5, currentMenu->items[i].achievementText);
-					simpleDrawText(i, line);
+			line[3]=':';
+			line[4]=' ';
+			for(; i < currentMenu->numItems; i++){
+				line[1] = '1' + i;
+				if(currentMenu->items[i].achievementUnlocked){
+					line[0] = line[2] = 15;
+				}else{
+					line[0] = line[2] = ' ';
 				}
-				simpleDrawText(11, " V : REGULAR VIEW");
-			}else{
-				for(; i < currentMenu->numItems; i++){
-					strcpy(line + 5, currentMenu->items[i].text);
-					line[1] = '1' + i;
-					simpleDrawText(i, line);
+				if(2==currentMenu->items[i].achievementUnlocked){
+					setColorFromHue((i%6)*64);
+				}else{
+					setColorWhite();
 				}
-				simpleDrawText(11, " V : ACHEIVEMENT VIEW");
+				strcpy(line + 5, achievementView?
+							currentMenu->items[i].achievementText:
+							currentMenu->items[i].text);
+				simpleDrawText(i, line);
 			}
+			setColorWhite();
+			simpleDrawText(11, achievementView?" V : REGULAR VIEW":" V : ACHEIVEMENT VIEW");
 			simpleDrawText(12, " M : MANAGE PLAYERS");
 			simpleDrawText(13, " K : SET KEYS");
 			simpleDrawText(16, netMode?"LISTENING":"NETWORK INACTIVE");
@@ -357,12 +362,12 @@ static void spKeyAction(int bit, char pressed){
 			if(bit > 0 && bit-1 < currentMenu->numItems){
 				menuItem* choice = currentMenu->items+bit-1;
 				if(choice->menu){
-					currentMenu = (menu*)choice->target;
+					currentMenu = &choice->contents.menu;
 					nothingChanged = 0;
 					return;
 				}
 				players = numRequests;
-				(**((void (**)())choice->target))();
+				(*choice->contents.level.initFunc)();
 				memset(masterKeys, 0, NUMKEYS*10);
 				mode = 1;
 				kickNoRoom();
@@ -565,6 +570,48 @@ static void spKeyAction(int bit, char pressed){
 	}
 }
 
+static void loadAchievementsSub(menu* m, FILE* f){
+	int i = 0;
+	int c;
+	for(; i < m->numItems; i++){
+		if(m->items[i].menu) loadAchievementsSub(&m->items[i].contents.menu, f);
+		else{
+			c = fgetc(f);
+			if(c==EOF) return;
+			m->items[i].achievementUnlocked = c;
+		}
+	}
+}
+
+static void loadAchievements(menu* m){
+	FILE* f;
+	if(0 >= (f = fopen("achievements.dat", "r"))){
+		fputs("Achievements file not present!\n", logFile);
+		return;
+	}
+	loadAchievementsSub(m, f);
+	fclose(f);
+	fputs("Achievements Loaded\n", logFile);
+}
+
+static void saveAchievementsSub(menu* m, FILE* f){
+	int i = 0;
+	for(; i < m->numItems; i++){
+		if(m->items[i].menu) saveAchievementsSub(&m->items[i].contents.menu, f);
+		else{
+			fputc(m->items[i].achievementUnlocked, f);
+		}
+	}
+	free(m->items);
+}
+
+static void saveAchievements(menu* m){
+	FILE* f = fopen("achievements.dat", "w");
+	saveAchievementsSub(m, f);
+	fputs("Achievements Saved\n", logFile);
+	fclose(f);
+}
+
 int main(int argc, char** argv){
 	logFile = fopen("log.txt", "w");
 	fputs("Everything looks good from here\n", logFile);
@@ -573,34 +620,36 @@ int main(int argc, char** argv){
 	topMenu.parent = NULL;
 	topMenu.numItems = 0;
 	topMenu.items = malloc(7*sizeof(menuItem));
-	menu* planetsMenu = addMenuMenu(&topMenu, 3, "PLANET STAGES...");
-	menu* flatMenu    = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
-	menu* suspendedMenu    = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
-	menu* mechMenu    = addMenuMenu(&topMenu, 3, "MECHS...");
-	addMenuLevel(&topMenu, &lvlsumo, "SUMO", "DESTRUCTION");
-//	addMenuLevel(&topMenu, &lvltipsy, "UNSTABLE STAGE");
-//	addMenuLevel(&topMenu, &lvltilt, "TILTY STAGE");
-	addMenuLevel(&topMenu, &lvlcave, "CAVE", "SPELUNKER");
-	addMenuLevel(&topMenu, &lvltutorial, "TUTORIAL", "NO SHIRT, NO SHOES...");
+	menu* planetsMenu   = addMenuMenu(&topMenu, 3, "PLANET STAGES...");
+	menu* flatMenu      = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
+	menu* suspendedMenu = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
+	menu* mechMenu      = addMenuMenu(&topMenu, 3, "MECHS...");
+//	addMenuLevel(&topMenu, lvltipsy, "UNSTABLE STAGE");
+//	addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
+	addMenuLevel(&topMenu, lvlsumo, achieveLazy, "SUMO", "DESTRUCTION");
+	addMenuLevel(&topMenu, lvlcave, achieveLazy, "CAVE", "SPELUNKER");
+	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
-	addMenuLevel(planetsMenu, &lvlplanet, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
-	addMenuLevel(planetsMenu, &lvl3rosette, "3-ROSETTE", "POTENTIAL WELL");
-	addMenuLevel(planetsMenu, &lvlbigplanet, "BIG PLANET", "EVERYTHING BUT THE SEED");
+	addMenuLevel(planetsMenu, lvlplanet, achieveLazy, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
+	addMenuLevel(planetsMenu, lvl3rosette, achieveLazy, "3-ROSETTE", "POTENTIAL WELL");
+	addMenuLevel(planetsMenu, lvlbigplanet, achieveLazy, "BIG PLANET", "EVERYTHING BUT THE SEED");
 
-	addMenuLevel(flatMenu, &lvltest, "PLAIN STAGE", "PACIFISM");
-	addMenuLevel(flatMenu, &lvlsurvive, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
-	addMenuLevel(flatMenu, &lvlbuilding, "BUILDING STAGE", "MOUNTAINEER");
-	addMenuLevel(flatMenu, &lvlboulder, "BOULDER", "GRAVEL");
+	addMenuLevel(flatMenu, lvltest, achieveLazy, "PLAIN STAGE", "PACIFISM");
+	addMenuLevel(flatMenu, lvlsurvive, achieveLazy, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
+	addMenuLevel(flatMenu, lvlbuilding, achieveLazy, "BUILDING STAGE", "MOUNTAINEER");
+	addMenuLevel(flatMenu, lvlboulder, achieveLazy, "BOULDER", "GRAVEL");
 
-	addMenuLevel(mechMenu, &lvlmech, "MAN VS MECH", "BEACHED");
-	addMenuLevel(mechMenu, &lvlmechgun, "GUN VS MECH", "MOAR PACIFISM");
-	addMenuLevel(mechMenu, &lvlmechmech, "MECH VS MECH", "CHANGE PLACES!");
+	addMenuLevel(mechMenu, lvlmech, achieveLazy, "MAN VS MECH", "BEACHED");
+	addMenuLevel(mechMenu, lvlmechgun, achieveLazy, "GUN VS MECH", "MOAR PACIFISM");
+	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
 
-	addMenuLevel(suspendedMenu, &lvlgardens, "HANGING GARDENS", "FLOOD");
-	addMenuLevel(suspendedMenu, &lvlswing, "WALLED STAGE", "MOAR DESTRUCTION");
-	addMenuLevel(suspendedMenu, &lvldrop, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
+	addMenuLevel(suspendedMenu, lvlgardens, achieveLazy, "HANGING GARDENS", "FLOOD");
+	addMenuLevel(suspendedMenu, lvlswing, achieveLazy, "WALLED STAGE", "MOAR DESTRUCTION");
+	addMenuLevel(suspendedMenu, lvldrop, achieveLazy, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
 	
 	fputs("Menu Created\n", logFile);
+
+	loadAchievements(&topMenu);
 
 	initNetworking();
 	fputs("Networking Initialized\n", logFile);
@@ -690,11 +739,7 @@ int main(int argc, char** argv){
 			else if (evnt.type == SDL_WINDOWEVENT)	nothingChanged = 0;//Just to be safe, in case something was occluded.
 		}
 	}
-	freeMenu(flatMenu); // Do these from the bottom of the menu tree up
-	freeMenu(mechMenu);
-	freeMenu(suspendedMenu);
-	freeMenu(planetsMenu);
-	freeMenu(&topMenu);
+	saveAchievements(&topMenu); // Also frees the menus
 	fclose(logFile);
 	if(netMode) stopHosting();
 	stopNetworking();
