@@ -43,6 +43,7 @@ typedef struct menuItem{
 
 
 menu* currentMenu;
+menuItem* currentLevel; // can't be a level*, because we need access to achievementStuff
 
 static SDL_Window* window;
 //static SDL_Renderer* render;
@@ -368,6 +369,7 @@ static void spKeyAction(int bit, char pressed){
 				}
 				players = numRequests;
 				(*choice->contents.level.initFunc)();
+				currentLevel = choice;
 				memset(masterKeys, 0, NUMKEYS*10);
 				mode = 1;
 				kickNoRoom();
@@ -535,6 +537,8 @@ static void spKeyAction(int bit, char pressed){
 	}
 	if(bit == SDLK_ESCAPE){
 		if(!pressed) return;
+		int res = (*currentLevel->contents.level.achievementFunc)();
+		if(res > currentLevel->achievementUnlocked) currentLevel->achievementUnlocked = res;
 		stopField();
 		if(netMode) stopHosting();
 		mode = 0;
