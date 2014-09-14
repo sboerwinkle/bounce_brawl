@@ -547,7 +547,7 @@ static void spKeyAction(int bit, char pressed){
 	}
 	if(bit == SDLK_ESCAPE){
 		if(!pressed) return;
-		int res = (*currentLevel->contents.level.achievementFunc)();
+		int res = (*currentLevel->contents.level.achievementFunc)() * achieveFlawless();
 		if(res > currentLevel->achievementUnlocked){
 			currentLevel->achievementUnlocked = res;
 			checkMenuAchievements(currentMenu);
@@ -649,26 +649,26 @@ int main(int argc, char** argv){
 	menuItem* mechMenu      = addMenuMenu(&topMenu, 3, "MECHS...");
 //	addMenuLevel(&topMenu, lvltipsy, "UNSTABLE STAGE");
 //	addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
-	addMenuLevel(&topMenu, lvlsumo, achieveFlawless, "SUMO", "DESTRUCTION");
-	addMenuLevel(&topMenu, lvlcave, achieveFlawless, "CAVE", "SPELUNKER");
-	addMenuLevel(&topMenu, lvltutorial, achieveFlawless, "TUTORIAL", "NO SHIRT, NO SHOES...");
+	addMenuLevel(&topMenu, lvlsumo, achieveLazy, "SUMO", "DESTRUCTION");
+	addMenuLevel(&topMenu, lvlcave, achieveLazy, "CAVE", "SPELUNKER");
+	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
-	addMenuLevel(planetsMenu, lvlplanet, achieveFlawless, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
-	addMenuLevel(planetsMenu, lvl3rosette, achieveFlawless, "3-ROSETTE", "POTENTIAL WELL");
-	addMenuLevel(planetsMenu, lvlbigplanet, achieveFlawless, "BIG PLANET", "EVERYTHING BUT THE SEED");
+	addMenuLevel(planetsMenu, lvlplanet, achieveLazy, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
+	addMenuLevel(planetsMenu, lvl3rosette, achieveLazy, "3-ROSETTE", "POTENTIAL WELL");
+	addMenuLevel(planetsMenu, lvlbigplanet, achieveLazy, "BIG PLANET", "EVERYTHING BUT THE SEED");
 
-	addMenuLevel(flatMenu, lvltest, achieveFlawless, "PLAIN STAGE", "PACIFISM");
-	addMenuLevel(flatMenu, lvlsurvive, achieveFlawless, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
-	addMenuLevel(flatMenu, lvlbuilding, achieveFlawless, "BUILDING STAGE", "MOUNTAINEER");
-	addMenuLevel(flatMenu, lvlboulder, achieveFlawless, "BOULDER", "GRAVEL");
+	addMenuLevel(flatMenu, lvltest, achieveLazy, "PLAIN STAGE", "PACIFISM");
+	addMenuLevel(flatMenu, lvlsurvive, achieveLazy, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
+	addMenuLevel(flatMenu, lvlbuilding, achieveLazy, "BUILDING STAGE", "MOUNTAINEER");
+	addMenuLevel(flatMenu, lvlboulder, achieveLazy, "BOULDER", "GRAVEL");
 
-	addMenuLevel(mechMenu, lvlmech, achieveFlawless, "MAN VS MECH", "BEACHED");
-	addMenuLevel(mechMenu, lvlmechgun, achieveFlawless, "GUN VS MECH", "MOAR PACIFISM");
-	addMenuLevel(mechMenu, lvlmechmech, achieveFlawless, "MECH VS MECH", "CHANGE PLACES!");
+	addMenuLevel(mechMenu, lvlmech, achieveLazy, "MAN VS MECH", "BEACHED");
+	addMenuLevel(mechMenu, lvlmechgun, achieveLazy, "GUN VS MECH", "MOAR PACIFISM");
+	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
 
-	addMenuLevel(suspendedMenu, lvlgardens, achieveFlawless, "HANGING GARDENS", "FLOOD");
-	addMenuLevel(suspendedMenu, lvlswing, achieveFlawless, "WALLED STAGE", "MOAR DESTRUCTION");
-	addMenuLevel(suspendedMenu, lvldrop, achieveFlawless, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
+	addMenuLevel(suspendedMenu, lvlgardens, achieveFlood, "HANGING GARDENS", "FLOOD");
+	addMenuLevel(suspendedMenu, lvlswing, achieveLazy, "WALLED STAGE", "MOAR DESTRUCTION");
+	addMenuLevel(suspendedMenu, lvldrop, achieveLazy, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
 	
 	fputs("Menu Created\n", logFile);
 

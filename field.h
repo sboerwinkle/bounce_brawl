@@ -1,7 +1,7 @@
 typedef struct{
 	int myNodes[4];
-	int controltype;
-	int controlindex;
+	int controlType;
+	int controlIndex;
 	//int controlvar;//Currently unused, but intended as a multi-purpose variable for the current tool.
 	int lastpress; // If the connect key was pressed last time
 	char lastpressAction; // ditto for action key

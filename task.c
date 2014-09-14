@@ -39,7 +39,7 @@ void freeAllTasks(task* where){
 	}
 }
 
-int* taskguycontrolindexes;
+int* taskguycontrolIndexes;
 
 typedef struct {
 	int target;
@@ -386,10 +386,10 @@ void taskgravityadd(){
 
 static inline void taskguycontroldisconnect(taskguycontroldata* data){
 	data->controlData->inUse = 0;
-	data->controltype = -1;
+	data->controlType = -1;
 }
 static void taskguycontroldoGun(taskguycontroldata* data){
-	if(data->lastpressAction || nodes[data->controlindex].size < 1.5) return;
+	if(data->lastpressAction || nodes[data->controlIndex].size < 1.5) return;
 	int aimingLeg = -1;
 	int i = 0;
 	for(; i < 4; i++){
@@ -403,7 +403,7 @@ static void taskguycontroldoGun(taskguycontroldata* data){
 	}
 	if(aimingLeg == -1) aimingLeg = data->connectedLeg;
 	if(!data->exists[(aimingLeg+2)%4]) return;
-	nodes[data->controlindex].size -= 1;
+	nodes[data->controlIndex].size -= 1;
 	node* one = nodes+data->myNodes[aimingLeg];
 	node* two = nodes+data->myNodes[(aimingLeg+2)%4];
 	double dx = one->x - two->x + one->px - two->px;
@@ -466,7 +466,7 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 //	short sl = 35;
 //	short ll = 49;
 	if(myKeys[5]){
-		switch(data->controltype){
+		switch(data->controlType){
 			case 10:
 				taskguycontroldoGun(data);
 				break;
@@ -558,19 +558,19 @@ static void toolBigLegs(taskguycontroldata* data){
 			}
 		}
 	}
-	int controlindex = data->controlindex;
-	node* center = nodes+controlindex;
+	int controlIndex = data->controlIndex;
+	node* center = nodes+controlIndex;
 	for(i = 0; i < 4; i++){
 		if(!center->connections[i].dead){
 			center->connections[i].preflength = centerDists[i];
-			if(!nodes[controlindex+i+1].connections[0].dead)
-				nodes[controlindex+i+1].connections[0].preflength = edgeLengths[i];
+			if(!nodes[controlIndex+i+1].connections[0].dead)
+				nodes[controlIndex+i+1].connections[0].preflength = edgeLengths[i];
 		}
 	}
-	if(nodes[controlindex+1].dead) return;
+	if(nodes[controlIndex+1].dead) return;
 	int size = (int)(maxZoomIn*5);
-	int x = nodes[controlindex+1].x*maxZoomIn;
-	int y = nodes[controlindex+1].y*maxZoomIn;
+	int x = nodes[controlIndex+1].x*maxZoomIn;
+	int y = nodes[controlIndex+1].y*maxZoomIn;
 	if(frameCount == 0){
 		if(netMode) addNetCircle(x, y, size);
 		setColorWhite();
@@ -620,7 +620,7 @@ static char taskguycontrol(void* where){
 			if(!data->exists[i]) continue;
 			node* current = nodes + myNodes[i];
 			if(current->dead){
-				if(data->controltype != -1 && data->connectedLeg==i) taskguycontroldisconnect(data);
+				if(data->controlType != -1 && data->connectedLeg==i) taskguycontroldisconnect(data);
 				data->exists[i] = 0;
 				data->injured = 1;
 			}else{
@@ -646,7 +646,7 @@ static char taskguycontrol(void* where){
 	}
 	char* myKeys = data->myKeys;
 	if(!data->lastpress&&myKeys[4]){
-		if(data->controltype != -1){
+		if(data->controlType != -1){
 			nodes[myNodes[data->connectedLeg]].connections[0].dead = 1;
 			taskguycontroldisconnect(data);
 		}else{
@@ -674,15 +674,15 @@ static char taskguycontrol(void* where){
 				}
 			}
 			if(data->controlData != NULL){
-				data->controltype = data->controlData->type;
-				data->controlindex = data->controlData->where;
-				newConnection(myNodes[data->connectedLeg], 0, data->controlindex, (double)0.8, (int)nodes[data->controlindex].size+8, 10, 0.8);
+				data->controlType = data->controlData->type;
+				data->controlIndex = data->controlData->where;
+				newConnection(myNodes[data->connectedLeg], 0, data->controlIndex, (double)0.8, (int)nodes[data->controlIndex].size+8, 10, 0.8);
 				data->controlData->inUse = 1;
-				if(data->controltype == 0){
-						killNode(data->controlindex);
+				if(data->controlType == 0){
+						killNode(data->controlIndex);
 						taskguycontroldisconnect(data);
-				}else if(data->controltype == 2){
-					connection* con = nodes[data->controlindex].connections;
+				}else if(data->controlType == 2){
+					connection* con = nodes[data->controlIndex].connections;
 					if(!con->dead) con->preflength -= 2*(con->preflength - con->midlength);
 					taskguycontroldisconnect(data);
 					nodes[myNodes[data->connectedLeg]].connections[0].dead = 1;
@@ -690,8 +690,8 @@ static char taskguycontrol(void* where){
 			}
 		}
 	}
-	else if(data->controltype != -1 && (nodes[myNodes[data->connectedLeg]].connections[0].dead || nodes[data->controlindex].dead)){taskguycontroldisconnect(data);}
-	switch(data->controltype){
+	else if(data->controlType != -1 && (nodes[myNodes[data->connectedLeg]].connections[0].dead || nodes[data->controlIndex].dead)){taskguycontroldisconnect(data);}
+	switch(data->controlType){
 	case 100:
 		toolBigLegs(data);
 		break;
@@ -715,7 +715,7 @@ static char taskguycontrol(void* where){
 		data->lastpress++;
 		if(data->lastpress == (int)(30/SPEEDFACTOR)){
 			if(myKeys[5]){
-				if(data->controltype!=-1) taskguycontroldisconnect(data);
+				if(data->controlType!=-1) taskguycontroldisconnect(data);
 				taskguycontrolcreateBody(data);
 			}else{
 				data->respawnx=data->centerX;
@@ -740,7 +740,7 @@ void taskguycontroladd(int x, int y){
 	current->dataUsed = 0;//Set to 0 so it isn't free'd when the task exits.
 	current->data = data;
 	data->myKeys = masterKeys+NUMKEYS*playerNum;
-	data->controltype = -1;
+	data->controlType = -1;
 	data->lastpress = 0;
 
 	int ix, controlMode = requests[playerNum].controlMode;
