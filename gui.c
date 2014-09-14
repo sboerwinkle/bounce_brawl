@@ -22,7 +22,7 @@
 struct menuItem;
 
 typedef struct menu{
-	struct menu* parent;
+	struct menuItem *parent;
 	int numItems;
 	struct menuItem *items;
 }menu;
@@ -42,7 +42,7 @@ typedef struct menuItem{
 } menuItem; // HAHAHA Obfuscation!!!
 
 
-menu* currentMenu;
+menuItem* currentMenu;
 menuItem* currentLevel; // can't be a level*, because we need access to achievementStuff
 
 static SDL_Window* window;
@@ -70,16 +70,26 @@ char frameCount = SHOWEVERYNTHFRAME;
 
 FILE* logFile;
 
-/*static void freeMenu(menu* who){
-	int i = who->numItems-1;
-	for(; i >= 0; i--){
-		if(who->items[i].menu) freeMenu(&who->items[i].contents.menu);
+static void checkMenuAchievements(menuItem* who){
+	if(who->menu == 0){
+		puts("Wtf??...");
+		return;
 	}
-	free(who->items);
-}*/
+	int worst = 2;
+	int i = who->contents.menu.numItems-1;
+	for(; i >= 0; i--){
+		if(who->contents.menu.items[i].achievementUnlocked < worst){
+			worst = who->contents.menu.items[i].achievementUnlocked;
+			if(worst == who->achievementUnlocked) return;
+		}
+	}who->achievementUnlocked = worst;
+	if(who->contents.menu.parent) checkMenuAchievements(who->contents.menu.parent);
+	who->achievementUnlocked = worst;
+	if(who->contents.menu.parent) checkMenuAchievements(who->contents.menu.parent);
+}
 
-static menu* addMenuMenu(menu* parent, int numItems, char* text){
-	menuItem* item = parent->items+parent->numItems++;
+static menuItem* addMenuMenu(menuItem* parent, int numItems, char* text){
+	menuItem* item = parent->contents.menu.items+parent->contents.menu.numItems++;
 	item->menu = 1;
 	menu* m = &item->contents.menu;
 	m->parent = parent;
@@ -88,11 +98,11 @@ static menu* addMenuMenu(menu* parent, int numItems, char* text){
 	item->text = text;
 	item->achievementText = "COMPLETE ALL SUB-ACHIEVEMENTS";
 	item->achievementUnlocked = 0;
-	return m;
+	return item;
 }
 
-static void addMenuLevel(menu* where, void (*initFunc)(), int (*achievementFunc)(), char* text, char* achievementText){
-	menuItem* item = where->items+where->numItems++;
+static void addMenuLevel(menuItem* where, void (*initFunc)(), int (*achievementFunc)(), char* text, char* achievementText){
+	menuItem* item = where->contents.menu.items+where->contents.menu.numItems++;
 	item->menu = 0;
 	item->contents.level.initFunc = initFunc;
 	item->contents.level.achievementFunc = achievementFunc;
@@ -155,21 +165,21 @@ static void paint(){
 			int i = 0;
 			line[3]=':';
 			line[4]=' ';
-			for(; i < currentMenu->numItems; i++){
+			for(; i < currentMenu->contents.menu.numItems; i++){
 				line[1] = '1' + i;
-				if(currentMenu->items[i].achievementUnlocked){
+				if(currentMenu->contents.menu.items[i].achievementUnlocked){
 					line[0] = line[2] = 15;
 				}else{
 					line[0] = line[2] = ' ';
 				}
-				if(2==currentMenu->items[i].achievementUnlocked){
+				if(2==currentMenu->contents.menu.items[i].achievementUnlocked){
 					setColorFromHue((i%6)*64);
 				}else{
 					setColorWhite();
 				}
 				strcpy(line + 5, achievementView?
-							currentMenu->items[i].achievementText:
-							currentMenu->items[i].text);
+							currentMenu->contents.menu.items[i].achievementText:
+							currentMenu->contents.menu.items[i].text);
 				simpleDrawText(i, line);
 			}
 			setColorWhite();
@@ -305,12 +315,12 @@ static void spKeyAction(int bit, char pressed){
 			}
 			if(bit == SDLK_ESCAPE){
 				nothingChanged = 0;
-				if(currentMenu->parent==NULL){
+				if(currentMenu->contents.menu.parent==NULL){
 					if(netMode) stopHosting();
 					else inputMode = -1;
 					return;
 				}
-				currentMenu = currentMenu->parent;
+				currentMenu = currentMenu->contents.menu.parent;
 				return;
 			}
 			if(bit == SDLK_p){
@@ -360,10 +370,10 @@ static void spKeyAction(int bit, char pressed){
 				return;
 			}
 			bit = getDigit(bit);
-			if(bit > 0 && bit-1 < currentMenu->numItems){
-				menuItem* choice = currentMenu->items+bit-1;
+			if(bit > 0 && bit-1 < currentMenu->contents.menu.numItems){
+				menuItem* choice = currentMenu->contents.menu.items+bit-1;
 				if(choice->menu){
-					currentMenu = &choice->contents.menu;
+					currentMenu = choice;
 					nothingChanged = 0;
 					return;
 				}
@@ -538,7 +548,10 @@ static void spKeyAction(int bit, char pressed){
 	if(bit == SDLK_ESCAPE){
 		if(!pressed) return;
 		int res = (*currentLevel->contents.level.achievementFunc)();
-		if(res > currentLevel->achievementUnlocked) currentLevel->achievementUnlocked = res;
+		if(res > currentLevel->achievementUnlocked){
+			currentLevel->achievementUnlocked = res;
+			checkMenuAchievements(currentMenu);
+		}
 		stopField();
 		if(netMode) stopHosting();
 		mode = 0;
@@ -574,20 +587,25 @@ static void spKeyAction(int bit, char pressed){
 	}
 }
 
-static void loadAchievementsSub(menu* m, FILE* f){
-	int i = 0;
+static int loadAchievementsSub(menuItem* m, FILE* f){
 	int c;
-	for(; i < m->numItems; i++){
-		if(m->items[i].menu) loadAchievementsSub(&m->items[i].contents.menu, f);
-		else{
-			c = fgetc(f);
-			if(c==EOF) return;
-			m->items[i].achievementUnlocked = c;
+	if(m->menu){
+		int i = m->contents.menu.numItems-1;
+		c=2;
+		int d;
+		for(; i >= 0; i--){
+			d=loadAchievementsSub(m->contents.menu.items+i, f);
+			if(d<c) c = d;
 		}
+	}else{
+		c = fgetc(f);
+		if(c==EOF) return 0;
 	}
+	m->achievementUnlocked = c;
+	return c;
 }
 
-static void loadAchievements(menu* m){
+static void loadAchievements(menuItem* m){
 	FILE* f;
 	if(0 >= (f = fopen("achievements.dat", "r"))){
 		fputs("Achievements file not present!\n", logFile);
@@ -598,58 +616,59 @@ static void loadAchievements(menu* m){
 	fputs("Achievements Loaded\n", logFile);
 }
 
-static void saveAchievementsSub(menu* m, FILE* f){
-	int i = 0;
-	for(; i < m->numItems; i++){
-		if(m->items[i].menu) saveAchievementsSub(&m->items[i].contents.menu, f);
-		else{
-			fputc(m->items[i].achievementUnlocked, f);
+static void saveAchievementsSub(menuItem* m, FILE* f){
+	if(m->menu){
+		int i = m->contents.menu.numItems-1;
+		for(; i >= 0; i--){
+			saveAchievementsSub(m->contents.menu.items+i, f);
 		}
+		free(m->contents.menu.items);
+	}else{
+		fputc(m->achievementUnlocked, f);
 	}
-	free(m->items);
 }
 
-static void saveAchievements(menu* m){
+static void saveAchievements(menuItem* m){
 	FILE* f = fopen("achievements.dat", "w");
 	saveAchievementsSub(m, f);
-	fputs("Achievements Saved\n", logFile);
 	fclose(f);
+	fputs("Achievements Saved\n", logFile);
 }
 
 int main(int argc, char** argv){
 	logFile = fopen("log.txt", "w");
-	fputs("Everything looks good from here\n", logFile);
-	menu topMenu;
+	fputs("Everything looks good from here\n", logFile); // Rest in peace, Wash.
+	menuItem topMenu = {.achievementUnlocked = 0, .menu = 1};
 	currentMenu = &topMenu;
-	topMenu.parent = NULL;
-	topMenu.numItems = 0;
-	topMenu.items = malloc(7*sizeof(menuItem));
-	menu* planetsMenu   = addMenuMenu(&topMenu, 3, "PLANET STAGES...");
-	menu* flatMenu      = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
-	menu* suspendedMenu = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
-	menu* mechMenu      = addMenuMenu(&topMenu, 3, "MECHS...");
+	topMenu.contents.menu.parent = NULL;
+	topMenu.contents.menu.numItems = 0;
+	topMenu.contents.menu.items = malloc(7*sizeof(menuItem));
+	menuItem* planetsMenu   = addMenuMenu(&topMenu, 3, "PLANET STAGES...");
+	menuItem* flatMenu      = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
+	menuItem* suspendedMenu = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
+	menuItem* mechMenu      = addMenuMenu(&topMenu, 3, "MECHS...");
 //	addMenuLevel(&topMenu, lvltipsy, "UNSTABLE STAGE");
 //	addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
-	addMenuLevel(&topMenu, lvlsumo, achieveLazy, "SUMO", "DESTRUCTION");
-	addMenuLevel(&topMenu, lvlcave, achieveLazy, "CAVE", "SPELUNKER");
-	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
+	addMenuLevel(&topMenu, lvlsumo, achieveFlawless, "SUMO", "DESTRUCTION");
+	addMenuLevel(&topMenu, lvlcave, achieveFlawless, "CAVE", "SPELUNKER");
+	addMenuLevel(&topMenu, lvltutorial, achieveFlawless, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
-	addMenuLevel(planetsMenu, lvlplanet, achieveLazy, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
-	addMenuLevel(planetsMenu, lvl3rosette, achieveLazy, "3-ROSETTE", "POTENTIAL WELL");
-	addMenuLevel(planetsMenu, lvlbigplanet, achieveLazy, "BIG PLANET", "EVERYTHING BUT THE SEED");
+	addMenuLevel(planetsMenu, lvlplanet, achieveFlawless, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
+	addMenuLevel(planetsMenu, lvl3rosette, achieveFlawless, "3-ROSETTE", "POTENTIAL WELL");
+	addMenuLevel(planetsMenu, lvlbigplanet, achieveFlawless, "BIG PLANET", "EVERYTHING BUT THE SEED");
 
-	addMenuLevel(flatMenu, lvltest, achieveLazy, "PLAIN STAGE", "PACIFISM");
-	addMenuLevel(flatMenu, lvlsurvive, achieveLazy, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
-	addMenuLevel(flatMenu, lvlbuilding, achieveLazy, "BUILDING STAGE", "MOUNTAINEER");
-	addMenuLevel(flatMenu, lvlboulder, achieveLazy, "BOULDER", "GRAVEL");
+	addMenuLevel(flatMenu, lvltest, achieveFlawless, "PLAIN STAGE", "PACIFISM");
+	addMenuLevel(flatMenu, lvlsurvive, achieveFlawless, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
+	addMenuLevel(flatMenu, lvlbuilding, achieveFlawless, "BUILDING STAGE", "MOUNTAINEER");
+	addMenuLevel(flatMenu, lvlboulder, achieveFlawless, "BOULDER", "GRAVEL");
 
-	addMenuLevel(mechMenu, lvlmech, achieveLazy, "MAN VS MECH", "BEACHED");
-	addMenuLevel(mechMenu, lvlmechgun, achieveLazy, "GUN VS MECH", "MOAR PACIFISM");
-	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
+	addMenuLevel(mechMenu, lvlmech, achieveFlawless, "MAN VS MECH", "BEACHED");
+	addMenuLevel(mechMenu, lvlmechgun, achieveFlawless, "GUN VS MECH", "MOAR PACIFISM");
+	addMenuLevel(mechMenu, lvlmechmech, achieveFlawless, "MECH VS MECH", "CHANGE PLACES!");
 
-	addMenuLevel(suspendedMenu, lvlgardens, achieveLazy, "HANGING GARDENS", "FLOOD");
-	addMenuLevel(suspendedMenu, lvlswing, achieveLazy, "WALLED STAGE", "MOAR DESTRUCTION");
-	addMenuLevel(suspendedMenu, lvldrop, achieveLazy, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
+	addMenuLevel(suspendedMenu, lvlgardens, achieveFlawless, "HANGING GARDENS", "FLOOD");
+	addMenuLevel(suspendedMenu, lvlswing, achieveFlawless, "WALLED STAGE", "MOAR DESTRUCTION");
+	addMenuLevel(suspendedMenu, lvldrop, achieveFlawless, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
 	
 	fputs("Menu Created\n", logFile);
 
