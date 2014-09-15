@@ -3,4 +3,8 @@ extern int achieveLazy();
 
 extern int achieveFlawless();
 
-extern int achieveFlood();
+extern int achieveGardens();
+
+extern int achieveCave();
+
+extern int achieveBuilding();

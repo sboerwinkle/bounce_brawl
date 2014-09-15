@@ -650,7 +650,7 @@ int main(int argc, char** argv){
 //	addMenuLevel(&topMenu, lvltipsy, "UNSTABLE STAGE");
 //	addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
 	addMenuLevel(&topMenu, lvlsumo, achieveLazy, "SUMO", "DESTRUCTION");
-	addMenuLevel(&topMenu, lvlcave, achieveLazy, "CAVE", "SPELUNKER");
+	addMenuLevel(&topMenu, lvlcave, achieveCave, "CAVE", "SPELUNKER");
 	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
 	addMenuLevel(planetsMenu, lvlplanet, achieveLazy, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
@@ -659,14 +659,14 @@ int main(int argc, char** argv){
 
 	addMenuLevel(flatMenu, lvltest, achieveLazy, "PLAIN STAGE", "PACIFISM");
 	addMenuLevel(flatMenu, lvlsurvive, achieveLazy, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
-	addMenuLevel(flatMenu, lvlbuilding, achieveLazy, "BUILDING STAGE", "MOUNTAINEER");
+	addMenuLevel(flatMenu, lvlbuilding, achieveBuilding, "BUILDING STAGE", "URBAN MOUNTAINEER");
 	addMenuLevel(flatMenu, lvlboulder, achieveLazy, "BOULDER", "GRAVEL");
 
 	addMenuLevel(mechMenu, lvlmech, achieveLazy, "MAN VS MECH", "BEACHED");
 	addMenuLevel(mechMenu, lvlmechgun, achieveLazy, "GUN VS MECH", "MOAR PACIFISM");
 	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
 
-	addMenuLevel(suspendedMenu, lvlgardens, achieveFlood, "HANGING GARDENS", "FLOOD");
+	addMenuLevel(suspendedMenu, lvlgardens, achieveGardens, "HANGING GARDENS", "FLOOD");
 	addMenuLevel(suspendedMenu, lvlswing, achieveLazy, "WALLED STAGE", "MOAR DESTRUCTION");
 	addMenuLevel(suspendedMenu, lvldrop, achieveLazy, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
 	
