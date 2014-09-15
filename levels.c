@@ -638,7 +638,7 @@ newNodeLong(346, 321, 0.088000, 0.082000, -.155, .184, size, mass, 1);
 newConnectionLong(46, 0, 47, 1.000000, 10, 10, tol, str);
 newNodeLong(349, 308, -0.983000, 0.827000, .123, -1.702, size, mass, 0);
 }
-void lvlswing(){
+void lvlwalled(){
 	if(players > 2) players = 2;
 	initField();
 	maxZoomIn = 2.55;

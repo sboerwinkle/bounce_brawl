@@ -38,3 +38,19 @@ int achieveBuilding(){
 	}
 	return 0;
 }
+
+static int achieveDestruction(numAcceptable){
+	int alive = -4*players-numAcceptable;
+	int i = 0;
+	for(; i < numNodes; i++){
+		if(!nodes[i].dead)
+			if(0==alive++) return 0;
+	}
+	return 1;
+}
+
+int achieveSumo(){return achieveDestruction(70);}
+
+int achieveDrop(){return achieveDestruction(20);}
+
+int achieveWalled(){return achieveDestruction(20);}

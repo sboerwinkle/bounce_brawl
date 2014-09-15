@@ -16,7 +16,7 @@ extern void lvltipsy();
 
 extern void lvltilt();
 
-extern void lvlswing();
+extern void lvlwalled();
 
 extern void lvldrop();
 

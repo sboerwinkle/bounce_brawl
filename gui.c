@@ -649,7 +649,7 @@ int main(int argc, char** argv){
 	menuItem* mechMenu      = addMenuMenu(&topMenu, 3, "MECHS...");
 //	addMenuLevel(&topMenu, lvltipsy, "UNSTABLE STAGE");
 //	addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
-	addMenuLevel(&topMenu, lvlsumo, achieveLazy, "SUMO", "DESTRUCTION");
+	addMenuLevel(&topMenu, lvlsumo, achieveSumo, "SUMO", "DESTRUCTION");
 	addMenuLevel(&topMenu, lvlcave, achieveCave, "CAVE", "SPELUNKER");
 	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
@@ -667,8 +667,8 @@ int main(int argc, char** argv){
 	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
 
 	addMenuLevel(suspendedMenu, lvlgardens, achieveGardens, "HANGING GARDENS", "FLOOD");
-	addMenuLevel(suspendedMenu, lvlswing, achieveLazy, "WALLED STAGE", "MOAR DESTRUCTION");
-	addMenuLevel(suspendedMenu, lvldrop, achieveLazy, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
+	addMenuLevel(suspendedMenu, lvlwalled, achieveWalled, "WALLED STAGE", "MOAR DESTRUCTION");
+	addMenuLevel(suspendedMenu, lvldrop, achieveDrop, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
 	
 	fputs("Menu Created\n", logFile);
 
