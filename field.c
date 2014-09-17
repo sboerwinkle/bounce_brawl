@@ -15,16 +15,9 @@ int numNodes;
 static char *corpses;//prevents a node from being placed in the spot of a recently slain node, preventing confusion.
 tool *tools;
 int numTools;
-static node *current;//All these are global so they aren't reallocated every tick. Not sure how useful that is, but whatever.
-static node *current2;
-static double deltaX;
-static double deltaY;
-static double forceNewY;
-static double currlengthNewX;
-static double unx;
-static double uny;
-double maxZoomIn;
 int zoom;
+double maxZoomIn;
+static node *current;
 
 taskguycontroldata* guyDatas;
 int playerNum;
@@ -124,9 +117,13 @@ float getScreenY(int y){
 }
 
 void run(){
-//	SDL_SetRenderDrawColor(screen, 0, 0, 0, 255);
-//	SDL_Rect a = {.x=0, .y=0, .w=500, .h=500};
-//	SDL_RenderFillRect(screen, &a);
+	node *current2;
+	double deltaX;
+	double deltaY;
+	double forceNewY;
+	double currlengthNewX;
+	double unx;
+	double uny;
 	int i;
 	int j = 0;
 	//decay the corpses
