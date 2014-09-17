@@ -54,3 +54,11 @@ int achieveSumo(){return achieveDestruction(70);}
 int achieveDrop(){return achieveDestruction(20);}
 
 int achieveWalled(){return achieveDestruction(20);}
+
+int achieveBoulder(){
+	int i = 0;
+	for(; i < numNodes; i++){
+		if(!nodes[i].dead && 3==nodes[i].mass) return 0;
+	}
+	return 1;
+}

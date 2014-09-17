@@ -660,7 +660,7 @@ int main(int argc, char** argv){
 	addMenuLevel(flatMenu, lvltest, achieveLazy, "PLAIN STAGE", "PACIFISM");
 	addMenuLevel(flatMenu, lvlsurvive, achieveLazy, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
 	addMenuLevel(flatMenu, lvlbuilding, achieveBuilding, "BUILDING STAGE", "URBAN MOUNTAINEER");
-	addMenuLevel(flatMenu, lvlboulder, achieveLazy, "BOULDER", "GRAVEL");
+	addMenuLevel(flatMenu, lvlboulder, achieveBoulder, "BOULDER", "NO BOULDER");
 
 	addMenuLevel(mechMenu, lvlmech, achieveLazy, "MAN VS MECH", "BEACHED");
 	addMenuLevel(mechMenu, lvlmechgun, achieveLazy, "GUN VS MECH", "MOAR PACIFISM");
