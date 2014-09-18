@@ -16,3 +16,7 @@ extern int achieveDrop();
 extern int achieveWalled();
 
 extern int achieveBoulder();
+
+extern int achievePlain();
+
+extern int achieveGunMech();

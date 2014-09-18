@@ -657,13 +657,13 @@ int main(int argc, char** argv){
 	addMenuLevel(planetsMenu, lvl3rosette, achieveLazy, "3-ROSETTE", "POTENTIAL WELL");
 	addMenuLevel(planetsMenu, lvlbigplanet, achieveLazy, "BIG PLANET", "EVERYTHING BUT THE SEED");
 
-	addMenuLevel(flatMenu, lvltest, achieveLazy, "PLAIN STAGE", "PACIFISM");
+	addMenuLevel(flatMenu, lvltest, achievePlain, "PLAIN STAGE", "PACIFISM");
 	addMenuLevel(flatMenu, lvlsurvive, achieveLazy, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
 	addMenuLevel(flatMenu, lvlbuilding, achieveBuilding, "BUILDING STAGE", "URBAN MOUNTAINEER");
 	addMenuLevel(flatMenu, lvlboulder, achieveBoulder, "BOULDER", "NO BOULDER");
 
 	addMenuLevel(mechMenu, lvlmech, achieveLazy, "MAN VS MECH", "BEACHED");
-	addMenuLevel(mechMenu, lvlmechgun, achieveLazy, "GUN VS MECH", "MOAR PACIFISM");
+	addMenuLevel(mechMenu, lvlmechgun, achieveGunMech, "GUN VS MECH", "MOAR PACIFISM");
 	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
 
 	addMenuLevel(suspendedMenu, lvlgardens, achieveGardens, "HANGING GARDENS", "FLOOD");

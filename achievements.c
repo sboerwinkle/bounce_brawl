@@ -62,3 +62,19 @@ int achieveBoulder(){
 	}
 	return 1;
 }
+
+int achievePlain(){
+	int i = 0;
+	for(; i < numNodes; i++){
+		if(!nodes[i].dead && 1==nodes[i].mass) return 0;
+	}
+	return 1;
+}
+
+int achieveGunMech(){
+	int i = 0;
+	for(; i < numNodes; i++){
+		if(!nodes[i].dead && (18==nodes[i].mass || 1==nodes[i].mass)) return 0;
+	}
+	return 1;
+}
