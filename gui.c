@@ -653,7 +653,7 @@ int main(int argc, char** argv){
 	addMenuLevel(&topMenu, lvlcave, achieveCave, "CAVE", "SPELUNKER");
 	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
-	addMenuLevel(planetsMenu, lvlplanet, achieveLazy, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
+	addMenuLevel(planetsMenu, lvlplanet, achievePlanet, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
 	addMenuLevel(planetsMenu, lvl3rosette, achieveLazy, "3-ROSETTE", "POTENTIAL WELL");
 	addMenuLevel(planetsMenu, lvlbigplanet, achieveLazy, "BIG PLANET", "EVERYTHING BUT THE SEED");
 

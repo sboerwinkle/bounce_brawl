@@ -91,3 +91,13 @@ int achieveAsteroids(){
 	}
 	return 0;
 }
+
+int achievePlanet(){
+	int i = 0;
+	for(; i < players; i++){
+		double x = guyDatas[i].centerX;
+		double y = guyDatas[i].centerY;
+		if(sqrt(x*x + y*y) > 390) return 1;
+	}
+	return 0;
+}

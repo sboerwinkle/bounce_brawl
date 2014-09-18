@@ -22,3 +22,5 @@ extern int achievePlain();
 extern int achieveGunMech();
 
 extern int achieveAsteroids();
+
+extern int achievePlanet();
