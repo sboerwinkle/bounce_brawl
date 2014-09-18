@@ -78,3 +78,16 @@ int achieveGunMech(){
 	}
 	return 1;
 }
+
+int achieveAsteroids(){
+	int i = 0, j;
+	for(; i < numNodes; i++){
+		if(nodes[i].dead || nodes[i].size!=10) continue;
+		for(j=0; j<players; j++){
+			double dx = guyDatas[j].centerX-nodes[i].x;
+			double dy = guyDatas[j].centerY-nodes[i].y;
+			if(dx*dx+dy*dy <= 100) return 1;
+		}
+	}
+	return 0;
+}

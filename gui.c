@@ -658,7 +658,7 @@ int main(int argc, char** argv){
 	addMenuLevel(planetsMenu, lvlbigplanet, achieveLazy, "BIG PLANET", "EVERYTHING BUT THE SEED");
 
 	addMenuLevel(flatMenu, lvltest, achievePlain, "PLAIN STAGE", "PACIFISM");
-	addMenuLevel(flatMenu, lvlsurvive, achieveLazy, "ASTEROID SURVIVAL", "BETTER THAN THE DINOSAURS");
+	addMenuLevel(flatMenu, lvlsurvive, achieveAsteroids, "ASTEROID SURVIVAL", "OM NOM ASTEROID");
 	addMenuLevel(flatMenu, lvlbuilding, achieveBuilding, "BUILDING STAGE", "URBAN MOUNTAINEER");
 	addMenuLevel(flatMenu, lvlboulder, achieveBoulder, "BOULDER", "NO BOULDER");
 
