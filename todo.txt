@@ -1,10 +1,14 @@
 Achievements
-Space windmills!!!
-Why not:
+Add comments, separate readme for creating levels
+Clean up code
+Build for Windows
+Network test. Do I need to beat my brains out on a keyboard?
+Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
++sourceforge
+Content:
+  Space windmills!!!
   Beanstalk
   Spaceships
   Warehouse w/ grabber
-Add comments, separate readme for creating levels
-source forge
-
-Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
+  dis-integration ray
+  Very wide field, rough center, CTF, dropships.
