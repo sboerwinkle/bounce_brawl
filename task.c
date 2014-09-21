@@ -721,6 +721,7 @@ static char taskguycontrol(void* where){
 				data->respawnx=data->centerX;
 				data->respawny=data->centerY;
 			}
+			data->lastpress = 1; // So we can reset the counter for respawn without making it think that it's a "new" press to evaluate, e.g. try to connect to things again.
 		}
 	}else
 		data->lastpress = 0;

@@ -654,7 +654,7 @@ int main(int argc, char** argv){
 	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
 
 	addMenuLevel(planetsMenu, lvlplanet, achievePlanet, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
-	addMenuLevel(planetsMenu, lvl3rosette, achieveLazy, "3-ROSETTE", "POTENTIAL WELL");
+	addMenuLevel(planetsMenu, lvl3rosette, achieveRosette, "3-ROSETTE", "CONTIGUOUS LANDMASS");
 	addMenuLevel(planetsMenu, lvlbigplanet, achieveLazy, "BIG PLANET", "EVERYTHING BUT THE SEED");
 
 	addMenuLevel(flatMenu, lvltest, achievePlain, "PLAIN STAGE", "PACIFISM");

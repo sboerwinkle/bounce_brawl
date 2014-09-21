@@ -101,3 +101,25 @@ int achievePlanet(){
 	}
 	return 0;
 }
+
+static void achieveRosetteHelper(int ix){
+	nodes[ix].dead = 2;
+	int x = nodes[ix].x;
+	int y = nodes[ix].y;
+	int r = nodes[ix].size;
+	int i = 0;
+	for(; i < numNodes; i++){
+		if(nodes[i].dead) continue;
+		double dx = nodes[i].x - x;
+		double dy = nodes[i].y - y;
+		if(sqrt(dx*dx + dy*dy) - nodes[i].size - r < 10) achieveRosetteHelper(i);
+	}
+}
+
+int achieveRosette(){
+	int i;
+	for(i=0; i<numNodes-1 && nodes[i].dead; i++);
+	achieveRosetteHelper(i);
+	for(i=0; i<numNodes; i++) if(nodes[i].dead == 0) return 0;
+	return 1;
+}

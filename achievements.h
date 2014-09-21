@@ -24,3 +24,5 @@ extern int achieveGunMech();
 extern int achieveAsteroids();
 
 extern int achievePlanet();
+
+extern int achieveRosette();
