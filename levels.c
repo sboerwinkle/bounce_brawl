@@ -261,10 +261,10 @@ void lvltutorial(){
 	taskgravityadd();
 	taskincineratoradd(1550);
 	tasktextadd(-40, -150, "Press 'esc' at any time to return to main menu.");
-	tasktextadd(250, -170, "Hold 'X' to set your spawn\nHold 'X'+'Z' to respawn");
+	tasktextadd(250, -170, "Hold 'Left Shift' to set your spawn\nHold 'Left Shift'+'Caps Lock' to respawn");
 	tasktextadd(-30, -90, "Welcome!\nUse WASD to move.\nI'd try 'A' first.\nYou'll get the hang of it.");
-	tasktextadd(230, -90, "Try holding 'Z' with\n'A' or 'D' to\nroll.");
-	tasktextadd(500, -90, "Press 'X' to interact with\nobjects marked with squares.\nPress 'Z' to fire the gun.");
+	tasktextadd(230, -90, "Try holding 'Caps Lock'\nwith 'A' or 'D' to\nroll.");
+	tasktextadd(500, -90, "Press 'Left Shift' to interact with\nobjects marked with squares.\nPress 'Caps Lock' to fire this gun.");
 	newNode(650, 140+20*sqrt3*2, 16, 150, 4);
 	int hexArg[] = {H,0,0,0,H,0,0,\
 			 H,0,0,0,H,H,H,\

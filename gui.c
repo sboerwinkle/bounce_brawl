@@ -56,8 +56,8 @@ playerRequest requests[10];
 
 char masterKeys[NUMKEYS*10];
 int pIndex[] = {0, 1};
-int pKeys[2][NUMKEYS] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_x, SDLK_z},\
-	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RCTRL, SDLK_RSHIFT}};
+int pKeys[2][NUMKEYS] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_CAPSLOCK, SDLK_LSHIFT},\
+	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RSHIFT, SDLK_RCTRL}};
 int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 
 char mode = 0, cheats = 0;
@@ -231,7 +231,7 @@ static void paint(){
 		}else if(inputMode == 4){
 			simpleDrawText(0, "ARROW KEYS TO CHANGE SELECTION");
 			simpleDrawText(1, "SPACE OR ENTER TO SET KEY");
-			char *(text[NUMKEYS]) = {"UP:      ", "RIGHT:   ", "DOWN:    ", "LEFT:    ", "INTERACT:", "ACTION:  "};
+			char *(text[NUMKEYS]) = {"UP:      ", "RIGHT:   ", "DOWN:    ", "LEFT:    ", "ACTION:  ", "INTERACT:"};
 			int i, j;
 			for(j = 0; j < 2; j++)
 				for(i = 0; i < NUMKEYS; i++){

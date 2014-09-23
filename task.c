@@ -465,7 +465,7 @@ static void taskguycontroldoLegs(taskguycontroldata* data){
 	char* myKeys = data->myKeys;
 //	short sl = 35;
 //	short ll = 49;
-	if(myKeys[5]){
+	if(myKeys[4]){
 		switch(data->controlType){
 			case 10:
 				taskguycontroldoGun(data);
@@ -546,7 +546,7 @@ static void toolBigLegs(taskguycontroldata* data){
 	int centerDists[4] = {42, 42, 42, 42};
 	int edgeLengths[4] = {60, 60, 60, 60};
 	int i = 0;
-	if(myKeys[5]){
+	if(myKeys[4]){
 		centerDists[0] = centerDists[1] = centerDists[2] = centerDists[3] = 74;
 		edgeLengths[0] = edgeLengths[1] = edgeLengths[2] = edgeLengths[3] = 105;
 	}else{
@@ -645,7 +645,7 @@ static char taskguycontrol(void* where){
 		}
 	}
 	char* myKeys = data->myKeys;
-	if(!data->lastpress&&myKeys[4]){
+	if(!data->lastpress&&myKeys[5]){
 		if(data->controlType != -1){
 			nodes[myNodes[data->connectedLeg]].connections[0].dead = 1;
 			taskguycontroldisconnect(data);
@@ -710,11 +710,11 @@ static char taskguycontrol(void* where){
 		drawCircle(getScreenX(data->respawnx*maxZoomIn-centerx), getScreenY(data->respawny*maxZoomIn-centery), (float)markSize/2/width2);
 	}
 
-	data->lastpressAction = myKeys[5];
-	if(myKeys[4]){
+	data->lastpressAction = myKeys[4];
+	if(myKeys[5]){
 		data->lastpress++;
 		if(data->lastpress == (int)(30/SPEEDFACTOR)){
-			if(myKeys[5]){
+			if(myKeys[4]){
 				if(data->controlType!=-1) taskguycontroldisconnect(data);
 				taskguycontrolcreateBody(data);
 			}else{
