@@ -100,7 +100,7 @@ void ensureCapacity(int index){					//Just gonna stand there and watch me burn
 	if(index < numNodes) return;				//That's alright because I like the way it hurts
 	index++;						//Just gonna stand there and hear me cry
 	nodes = realloc(nodes, index*sizeof(node));		//That's alright because I love the way you lie
-	corpses = realloc(corpses, index*sizeof(char));	//I love the way you lie
+	corpses = realloc(corpses, index*sizeof(char));		//I love the way you lie
 	int i = numNodes;					//Ohhh
 	for(; i < index; i++){					//I love the way you lie
 		nodes[i].dead = 1;

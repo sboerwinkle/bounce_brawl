@@ -118,8 +118,20 @@ static void achieveRosetteHelper(int ix){
 
 int achieveRosette(){
 	int i;
-	for(i=0; i<numNodes-1 && nodes[i].dead; i++);
+	for(i=0; i<numNodes && nodes[i].dead; i++);
+	if(i==numNodes){
+		puts("WTF HOW\nPlz contact me!\n-Simon");
+		return 1; // They killed everything. how.
+	}
 	achieveRosetteHelper(i);
 	for(i=0; i<numNodes; i++) if(nodes[i].dead == 0) return 0;
+	return 1;
+}
+
+int achieveBigPlanet(){
+	int i = 0;
+	for(; i < numTools; i++){
+		if(tools[i].type == 0 && tools[i].where != -1) return 0;
+	}
 	return 1;
 }
