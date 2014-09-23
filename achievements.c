@@ -102,29 +102,34 @@ int achievePlanet(){
 	return 0;
 }
 
-static void achieveRosetteHelper(int ix){
-	nodes[ix].dead = 2;
+static void achieveRosetteHelper(int ix, char* touching){
+	touching[ix] = 1;
 	int x = nodes[ix].x;
 	int y = nodes[ix].y;
 	int r = nodes[ix].size;
 	int i = 0;
 	for(; i < numNodes; i++){
-		if(nodes[i].dead) continue;
+		if(nodes[i].dead || touching[i]) continue;
 		double dx = nodes[i].x - x;
 		double dy = nodes[i].y - y;
-		if(sqrt(dx*dx + dy*dy) - nodes[i].size - r < 10) achieveRosetteHelper(i);
+		if(sqrt(dx*dx + dy*dy) - nodes[i].size - r < 10) achieveRosetteHelper(i, touching);
 	}
 }
 
 int achieveRosette(){
 	int i;
-	for(i=0; i<numNodes && nodes[i].dead; i++);
+	for(i=0; i<numNodes && (nodes[i].dead || nodes[i].size==6); i++);
 	if(i==numNodes){
-		puts("WTF HOW\nPlz contact me!\n-Simon");
-		return 1; // They killed everything. how.
+		puts("WTF HOW\nPlz contact me!\n-Simon"); // They killed everything. how.
+		return 1;
 	}
-	achieveRosetteHelper(i);
-	for(i=0; i<numNodes; i++) if(nodes[i].dead == 0) return 0;
+	char* touching = calloc(numNodes, 1);
+	achieveRosetteHelper(i, touching);
+	for(i=0; i<numNodes; i++) if(nodes[i].dead == 0 && touching[i] == 0 && nodes[i].size!=6){
+		free(touching);
+		return 0;
+	}
+	free(touching);
 	return 1;
 }
 
