@@ -580,19 +580,19 @@ static void toolBigLegs(taskguycontroldata* data){
 static int taskguycontrolcreateBody(taskguycontroldata* data){
 	int x = data->respawnx-10;
 	int y = data->respawny-10;
-	int i = newNode(x, y, 6, 2, 4);
-	int i1= newNode(x+20, y   , 6, 2, 1);
+	int i = newNode(x,    y,    6, 2, 4);
+	int i1= newNode(x+20, y,    6, 2, 1);
 	int i2= newNode(x+20, y+20, 6, 2, 3);
-	int i3= newNode(x+0 , y+20, 6, 2, 2);
+	int i3= newNode(x,    y+20, 6, 2, 2);
 	nodes[i ].connections[0].dead = 1;
 	nodes[i1].connections[0].dead = 1;
 	nodes[i2].connections[0].dead = 1;
 	nodes[i3].connections[0].dead = 1;
 	newConnectionLong(i2, 1, i3, 0.7, 20, 35, 23, .35);
 	newConnectionLong(i2, 2, i1, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   1, i3, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   2, i1, 0.7, 20, 35, 23, .35);
-	newConnectionLong(i,   3, i2, 0.7, 28, 49, 32.2, .35);
+	newConnectionLong(i,  1, i3, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,  2, i1, 0.7, 20, 35, 23, .35);
+	newConnectionLong(i,  3, i2, 0.7, 28, 49, 32.2, .35);
 	newConnectionLong(i3, 1, i1, 0.7, 28, 49, 32.2, .35);
 
 	data->myNodes[0] = i;
@@ -723,8 +723,9 @@ static char taskguycontrol(void* where){
 			}
 			data->lastpress = 1; // So we can reset the counter for respawn without making it think that it's a "new" press to evaluate, e.g. try to connect to things again.
 		}
-	}else
+	}else{
 		data->lastpress = 0;
+	}
 	return 0;
 }
 void taskguycontroladd(int x, int y){
@@ -754,7 +755,8 @@ void taskguycontroladd(int x, int y){
 			for(ix=0; ix<4; ix++){
 				current = nodes + myNodes[ix];
 				current->mass /= 2;
-				for(j=1; j<current->numConnections; j++) current->connections[j].force /= 2;
+				for(j=1; j<current->numConnections; j++)
+					current->connections[j].force /= 2;
 			}
 		}
 	}
@@ -820,8 +822,10 @@ static char taskincinerator(void* where){
 	register int i = 0;
 	long l = *(long*)where;
 	for(; i < numNodes; i++){
-		if(nodes[i].dead){continue;}
-		if(nodes[i].y - nodes[i].size > l) killNode(i);
+		if(nodes[i].dead)
+			continue;
+		if(nodes[i].y - nodes[i].size > l)
+			killNode(i);
 	}
 	return 0;
 }
