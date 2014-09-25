@@ -651,7 +651,7 @@ int main(int argc, char** argv){
 //	addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
 	addMenuLevel(&topMenu, lvlsumo, achieveSumo, "SUMO", "DESTRUCTION");
 	addMenuLevel(&topMenu, lvlcave, achieveCave, "CAVE", "SPELUNKER");
-	addMenuLevel(&topMenu, lvltutorial, achieveLazy, "TUTORIAL", "NO SHIRT, NO SHOES...");
+	addMenuLevel(&topMenu, lvltutorial, achieveTutorial, "TUTORIAL", "MORE DESTRUCTION");
 
 	addMenuLevel(planetsMenu, lvlplanet, achievePlanet, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
 	addMenuLevel(planetsMenu, lvl3rosette, achieveRosette, "3-ROSETTE", "CONTIGUOUS LANDMASS");

@@ -28,3 +28,5 @@ extern int achievePlanet();
 extern int achieveRosette();
 
 extern int achieveBigPlanet();
+
+extern int achieveTutorial();

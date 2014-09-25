@@ -140,3 +140,14 @@ int achieveBigPlanet(){
 	}
 	return 1;
 }
+
+int achieveTutorial(){
+	int count = 0;
+	int i = 0;
+	for(; i < numNodes; i++){
+		if(nodes[i].dead == 0 && nodes[i].size == 8){
+			if(++count == 9) return 0;
+		}
+	}
+	return 1;
+}
