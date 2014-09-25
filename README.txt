@@ -1,7 +1,7 @@
 
 
 		PLEASE! IT ISN'T LONG, I SWEAR! JUST READ THE THING!
-	Or at least to the part about 'twiddling performance'. It's useful.
+		          Or at least the next three lines
 
 
 First off: Haven't added a license or anything yet, but:
@@ -9,6 +9,18 @@ First off: Haven't added a license or anything yet, but:
 2. Feel free to distribute whatever. Just keep my name (Simon Boerwinkle) attached.
 
 So!
+
+Contents:
+=Installing
+=Compiling
+ -Linux
+ -Windows
+ -Twiddling Performance
+=Gameplay
+ -Networking
+ -Achievements
+=Levelcraft
+=Feedback/Contributing
 
 ====INSTALLING====
 
@@ -33,7 +45,7 @@ Ah yes. I remember the days when I had a Windows computer available to develop o
 
 I left the stuff in the Makefile. Assuming you have make, gcc, MinGW, etc., 'make windows' is the command to run. This may or may not work. I've added a lot since I had access to Windows.
 
-Unfortunately, since my development computer had an Intel graphics card and couldn't use openGL to save it's life, this is a rather graphically derpy version. All the circles are octogons, though it's rather efficient. If you want to fix it, feel free to try.
+Unfortunately, since my development computer had an Intel graphics card and couldn't use openGL to save it's life, this is a rather graphically derpy version. All the circles are octogons, though this makes it exra-speedy. If you want to fix it, feel free to try.
 
 ----Twiddling Performance----
 
@@ -45,7 +57,7 @@ Honestly performance shouldn't be an issue. The computer I developed this on is 
 
 ====GAMEPLAY====
 
-Press the buttons listed on the menu to do things. Play the tutorial. Enjoy yourself. No level progression or anything, but that's just too bad, now isn't it?
+Press the buttons listed on the menu to do things. Play the tutorial. Enjoy yourself. Fighting AIs or other people or going for all the achievements are sort of the intended purposes, but do what you want.
 
 ----Networking----
 
@@ -59,11 +71,36 @@ Bear in mind that every time you end a level, you will have to start hosting aga
 
 Go to manage players and make sure either "PLAYER 1" or both "PLAYER 1" and "PLAYER 2" are present, depending on how many people are playing on your end. Go to the main menu and hit the connect key. If everything goes well, you should quickly see "ACKNOWLEDGED". Then wait patiently.
 
-====FEEDBACK====
+----Achievements----
 
-You may email questions, comments, or anything else to sboerwinkle@gmail.com. Feel free to fork on Github (http://www.github.com/sboerwinkle/bound_brawl) and do stuff or however that works.
+Every level has an associated achievement. If you press 'v' on the menu, you can see what they're called - this should give you a hint as to what to do. A few things to note:
+
+The achievements are checked when you quit the level and return to the menu. The achievements don't care about what you did earlier, they only care about the state of the game on the instant that you quit. This means you'll never have to do something 5 times, etc. since that doesn't show up when you look at a snapshot of the game.
+
+Completing the achievement earns you a pair of stars by the level's name. Completing it with no one taking any damage earns you the stars, plus that level appears in technicolor. If you earn an entire technicolor menu, consider the game beaten. Congratulations, sir or madam - not many have the patience and skill for what you have accomplished.
+
+The achievements vary widely in difficulty. If you can't figure out how to beat it, you haven't wasted enough lives or tried the obvious. If you know how to beat it but always get hurt in the process, try a different achievement. I guarantee that they're all beatable (I've beaten them), but some are
+Just
+So
+Hard.
+
+Any and all cheats are acceptable for earning the achievements. Didn't know there were cheats, did you? That's your reward for reading this thing. All of them can be activated from the menu, where an indicator will appear. Additionally, some can be toggled in-game. You don't need the cheats to win (they aren't *that* great), but they can be helpful. F6 is the most fun, if not immediately obvious how it works. Credit to Adam Bliss for naming that one. All cheats are a single keystroke, which should make things pretty easy... except I plan for one more that involves the Konami code at the right time. We'll see if I get around to it.
+
+If you want to move the achievements.dat file so you can re-earn some of them, feel free. Not like I care. If you want to edit the achievements.dat file to give yourself a feeling of self-worth, bad karma. Bad Karma.
+
+====LEVELCRAFT====
+
+I plan to have a separate readme for all the ins and outs of creating new levels, as this can be a rewarding experience for those who have the time and programming skill. It does require programming, but even the novice should be able to, if nothing else, make some pretty hilarious changes to the masses of the particles :)
+
+====FEEDBACK/CONTRIBUTING====
+
+You may email questions, comments, fan mail, cute pictures of cats, intersting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding.
+
+If you wish to contribute to the project... Gosh, I'm flattered! I know Github has a way to fork projects, but I've never looked into it. Unless I'm mistaken, you fork it and then I authorize a merge when you're done. Rest assured, I'll do my best to honor the effort anyone is willing to put into this thing, even if I have to create a mod system! Shoot me an email, I guess.
 
 Thing's I'm looking for especially:
  -A better name. I hate naming things.
  -A working Windows port. Won't blame you if you just don't care enough.
  -Ideas that aren't bad. Bad ideas are just the worst.
+
+That last one was, of course, sarcasm. There are no stupid ideas, only stupid people.
