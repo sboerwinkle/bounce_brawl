@@ -77,9 +77,9 @@ Every level has an associated achievement. If you press 'v' on the menu, you can
 
 The achievements are checked when you quit the level and return to the menu. The achievements don't care about what you did earlier, they only care about the state of the game on the instant that you quit. This means you'll never have to do something 5 times, etc. since that doesn't show up when you look at a snapshot of the game.
 
-Completing the achievement earns you a pair of stars by the level's name. Completing it with no one taking any damage earns you the stars, plus that level appears in technicolor. If you earn an entire technicolor menu, consider the game beaten. Congratulations, sir or madam - not many have the patience and skill for what you have accomplished.
+Completing the achievement earns you a pair of stars by the level's name. Completing it with no one taking any damage or respawning earns you the stars, plus that level appears in technicolor. If you earn the entire technicolor base menu, consider the game beaten. Congratulations, sir or madam - not many have the patience and skill for what you have accomplished.
 
-The achievements vary widely in difficulty. If you can't figure out how to beat it, you haven't wasted enough lives or tried the obvious. If you know how to beat it but always get hurt in the process, try a different achievement. I guarantee that they're all beatable (I've beaten them), but some are
+The achievements vary widely in difficulty. If you can't figure out how to beat it, you either haven't wasted enough lives or haven't tried something interesting. If you know how to beat it but always get hurt in the process, try a different achievement. I guarantee that they're all beatable (I've beaten them), but some are
 Just
 So
 Hard.

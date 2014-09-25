@@ -46,9 +46,6 @@ menuItem* currentMenu;
 menuItem* currentLevel; // can't be a level*, because we need access to achievementStuff
 
 static SDL_Window* window;
-//static SDL_Renderer* render;
-//static SDL_Texture* texture;
-//uint32_t *screen;
 
 int players = 0;
 static int numRequests;
@@ -66,7 +63,6 @@ static char inputMode = 0;
 static char achievementView = 0;
 static char nothingChanged = 0;
 char frameCount = SHOWEVERYNTHFRAME;
-//static char frameFlag;
 
 FILE* logFile;
 
@@ -122,24 +118,24 @@ void myDrawScreen(){
 
 static char* modeToString(int ix){
 	switch(requests[ix].controlMode){
-		case -1:
-			return " NETWORKED PLAYER";
-		case 0:
-			return " PLAYER 1";
-		case 1:
-			return " PLAYER 2";
-		case 2:
-			return " WIMPY COMBAT AI";
-		case 3:
-			return " COMBAT AI";
-		case 4:
-			return " DIEHARD COMBAT AI";
-		case 5:
-			return " EXPERIMENTAL SPACE AI";
-		case 6:
-			return " DIEHARD EXPERIMENTAL SPACE AI";
-		default:
-			return " Error! Danger! Augh!";
+	case -1:
+		return " NETWORKED PLAYER";
+	case 0:
+		return " PLAYER 1";
+	case 1:
+		return " PLAYER 2";
+	case 2:
+		return " WIMPY COMBAT AI";
+	case 3:
+		return " COMBAT AI";
+	case 4:
+		return " DIEHARD COMBAT AI";
+	case 5:
+		return " EXPERIMENTAL SPACE AI";
+	case 6:
+		return " DIEHARD EXPERIMENTAL SPACE AI";
+	default:
+		return " Error! Danger! Augh!";
 	}
 }
 
@@ -262,7 +258,6 @@ static void paint(){
 			runTask(&firstTask);
 		}
 	}
-//	if(frameFlag) *screen = 0xFF8000FF;//Sort of orangy.
 }
 
 static int getDigit(int code){
@@ -662,7 +657,7 @@ int main(int argc, char** argv){
 	addMenuLevel(flatMenu, lvlbuilding, achieveBuilding, "BUILDING STAGE", "URBAN MOUNTAINEER");
 	addMenuLevel(flatMenu, lvlboulder, achieveBoulder, "BOULDER", "NO BOULDER");
 
-	addMenuLevel(mechMenu, lvlmech, achieveLazy, "MAN VS MECH", "BEACHED");
+	addMenuLevel(mechMenu, lvlmech, achieveManMech, "MAN VS MECH", "BEACHED");
 	addMenuLevel(mechMenu, lvlmechgun, achieveGunMech, "GUN VS MECH", "MOAR PACIFISM");
 	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
 

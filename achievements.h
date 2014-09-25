@@ -19,6 +19,8 @@ extern int achieveBoulder();
 
 extern int achievePlain();
 
+extern int achieveManMech();
+
 extern int achieveGunMech();
 
 extern int achieveAsteroids();

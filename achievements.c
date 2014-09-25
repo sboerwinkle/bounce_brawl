@@ -71,6 +71,27 @@ int achievePlain(){
 	return 1;
 }
 
+int achieveManMech(){
+	int count = 0;
+	int result = 0;
+	int i = 0;
+	int j;
+	for (; i < numNodes; i++) {
+		if (nodes[i].dead || 18 != nodes[i].mass)
+			continue;
+		count++;
+		for (j = 0; j < nodes[i].numConnections; j++) {
+			if (nodes[i].connections[j].dead) {
+				result = 1;
+				break;
+			}
+		}
+	}
+	if (count < 5)
+		return 0;
+	return result;
+}
+
 int achieveGunMech(){
 	int i = 0;
 	for(; i < numNodes; i++){
