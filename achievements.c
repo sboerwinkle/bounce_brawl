@@ -100,6 +100,32 @@ int achieveGunMech(){
 	return 1;
 }
 
+int achieveMechMech(){
+	char stage = 0;
+	int pos[2];
+	int i = 0;
+	int j, k, l;
+	for (; i < numNodes; i++) {
+		if (nodes[i].mass != 18 || nodes[i].size != 6)
+			continue;
+		for (j = nodes[i].numConnections - 1; j >= 0; j--) {
+			if (nodes[i].connections[j].dead)
+				return 0;
+			k = nodes[i].connections[j].id;
+			for (l = nodes[k].numConnections - 1; l >= 0; l--)
+				if (nodes[k].connections[l].dead)
+					return 0;
+			if (stage ^ (nodes[k].x > pos[stage]))
+				pos[stage] = nodes[k].x;
+		}
+		if (stage)
+			return pos[0] < pos[1];
+		else
+			stage++;
+	}
+	return 0;
+}
+
 int achieveAsteroids(){
 	int i = 0, j;
 	for(; i < numNodes; i++){

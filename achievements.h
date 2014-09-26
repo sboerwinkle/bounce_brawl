@@ -23,6 +23,8 @@ extern int achieveManMech();
 
 extern int achieveGunMech();
 
+extern int achieveMechMech();
+
 extern int achieveAsteroids();
 
 extern int achievePlanet();
