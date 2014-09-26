@@ -101,17 +101,19 @@ int achieveGunMech(){
 }
 
 int achieveMechMech(){
-	char stage = 0;
-	int pos[2];
+	unsigned char stage = 0;
+	int pos[2] = {-1000, 1000};;
 	int i = 0;
 	int j, k, l;
 	for (; i < numNodes; i++) {
-		if (nodes[i].mass != 18 || nodes[i].size != 6)
+		if (nodes[i].dead || nodes[i].mass != 18 || nodes[i].size != 6)
 			continue;
 		for (j = nodes[i].numConnections - 1; j >= 0; j--) {
 			if (nodes[i].connections[j].dead)
 				return 0;
 			k = nodes[i].connections[j].id;
+			if (nodes[k].dead)
+				return 0;
 			for (l = nodes[k].numConnections - 1; l >= 0; l--)
 				if (nodes[k].connections[l].dead)
 					return 0;

@@ -659,7 +659,7 @@ int main(int argc, char** argv){
 
 	addMenuLevel(mechMenu, lvlmech, achieveManMech, "MAN VS MECH", "BEACHED");
 	addMenuLevel(mechMenu, lvlmechgun, achieveGunMech, "GUN VS MECH", "MOAR PACIFISM");
-	addMenuLevel(mechMenu, lvlmechmech, achieveLazy, "MECH VS MECH", "CHANGE PLACES!");
+	addMenuLevel(mechMenu, lvlmechmech, achieveMechMech, "MECH VS MECH", "CHANGE PLACES!");
 
 	addMenuLevel(suspendedMenu, lvlgardens, achieveGardens, "HANGING GARDENS", "FLOOD");
 	addMenuLevel(suspendedMenu, lvlwalled, achieveWalled, "WALLED STAGE", "MOAR DESTRUCTION");
