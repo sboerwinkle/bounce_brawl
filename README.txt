@@ -59,6 +59,8 @@ Honestly performance shouldn't be an issue. The computer I developed this on is 
 
 Press the buttons listed on the menu to do things. Play the tutorial. Enjoy yourself. Fighting AIs or other people or going for all the achievements are sort of the intended purposes, but do what you want.
 
+The default controls are set up to minimize keyboard ghosting (look it up), so change at your own risk (especially w/ two people)
+
 ----Networking----
 
 -Hosting

@@ -53,8 +53,8 @@ playerRequest requests[10];
 
 char masterKeys[NUMKEYS*10];
 int pIndex[] = {0, 1};
-int pKeys[2][NUMKEYS] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_CAPSLOCK, SDLK_LSHIFT},\
-	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_RSHIFT, SDLK_RCTRL}};
+int pKeys[2][NUMKEYS] = {{SDLK_w, SDLK_d, SDLK_s, SDLK_a, SDLK_LSHIFT, SDLK_LCTRL},\
+	{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT, SDLK_SEMICOLON, SDLK_PERIOD}};
 int otherKeys[2] = {SDLK_EQUALS, SDLK_MINUS};
 
 char mode = 0, cheats = 0;
