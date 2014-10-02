@@ -39,6 +39,13 @@ GLU	<- Not sure this one even matters; pretty sure it comes with any implementat
 
 Just run 'make'. The executable is called 'game'.
 
+If you're a total newbie, I'll try to give you a hand here. Google anything you don't understand.
+First, open a terminal.
+Use 'cd' to change directory to where this is.
+type in 'make', press enter.
+If it says you don't have make, pull up your package manager. You'll need make, gcc, and all the packages above (dev versions, if that's an option)
+When make succeeds (doesn't say 'error'), type in './game'. Enjoy.
+
 ----Windows----
 
 Ah yes. I remember the days when I had a Windows computer available to develop on. It was a nightmare.
