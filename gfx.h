@@ -1,7 +1,7 @@
 
 extern int width2, height2;
 
-extern void initGfx(FILE* logFile);
+extern void initGfx(FILE * logFile);
 
 extern void quitGfx();
 

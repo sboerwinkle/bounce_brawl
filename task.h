@@ -1,10 +1,10 @@
-extern task* firstTask;
+extern task *firstTask;
 
-extern void addTask(task* who);
+extern void addTask(task * who);
 
-extern void runTask(task **where);
+extern void runTask(task ** where);
 
-extern void freeAllTasks(task* where);
+extern void freeAllTasks(task * where);
 
 extern void taskaicombatadd(int Player);
 
@@ -14,7 +14,7 @@ extern void taskasteroidsadd(int s, int m, int c);
 
 extern void taskcenteradd(int i);
 
-extern void taskcenteraddLong(int len, int* i);
+extern void taskcenteraddLong(int len, int *i);
 
 extern void taskdestroyadd(int i, int t);
 
@@ -58,4 +58,4 @@ extern void taskscoreaddLong(int ix, int x, int y);
 
 extern void taskscoreadd(int ix);
 
-extern void tasktextadd(int x, int y, char* text);
+extern void tasktextadd(int x, int y, char *text);

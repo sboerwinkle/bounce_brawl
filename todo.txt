@@ -1,7 +1,10 @@
-Add comments, separate readme for creating levels
+externs
+rand(om)
+separate readme for creating levels
 Clean up code
 Build for Windows
 Network test. Do I need to beat my brains out on a keyboard?
+Make sure that font data isn't proprietary...
 Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
 +sourceforge
 Content:
@@ -11,3 +14,4 @@ Content:
   Warehouse w/ grabber
   dis-integration ray
   Very wide field, rough center, CTF, dropships.
+  Following, dynamically created ground, a car w/ gun, and assaulting dropships loaded with angry AIs. Badass.

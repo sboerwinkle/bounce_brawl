@@ -6,17 +6,21 @@ extern void myDrawScreenNoClear();
 extern void myDrawScreen();
 
 extern int players;
+//Stores which player each of the two local guys is
 extern int pIndex[2];
+//Stores the keybindings
 extern int pKeys[2][NUMKEYS];
 extern int otherKeys[2];
 
-extern char masterKeys[NUMKEYS*10];
+//Stores the keys which each player. AIs or the keyboard writes here, taskguycontrol reads from here.
+extern char masterKeys[NUMKEYS * 10];
 
-typedef struct{
+typedef struct {
 	uint16_t hue;
 	uint32_t color;
+	//Indicates if it's a human, a networked player, which kind of AI, etc.
 	int controlMode;
-}playerRequest;
+} playerRequest;
 
 extern playerRequest requests[10];
 
@@ -32,4 +36,4 @@ extern char cheats;
 
 extern char frameCount;
 
-extern FILE* logFile;
+extern FILE *logFile;
