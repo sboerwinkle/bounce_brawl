@@ -22,7 +22,7 @@ Hooray! Enthusiasm! Basically, here are the main steps we'll go through:
 3. Add the level to the menu
 
 STEP 1
-Pull up levels.c in your favorite text editor.
+Pull up levels.c in your favorite text editor or IDE. Notepad++ isn't a bad choice.
 Here you will see a bunch of a functions. Together they comprise a library of most of what can be done. If unsure how to reproduce something you see in a level, look at said level's code.
 Let's get down to business. Go to the bottom of the file, and add these lines (minus the asterisks):
 ***
