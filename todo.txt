@@ -1,5 +1,5 @@
 externs
-rand(om)
+random(om)
 separate readme for creating levels
 Clean up code
 Build for Windows

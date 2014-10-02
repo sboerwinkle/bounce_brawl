@@ -87,7 +87,7 @@ static char taskaibasiccycle(taskaidata * data, int delay)
 				if (numTargets == 0)
 					return 2;	//We're the last one standing
 				data->target =
-				    targets[rand() % numTargets];
+				    targets[random() % numTargets];
 			}
 			return 1;
 		}
@@ -137,7 +137,7 @@ void taskaicombatadd(int Player, char diehard)
 	taskaidata *data = (taskaidata *) malloc(sizeof(taskaidata));
 	current->dataUsed = 1;
 	current->data = data;
-	int target = rand() % (players - 1);
+	int target = random() % (players - 1);
 	if (target >= Player)
 		target++;
 	data->target = target;
@@ -206,7 +206,7 @@ void taskaispacecombatadd(int Player, char diehard)
 	taskaidata *data = (taskaidata *) malloc(sizeof(taskaidata));
 	current->dataUsed = 1;
 	current->data = data;
-	int target = rand() % (players - 1);
+	int target = random() % (players - 1);
 	if (target >= Player)
 		target++;
 	data->target = target;
@@ -228,9 +228,9 @@ static char taskasteroids(void *where)
 {
 	taskasteroidsdata *data = (taskasteroidsdata *) where;
 	if (data->cool-- <= 0) {
-		newNodeLong((double) rand() / RAND_MAX * 400 - 200, -400,
+		newNodeLong((double) random() / RAND_MAX * 400 - 200, -400,
 			    0, 0,
-			    ((double) rand() / RAND_MAX * 4 -
+			    ((double) random() / RAND_MAX * 4 -
 			     2) * SPEEDFACTOR, 0, data->size, data->mass,
 			    0);
 		data->cool = data->maxcool;

@@ -863,10 +863,10 @@ int main(int argc, char **argv)
 	fputs("Networking Initialized\n", logFile);
 
 	numRequests = 2;
-	srand(time(NULL));
+	srandom(time(NULL));
 	int i = 0;
 	for (; i < 10; i++) {
-		requests[i].hue = (long int) rand() * 32 / RAND_MAX * 12;
+		requests[i].hue = (long int) random() * 32 / RAND_MAX * 12;
 		requests[i].color = getColorFromHue(requests[i].hue);
 		requests[i].controlMode = 2;
 	}
