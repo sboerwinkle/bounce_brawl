@@ -1,10 +1,8 @@
-separate readme for creating levels
 Clean up code
 Build for Windows, add \r\n to txt files
 Network test. Do I need to beat my brains out on a keyboard?
-Make sure that font data isn't proprietary...
-Credit circle guy as per http://slabode.exofire.net/circle_draw.shtml
 +sourceforge
+Send email to circle guy: slabode@aim.com
 Content:
   Space windmills!!!
   Beanstalk

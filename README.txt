@@ -1,12 +1,8 @@
 
-
-		PLEASE! IT ISN'T LONG, I SWEAR! JUST READ THE THING!
-		          Or at least the next three lines
-
-
-First off: Haven't added a license or anything yet, but:
-1. You can't sue me. If something bad happens because of me, it's not my fault.
-2. Feel free to distribute whatever. Just keep my name (Simon Boerwinkle) attached.
+This work is released into the public domain.
+I would say, however, that if you try to monetize anything that you base off of this or not include the source code, I hope a faceless terror haunts you for the remainder of your pitiful days.
+I would also prefer that you keep these few lines included. My name is Simon Boerwinkle.
+fontData.h is the work of A. Schiffler - aschiffler@ferzkopp.net. See fontData.h for license information.
 
 So!
 
@@ -104,7 +100,7 @@ I should point out that I haven't tried this out on any actual people - While I 
 
 ====FEEDBACK/CONTRIBUTING====
 
-You may email questions, comments, fan mail, cute pictures of cats, intersting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding. The world is frighteningly full of people.
+You may email questions, comments, bug reports, fan mail, cute pictures of cats, intersting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding. The world is frighteningly full of people.
 
 If you wish to contribute to the project... Gosh, I'm flattered! I know Github has a way to fork projects, but I've never looked into it. Unless I'm mistaken, you fork it and then I authorize a merge when you're done. Rest assured, I'll do my best to honor the effort anyone is willing to put into this thing, even if I have to create a mod system! Shoot me an email, I guess.
 

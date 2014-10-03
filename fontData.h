@@ -1,3 +1,4 @@
+//The contents of this file (Everything below this line) were copied from the SDL2_gfx library, file SDL2_gfxPrimitives_font.h. This software is governed by the ZLIB license - Here's a copy: http://www.zlib.net/zlib_license.html
 
 /* ---- 8x8 font definition ---- */
 
