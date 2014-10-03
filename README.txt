@@ -99,11 +99,12 @@ If you want to move the achievements.dat file so you can re-earn some of them, f
 
 ====LEVELCRAFT====
 
-I plan to have a separate readme for all the ins and outs of creating new levels, as this can be a rewarding experience for those who have the time and programming skill. It does require programming, but even the novice should be able to, if nothing else, make some pretty hilarious changes to the masses of the particles :)
+LevelCraftReadme.txt contains fairly detailed walkthroughs on level, task, and tool creation. This can be a rewarding experience for those who have the time and programming skill. It does require programming, but even the novice should be able to, if nothing else, make some pretty hilarious changes to the masses of the particles :) Know that it does require the ability to compile the game from source, which might be tricky on Windows. You've been warned.
+I should point out that I haven't tried this out on any actual people - While I did test all the code I describe, it's possible that I missed something or that I didn't explain an important point. This makes the next section all the more important.
 
 ====FEEDBACK/CONTRIBUTING====
 
-You may email questions, comments, fan mail, cute pictures of cats, intersting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding.
+You may email questions, comments, fan mail, cute pictures of cats, intersting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding. The world is frighteningly full of people.
 
 If you wish to contribute to the project... Gosh, I'm flattered! I know Github has a way to fork projects, but I've never looked into it. Unless I'm mistaken, you fork it and then I authorize a merge when you're done. Rest assured, I'll do my best to honor the effort anyone is willing to put into this thing, even if I have to create a mod system! Shoot me an email, I guess.
 
