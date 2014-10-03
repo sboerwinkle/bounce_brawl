@@ -377,12 +377,11 @@ void lvltutorial()
 	tasktextadd(500, -90,
 		    "Press 'Left Ctrl' to interact with\nobjects marked with squares.\nPress 'L. Shift' to fire this gun.");
 	newNode(650, 140 + 20 * sqrt3 * 2, 16, 150, 4);
-	int hexArg[] = { H, 0, 0, 0, H, 0, 0,
-		H, 0, 0, 0, H, H, H,
-		H, 0, 0, 0, 0, 0, H,
-		H, 0, 0, 0, 0, 0, H,
-		H, H, H, H, H, H, 0
-	};
+	int hexArg[] = {H,0,0,0,H,0,0,
+			 H,0,0,0,H,H,H,
+			  H,0,0,0,0,0,H,
+			   H,0,0,0,0,0,H,
+			    H,H,H,H,H,H,0};
 	addHex(750, 140, 7, 5, hexArg, 0.90, 20, 5, 4.1, 8, 6);
 	newConnection(i, 0, i + 1, .8, dist(nodes + i, nodes + i + 1), 15,
 		      10);
@@ -410,11 +409,11 @@ void lvltutorial()
 void lvlboulder()
 {
 	lvltest();
-	int hexArg[] = { 0, 0, 0, H, 0,
-		0, H, H, H, H,
-		0, H, H, H, 0,
-		H, H, H, H, 0,
-		0, H, 0, 0, 0
+	int hexArg[] = {0,0,0,H,0,
+			 0,H,H,H,H,
+			  0,H,H,H,0,
+			   H,H,H,H,0,
+			    0,H,0,0,0
 	};
 	addHex(-15 * 3, -70, 5, 5, hexArg, 0.80, 15, 4, 1.3, 6, 3);
 }
@@ -427,31 +426,18 @@ void lvlcave()
 	if (players > 3)
 		players = 3;
 	int hexArg[] =
-	    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, H, H, H, H, H, H, H, H, H,
-	 H, H, H, H, H,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, H, H, 0, 0, 0, 0, 0, 0, 0, 0,
-		    0, 0, 0, H, H,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		    0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, H, H, H, H, H, 0,
-		    0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, H, 0, 0, H, H, H, H, H, H, H, H, H, H,
-		    H, H, 0, 0, H,
-		0, 0, 0, 0, 0, 0, H, H, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		    0, 0, 0, H, H,
-		0, 0, 0, 0, 0, H, H, H, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		    0, 0, H, H, H,
-		0, 0, 0, 0, H, H, H, H, 0, H, 0, 0, 0, 0, 0, 0, 0, 0, 0, H,
-		    0, H, H, H, H,
-		0, 0, 0, H, H, 0, H, H, H, 0, 0, 0, 0, H, H, 0, 0, 0, 0, H,
-		    H, H, 0, H, H,
-		0, 0, H, H, 0, 0, 0, 0, 0, 0, 0, H, H, H, H, H, 0, 0, 0, 0,
-		    0, 0, 0, H, H,
-		0, H, H, H, 0, 0, 0, 0, 0, 0, H, H, H, H, H, H, 0, 0, 0, 0,
-		    0, 0, H, H, H,
-		H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H,
-		    H, H, H, H, H
-	};
+	{0,0,0,0,0,0,0,0,0,0,0,H,H,H,H,H,H,H,H,H,H,H,H,H,H,
+	  0,0,0,0,0,0,0,0,0,0,H,H,0,0,0,0,0,0,0,0,0,0,0,H,H,
+	   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	    0,0,0,0,0,0,0,0,0,0,0,0,0,0,H,H,H,H,H,0,0,0,0,0,0,
+	     0,0,0,0,0,0,0,H,0,0,H,H,H,H,H,H,H,H,H,H,H,H,0,0,H,
+	      0,0,0,0,0,0,H,H,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,H,H,
+	       0,0,0,0,0,H,H,H,0,0,0,0,0,0,0,0,0,0,0,0,0,0,H,H,H,
+	        0,0,0,0,H,H,H,H,0,H,0,0,0,0,0,0,0,0,0,H,0,H,H,H,H,
+	         0,0,0,H,H,0,H,H,H,0,0,0,0,H,H,0,0,0,0,H,H,H,0,H,H,
+	          0,0,H,H,0,0,0,0,0,0,0,H,H,H,H,H,0,0,0,0,0,0,0,H,H,
+	           0,H,H,H,0,0,0,0,0,0,H,H,H,H,H,H,0,0,0,0,0,0,H,H,H,
+	            H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H,H};
 	int ix =
 	    114 + addHex(-17.5 * lvlcavesize, -4 * lvlcavesize, 25, 12,
 			 hexArg, 0.9, lvlcavesize, 5, 3, lvlcavesize * .45,
@@ -528,12 +514,11 @@ static int addPyramid(int x, int y)
 	double fric = 0.85;
 	int tol = 5;
 	double str = 2.3;
-	int hexArg[] = { 0, 0, H, H, H, 0, 0, 0, 0, 0, H, H, H,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, H, H, H, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, H, H, H, H, 0, 0, 0, 0, 0,
-		H, H, H, H, H, H, H, H, H, H, H, 0, 0
-	};
+	int hexArg[] = {0,0,H,H,H,0,0,0,0,0,H,H,H,
+			 0,0,0,0,0,0,0,0,0,0,0,0,0,
+			  0,0,0,0,0,H,H,H,0,0,0,0,0,
+			   0,0,0,0,H,H,H,H,0,0,0,0,0,
+			    H,H,H,H,H,H,H,H,H,H,H,0,0};
 	int ix =
 	    addHex(-7 * size + x, y, 13, 5, hexArg, fric, size, tol, str,
 		   size * .45, 8);
@@ -565,12 +550,11 @@ static int addSplit(int x, int y)
 	double fric = 0.85;
 	int tol = 5;
 	double str = 2.3;
-	int hexArg[] = { 0, 0, H, H, H, 0, 0, 0, 0, 0, H, H,
-		0, 0, 0, 0, 0, 0, 0, 0, H, H, H, 0,
-		0, 0, 0, 0, 0, 0, H, H, H, H, 0, 0,
-		0, 0, 0, 0, H, H, H, H, 0, 0, 0, 0,
-		H, H, H, H, H, H, H, 0, 0, 0, 0, 0
-	};
+	int hexArg[] = {0,0,H,H,H,0,0,0,0,0,H,H,
+			 0,0,0,0,0,0,0,0,H,H,H,0,
+			  0,0,0,0,0,0,H,H,H,H,0,0,
+			   0,0,0,0,H,H,H,H,0,0,0,0,
+			    H,H,H,H,H,H,H,0,0,0,0,0};
 	int ix =
 	    addHex(-6.5 * size + x, y, 12, 5, hexArg, fric, size, tol, str,
 		   size * .45, 8);

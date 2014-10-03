@@ -42,7 +42,8 @@ typedef struct {
 	double midlength;
 	//How far it can stray from midlength w/out snapping
 	double tolerance;
-	//What fraction of the nodes' relative motion towards or away from each other we permit to remain. I think it's actually stored as 1 - that value, but it's passed to the initializer functions as described. Note that too many connections with aggressive frictions may cause... crazy results.
+	//What fraction of the nodes' relative motion towards or away from each other we permit to remain. It's actually stored as 1 - that value, but it's passed to the initializer functions as described. Note that too many connections with aggressive frictions may cause... crazy results.
+	//Usage: Pass 1.0 for regular bands, approx. 0.85 - 0.99 for reasonable degrees of damping.
 	double friction;
 	//Multiplied by our displacement from preflength to give actual force applied.
 	double force;

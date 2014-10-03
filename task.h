@@ -22,8 +22,6 @@ extern void taskfixedaddLong(int i, long x, long y, double s);
 
 extern void taskfixedadd(int i, double s);
 
-extern void taskinflateadd(int i, double step, double max);
-
 extern void taskfrictionadd();
 
 extern void taskgravityadd();

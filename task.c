@@ -390,40 +390,6 @@ void taskfixedadd(int i, double s)
 	taskfixedaddLong(i, nodes[i].x, nodes[i].y, s);
 }
 
-typedef struct {
-	int index;
-	double step, max;
-} taskinflatedata;
-
-static char taskinflate(void *where)
-{
-	taskinflatedata *data = (taskinflatedata *) where;
-	node *mine = nodes + data->index;
-	if (mine->dead) {
-		free(where);
-		return 1;
-	}
-	if (mine->size < data->max) {
-		mine->size += data->step;
-		if (mine->size > data->max)
-			mine->size = data->max;
-	}
-	return 0;
-}
-
-void taskinflateadd(int i, double step, double max)
-{
-	task *current = malloc(sizeof(task));
-	current->func = &taskinflate;
-	taskinflatedata *data = malloc(sizeof(taskinflatedata));
-	current->dataUsed = 1;
-	current->data = data;
-	data->index = i;
-	data->step = step;
-	data->max = max;
-	addTask(current);
-}
-
 static char taskfriction(void *where)
 {
 /*	register int i = 0;
@@ -469,91 +435,6 @@ static inline void taskguycontroldisconnect(taskguycontroldata * data)
 	data->controlType = -1;
 }
 
-static void taskguycontroldoGun(taskguycontroldata * data)
-{
-	if (data->lastpressAction || nodes[data->controlIndex].size < 1.5)
-		return;
-	int aimingLeg = -1;
-	int i = 0;
-	for (; i < 4; i++) {
-		if (data->myKeys[i]) {
-			if (aimingLeg == -1)
-				aimingLeg = i;
-			else {
-				aimingLeg = data->connectedLeg;
-				break;
-			}
-		}
-	}
-	if (aimingLeg == -1)
-		aimingLeg = data->connectedLeg;
-	if (!data->exists[(aimingLeg + 2) % 4])
-		return;
-	nodes[data->controlIndex].size -= 1;
-	node *one = nodes + data->myNodes[aimingLeg];
-	node *two = nodes + data->myNodes[(aimingLeg + 2) % 4];
-	double dx = one->x - two->x + one->px - two->px;
-	double dy = one->y - two->y + one->py - two->py;
-	double dist = sqrt(dx * dx + dy * dy) / 10.0 / SPEEDFACTOR;	// Velocity of the bullet
-	if (dist == 0) {
-		dx = 0;
-		dy = 0;
-	} else {
-		dx /= dist;
-		dy /= dist;
-	}
-	int ix =
-	    newNodeLong(one->x, one->y, one->px, one->py, one->xmom + dx,
-			one->ymom + dy, 2, 4, 0);
-	taskdestroyadd(ix, 100);
-}
-
-static void taskguycontroldoRoll(taskguycontroldata * data)
-{
-	double rollAmt = 0;
-	int *myNodes = data->myNodes;
-	double rollInc =
-	    ((data->myKeys[0]
-	      && (cheats & CHEAT_NUCLEAR)) ? 20 : 0.03) * SPEEDFACTOR;
-	if (data->myKeys[3])
-		rollAmt += rollInc;
-	if (data->myKeys[1])
-		rollAmt -= rollInc;
-	if (!rollAmt)
-		return;
-	int i, j;
-	node *me, *him;
-	double dx, dy, dist;
-	for (i = 0; i < 4; i++) {
-		if (!data->exists[i])
-			continue;
-		me = nodes + myNodes[i];
-		for (j = me->numConnections - 1; j > 0; j--) {
-			if (me->connections[j].dead)
-				continue;
-			him = nodes + me->connections[j].id;
-			dx = him->x - me->x;
-			dy = him->y - me->y;
-			dist = sqrt(dx * dx + dy * dy);
-			dx *= rollAmt / dist;
-			dy *= rollAmt / dist;
-			me->xmom -= dy;
-			me->ymom += dx;
-			him->xmom += dy;
-			him->ymom -= dx;
-		}
-	}
-	if (rollInc > 5 * SPEEDFACTOR && data->alive) {
-		data->alive = 0;
-		data->injured = 1;
-		for (i = 0; i < 4; i++) {
-			if (data->exists[i])
-				nodes[myNodes[i]].mass *= 10;
-		}
-		memset(data->exists, 0, 4);
-	}
-}
-
 static void shrinkArm(double *what, double size)
 {
 	if (*what == size)
@@ -569,16 +450,6 @@ static void taskguycontroldoLegs(taskguycontroldata * data)
 	char *myKeys = data->myKeys;
 //      short sl = 35;
 //      short ll = 49;
-	if (myKeys[4]) {
-		switch (data->controlType) {
-		case 10:
-			taskguycontroldoGun(data);
-			break;
-		default:
-			taskguycontroldoRoll(data);
-			return;
-		}
-	}
 	shrinkArm(&data->ten0, 20);
 	shrinkArm(&data->ten1, 20);
 	shrinkArm(&data->nine0, 20);
@@ -639,6 +510,98 @@ static void taskguycontroldoLegs(taskguycontroldata * data)
 		if (!current->connections[1].dead)
 			current->connections[1].preflength = data->eleven0;
 	}
+}
+
+static void taskguycontroldoRoll(taskguycontroldata * data)
+{
+	if (!data->myKeys[4]) {
+		taskguycontroldoLegs(data);
+		return;
+	}
+	double rollAmt = 0;
+	int *myNodes = data->myNodes;
+	double rollInc =
+	    ((data->myKeys[0]
+	      && (cheats & CHEAT_NUCLEAR)) ? 20 : 0.03) * SPEEDFACTOR;
+	if (data->myKeys[3])
+		rollAmt += rollInc;
+	if (data->myKeys[1])
+		rollAmt -= rollInc;
+	if (!rollAmt)
+		return;
+	int i, j;
+	node *me, *him;
+	double dx, dy, dist;
+	for (i = 0; i < 4; i++) {
+		if (!data->exists[i])
+			continue;
+		me = nodes + myNodes[i];
+		for (j = me->numConnections - 1; j > 0; j--) {
+			if (me->connections[j].dead)
+				continue;
+			him = nodes + me->connections[j].id;
+			dx = him->x - me->x;
+			dy = him->y - me->y;
+			dist = sqrt(dx * dx + dy * dy);
+			dx *= rollAmt / dist;
+			dy *= rollAmt / dist;
+			me->xmom -= dy;
+			me->ymom += dx;
+			him->xmom += dy;
+			him->ymom -= dx;
+		}
+	}
+	if (rollInc > 5 * SPEEDFACTOR && data->alive) {
+		data->alive = 0;
+		data->injured = 1;
+		for (i = 0; i < 4; i++) {
+			if (data->exists[i])
+				nodes[myNodes[i]].mass *= 10;
+		}
+		memset(data->exists, 0, 4);
+	}
+}
+
+static void toolGun(taskguycontroldata * data)
+{
+	if (data->controlVar < 15)
+		data->controlVar++;
+	taskguycontroldoLegs(data);
+	if (!data->myKeys[4] || data->lastpressAction || data->controlVar <= 0)
+		return;
+	int aimingLeg = -1;
+	int i = 0;
+	for (; i < 4; i++) {
+		if (data->myKeys[i]) {
+			if (aimingLeg == -1)
+				aimingLeg = i;
+			else {
+				aimingLeg = data->connectedLeg;
+				break;
+			}
+		}
+	}
+	if (aimingLeg == -1)
+		aimingLeg = data->connectedLeg;
+	if (!data->exists[(aimingLeg + 2) % 4])
+		return;
+	data->controlVar -= 10;
+	node *one = nodes + data->myNodes[aimingLeg];
+	node *two = nodes + data->myNodes[(aimingLeg + 2) % 4];
+	double dx = one->x - two->x + one->px - two->px;
+	double dy = one->y - two->y + one->py - two->py;
+	double dist = sqrt(dx * dx + dy * dy) / 10.0 / SPEEDFACTOR;	// Velocity of the bullet
+	if (dist == 0) {
+		dx = 0;
+		dy = 0;
+	} else {
+		dx /= dist;
+		dy /= dist;
+	}
+	int ix =
+	    newNodeLong(one->x, one->y, one->px, one->py, one->xmom + dx,
+			one->ymom + dy, 2, 4, 0);
+	taskdestroyadd(ix, 100);
 }
 
 static void toolGravity()
@@ -825,6 +788,7 @@ static char taskguycontrol(void *where)
 				    data->controlData->type;
 				data->controlIndex =
 				    data->controlData->where;
+				data->controlVar = 0;
 				newConnection(myNodes[data->connectedLeg],
 					      0, data->controlIndex,
 					      (double) 0.8,
@@ -860,9 +824,13 @@ static char taskguycontrol(void *where)
 		break;
 	case 70:
 		toolGravity();
-		taskguycontroldoLegs(data);
+		taskguycontroldoRoll(data);
+		break;
+	case 10:
+		toolGun(data);
+		break;
 	default:
-		taskguycontroldoLegs(data);	// Also handles some tools (gun)
+		taskguycontroldoRoll(data);
 		break;
 	}
 	if (frameCount == 0 && data->exists[0]) {
@@ -991,7 +959,6 @@ void addToolGun(double x, double y)
 {
 	int ix = newNode(x, y, 3, 1, 0);
 	addGenericTool(ix, 10);
-	taskinflateadd(ix, .1, 3);
 }
 
 void addToolDestroy(int ix)
