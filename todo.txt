@@ -1,11 +1,10 @@
-Clean up code
 Build for Windows, add \r\n to txt files
 Network test. Do I need to beat my brains out on a keyboard?
 +sourceforge
 Send email to circle guy: slabode@aim.com
 Content:
   Space windmills!!!
-  Beanstalk
+  Beanstalk (A John Scalzi reference - what I actually want is two large, orbitting planets w/ a building holding them apart)
   Spaceships
   Warehouse w/ grabber
   dis-integration ray

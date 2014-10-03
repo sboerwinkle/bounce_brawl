@@ -7,7 +7,6 @@ fontData.h is the work of A. Schiffler - aschiffler@ferzkopp.net. See fontData.h
 So!
 
 Contents:
-=Installing
 =Compiling
  -Linux
  -Windows
@@ -17,10 +16,6 @@ Contents:
  -Achievements
 =Levelcraft
 =Feedback/Contributing
-
-====INSTALLING====
-
-No installation, just compile and run the executable.
 
 ====COMPILING====
 
@@ -33,14 +28,18 @@ GLU	<- Not sure this one even matters; pretty sure it comes with any implementat
 
 ----Linux----
 
-Just run 'make'. The executable is called 'game'.
+cd into src, run 'make'. The executable is called 'game', and is put in the top level directory.
+#cd src
+#make
+#cd ..
+#./game
 
 If you're a total newbie, I'll try to give you a hand here. Google anything you don't understand.
 First, open a terminal.
 Use 'cd' to change directory to where this is.
-type in 'make', press enter.
+Type in the commands above, without the '#'s
 If it says you don't have make, pull up your package manager. You'll need make, gcc, and all the packages above (dev versions, if that's an option)
-When make succeeds (doesn't say 'error'), type in './game'. Enjoy.
+Eventually it should work.
 
 ----Windows----
 

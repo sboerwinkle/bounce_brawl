@@ -9,12 +9,14 @@ LFLAGS=-lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o
 	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o -o game $(LFLAGS)
+	mv game ..
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
 	
 windows:
 	$(MAKE) DEBUG="-D WINDOWS" LFLAGS="-ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -o game.exe -LLib/SDL2/x86_64-w64-mingw32/lib -lSDL2 -lm -lglu32 -lopengl32 -lglew32 -lglu32 -lopengl32 -lglew32 -pthread -lmingw32 -lSDL2main -mwindows -lws2_32 -lSDL2"
+	move game.exe ..
 
 remake:
 	$(MAKE) clean
@@ -48,7 +50,7 @@ achievements.o: achievements.c structs.h field.h gui.h
 	$(CC) $(CFLAGS) achievements.c
 
 clean:
-	rm -f *.o game game.exe
+	rm -f *.o ../game
 
 cleanWindows:
-	del *.o game game.exe
+	-del *.o ../game.exe

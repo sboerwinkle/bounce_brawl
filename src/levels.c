@@ -75,16 +75,12 @@ static int addHex(double x, double y, int width, int height, int *map,
 				double mySpacing = spacing;
 				for (subI = i - 1; subI >= 0; subI--) {
 					if (map[j * width + subI]) {
-						newConnection(tmp,
-							      createConnection
-							      (tmp),
-							      map[j *
-								  width +
-								  subI] -
-							      1, fric,
-							      mySpacing,
-							      tolerance,
-							      str);
+						newConnection(tmp, createConnection(tmp),
+							    map[j * width + subI] - 1,
+							    fric,
+							    mySpacing,
+							    tolerance,
+							    str);
 						break;
 					}
 					mySpacing += spacing;
