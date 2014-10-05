@@ -534,7 +534,7 @@ void myConnect()
 	memset(&myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family = AF_INET;
 	myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	myaddr.sin_port = htons(8080);
+	myaddr.sin_port = htons(port);
 
 	if (0 > bind(sockfd, (struct sockaddr *) &myaddr, sizeof(myaddr))) {
 		close(sockfd);
