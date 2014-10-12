@@ -2,7 +2,6 @@
 #ifndef WINDOWS
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <sys/select.h>
 #include <netinet/in.h>
 #else
 #ifndef UNICODE
@@ -354,7 +353,13 @@ static void keyAction(int code, char pressed)
 
 static void waitForNetStuff()
 {
-	struct pollfd myPollFd = {.events = POLLIN,.fd = sockfd };
+#ifdef WINDOWS
+	fd_set myFdSet;
+	FD_ZERO(&myFdSet)
+	FD_SET(sockfd, &myFdSet);
+#else
+	struct pollfd myPollFd = {.events = POLLIN, .fd = sockfd};
+#endif
 	SDL_Event e = {.type = SDL_USEREVENT };	//Since only the main thread can do anything of consequence, this is how we communicate that we have data to read.
 	while (1) {
 		if (!sem_trywait(&secondSem)) {	// If main thread sets mySem without me pushing an event, it's time to quit.
@@ -362,11 +367,20 @@ static void waitForNetStuff()
 			return;
 		}
 		//Wait for network input for a second, then go back to that sem_trywait real quick
+#ifdef WINDOWS
+		struct timeval tv = {.tv_sec = 1, .tv_usec = 0};
+		if (select(sockfd+1, &myFdSet, NULL, NULL, &tv) == 1)
+#else
 		if (poll(&myPollFd, 1, 1000) == 1
-		    && myPollFd.revents == POLLIN) {
+		    && myPollFd.revents == POLLIN)
+#endif
+		{
 			if (!SDL_PushEvent(&e))
 				sem_wait(&mySem);	// If we successfully pushed the event, wait for main thread to process it.
 		}
+#ifdef WINDOWS
+		else FD_SET(sockfd, &myFdSet);
+#endif
 	}
 }
 
@@ -688,9 +702,23 @@ void kickNoRoom()
 	}
 }
 
+#ifdef WINDOWS
+int mySelect(fd_set* set)
+{
+	struct timeval tv = {0};
+	return select(sockfd+1, set, NULL, NULL, &tv);
+}
+#endif
+
 void readKeys()
 {
-	struct pollfd myPollFd = {.fd = sockfd,.events = POLLIN };
+#ifdef WINDOWS
+	fd_set myFdSet;
+	FD_ZERO(&myFdSet);
+	FD_SET(sockfd, &myFdSet);
+#else
+	struct pollfd myPollFd = {.fd = sockfd, .events = POLLIN};
+#endif
 
 	uint8_t *data;
 	struct sockaddr_in sender;
@@ -703,7 +731,12 @@ void readKeys()
 		//Handles input while the actual game is running
 		data = malloc(1);
 		int twoPower;
-		while (poll(&myPollFd, 1, 0) == 1) {
+#ifdef WINDOWS
+		while (mySelect(&myFdSet) == 1)
+#else
+		while (poll(&myPollFd, 1, 0) == 1 && myPollFd.revents == POLLIN)
+#endif
+		{
 			size = size2;
 			//Poll can return false positives (I think?) so make sure we actually have something to read.
 			if (0 ==
@@ -751,7 +784,12 @@ void readKeys()
 		data = malloc(8);
 		int msgLen;
 		client *target;
-		while (poll(&myPollFd, 1, 0) == 1) {
+#ifdef WINDOWS
+		while (mySelect(&myFdSet) == 1)
+#else
+		while (poll(&myPollFd, 1, 0) == 1 && myPollFd.revents == POLLIN)
+#endif
+		{
 			size = size2;
 			msgLen =
 			    recvfrom(sockfd, (char *) data, 8, 0,
