@@ -768,7 +768,7 @@ void readKeys()
 					}
 				} else if (sender.sin_addr.s_addr ==
 					   current->addr.sin_addr.s_addr) {
-					//Hey, it's someone we alerady know!
+					//Hey, it's someone we already know!
 					if (msgLen == 1 && *data == 255) {
 						//Oh, looks like he's quitting.
 						current->dead = 1;

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "fontData.h"
 #include <SDL2/SDL.h>
 #include "gfx.h"

@@ -43,9 +43,25 @@ Eventually it should work.
 
 ----Windows----
 
-Ah yes. I remember the days when I had a Windows computer available to develop on. It was a nightmare.
+You should have a pre-compiled binary sitting around, game.exe. Just run that. If you want to compile from source for whatever reason, bravo. Here's what you have to do...
 
-I left the stuff in the Makefile. Assuming you have make, gcc, MinGW, etc., 'make windows' is the command to run. This may or may not work. I've added a lot since I had access to Windows.
+Get MinGW. A couple of links, the first you'll definitely need and the second you might need if you're not sure what to install:
+http://www.mingw.org/wiki/Getting_Started
+http://www.mingw.org/wiki/howto_install_the_mingw_gcc_compiler_suite
+
+Great. Now go to the SDL2 site, and get the development version for mingw. You may need 7-Zip or something similar to extract this file. Once this is done, you should see in the extracted folder a pair of folders ending in "mingw32". Pick one (I'm trying i686 first) and copy all of its contents into the corresponding places in C:\MinGW.
+
+Whew. Now for GLEW. You're gonna want the binaries from their site. Extract it, and you'll see a few things. Put the contents of 'include' in MinGW\include. Both 'bin' and 'lib' have things that also go in their respective MinGW folders, but first you'll have to go down a couple directories. Make a choice as with SDL2; I'm choosing Release\Win32.
+
+What you're *supposed* to be able to do now is open a command prompt, go into this folder, go into 'src', and type 'mingw32-make windows'.
+
+This doesn't work for me, which is unsurprising when you've been developing stuff for windows and linux. My first error is something about 'winapifamily'. Best I can figure, SDL2 thinks I'm on windows 8 (I'm not). Pull up \MinGw\include\SDL2\SDL_platform.h, and around line 121 you should see the offending 'include'. We'll just comment out that whoooole section, so one line up, where it says
+#if [blah blah blah]
+change it to
+#if 0 && [blah blah blah]
+That fixed it for me. Next error!
+
+
 
 Unfortunately, since my development computer had an Intel graphics card and couldn't use openGL to save it's life, this is a rather graphically derpy version. All the circles are octogons, though this makes it exra-speedy. If you want to fix it, feel free to try.
 
@@ -99,7 +115,7 @@ I should point out that I haven't tried this out on any actual people - While I 
 
 ====FEEDBACK/CONTRIBUTING====
 
-You may email questions, comments, bug reports, fan mail, cute pictures of cats, intersting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding. The world is frighteningly full of people.
+You may email questions, comments, bug reports, fan mail, cute pictures of cats, interesting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding. The world is frighteningly full of people.
 
 If you wish to contribute to the project... Gosh, I'm flattered! I know Github has a way to fork projects, but I've never looked into it. Unless I'm mistaken, you fork it and then I authorize a merge when you're done. Rest assured, I'll do my best to honor the effort anyone is willing to put into this thing, even if I have to create a mod system! Shoot me an email, I guess.
 

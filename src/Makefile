@@ -53,4 +53,4 @@ clean:
 	rm -f *.o ../game
 
 cleanWindows:
-	-del *.o ../game.exe
+	-del *.o ..\game.exe

@@ -10,6 +10,11 @@
 //Also note increasing this number will reduce network traffic when you're hosting, as I take a fairly simple, send-info-describing-the-frame approach to networking.
 #define SHOWEVERYNTHFRAME 2
 
+#ifdef WINDOWS
+	#define srandom srand
+	#define random rand
+#endif
+
 typedef struct task {
 	//Which task is next in the linked list
 	struct task *next;
