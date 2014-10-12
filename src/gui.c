@@ -71,7 +71,7 @@ static char inputMode = 0;
 //Whether we're looking at achievement names or level names
 static char achievementView = 0;
 //If the menu doesn't need to be redrawn
-static char nothingChanged = 0;
+char nothingChanged = 0;
 //Counts to the frames we actually draw
 char frameCount = SHOWEVERYNTHFRAME;
 
@@ -904,8 +904,12 @@ int main(int argc, char **argv)
 	fputs("Intialized Graphics, Entering Main Loop\n", logFile);
 	fflush(logFile);
 	while (running) {
-		if (netMode)
-			readKeys();
+		if (netMode) {
+			if (mode)
+				readKeys();
+			else
+				readLobbyKeys();
+		}
 		paint();	//Also runs the thing if necessary
 		if (!(cheats & CHEAT_SPEED && mode)
 		    && frameCount == SHOWEVERYNTHFRAME) {

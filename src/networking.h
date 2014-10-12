@@ -9,6 +9,7 @@ extern void myConnect();
 extern void myHost(int max, char *playerNumbers);
 extern void kickNoRoom();
 extern void readKeys();
+extern void readLobbyKeys();
 extern void stopHosting();
 
 extern void addNetCircle(short x, short y, int r);

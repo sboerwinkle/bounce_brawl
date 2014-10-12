@@ -34,6 +34,8 @@ extern char cheats;
 #define CHEAT_SPEED   8
 #define CHEAT_COLORS 16
 
+extern char nothingChanged;
+
 extern char frameCount;
 
 extern FILE *logFile;
