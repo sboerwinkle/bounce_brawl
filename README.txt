@@ -52,7 +52,7 @@ http://www.mingw.org/wiki/howto_install_the_mingw_gcc_compiler_suite
 Great. Now go to the SDL2 site, and get the development version for mingw. You may need 7-Zip or something similar to extract this file. Once this is done, you should see in the extracted folder a pair of folders ending in "mingw32". Pick one (I'm trying i686 first) and copy all of its contents into the corresponding places in C:\MinGW.
 
 Whew. Now for GLEW. You're gonna wanna build these from source, which is by no means easy, but necessary. Grab the source zip from the glew site. Extract, and go into the folder. Hooray, a makefile! But it doesn't work for windows. Instead, make your own .bat file and type in the following: (from sourceforge)
-#######
+***
 gcc -DGLEW_NO_GLU -O2 -Wall -W -Iinclude  -DGLEW_BUILD -o src/glew.o -c src/glew.c
 gcc -shared -Wl,-soname,libglew32.dll -Wl,--out-implib,lib/libglew32.dll.a    -o lib/glew32.dll src/glew.o -L/mingw/lib -lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32
 ar cr lib/libglew32.a src/glew.o
@@ -60,8 +60,8 @@ ar cr lib/libglew32.a src/glew.o
 gcc -DGLEW_NO_GLU -DGLEW_MX -O2 -Wall -W -Iinclude  -DGLEW_BUILD -o src/glew.mx.o -c src/glew.c
 gcc -shared -Wl,-soname,libglew32mx.dll -Wl,--out-implib,lib/libglew32mx.dll.a -o lib/glew32mx.dll src/glew.mx.o -L/mingw/lib -lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32
 ar cr lib/libglew32mx.a src/glew.mx.o
-#######
-Don't put in the lines of '#'s, those are just markers. Run the batch file. Look in the 'lib' folder, and copy the contents to \MinGC\lib. If you build a different version of glew than me (1.11.0), it may be necessary to replace the 'glew32.dll' I provide (in this folder) with the one you just made when it comes time to run your game.
+***
+Don't put in the lines of '*'s, those are just markers. Run the batch file. Look in the 'lib' folder, and copy the contents to \MinGC\lib. If you build a different version of glew than me (1.11.0), it may be necessary to replace the 'glew32.dll' I provide (in this folder) with the one you just made when it comes time to run your game.
 
 What you're *supposed* to be able to do now is open a command prompt, go into this folder, go into 'src', and type 'mingw32-make windows'.
 
@@ -123,13 +123,11 @@ I should point out that I haven't tried this out on any actual people - While I 
 
 ====FEEDBACK/CONTRIBUTING====
 
-You may email questions, comments, bug reports, fan mail, cute pictures of cats, interesting news articles, broken links, strangely ominous strings of characters, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding. The world is frighteningly full of people.
+You may email questions, comments, bug reports, crash reports, history reports, fan mail, death threats, chain letters, death mail, chain threats, fan letters, chainmail, fan threats, death letters, death notes, fans, death, chains, cute pictures of cats, interesting news articles, broken links, strangely ominous strings of characters, additions to this list, or anything else to sboerwinkle@gmail.com. If and when I cast this out to the internet, hearing even a "plunk" in reply would be rewarding. The world is frighteningly full of people.
 
 If you wish to contribute to the project... Gosh, I'm flattered! I know Github has a way to fork projects, but I've never looked into it. Unless I'm mistaken, you fork it and then I authorize a merge when you're done. Rest assured, I'll do my best to honor the effort anyone is willing to put into this thing, even if I have to create a mod system! Shoot me an email, I guess.
 
 Thing's I'm looking for especially:
  -A better name. I hate naming things.
- -A working Windows port. Won't blame you if you just don't care enough.
+ -Levels.
  -Ideas that aren't bad. Bad ideas are just the worst.
-
-That last one was, of course, sarcasm. There are no stupid ideas, only stupid people.

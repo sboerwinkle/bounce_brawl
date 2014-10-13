@@ -145,7 +145,7 @@ Cool. Now we need to add the "add" function to the task.h header file. This bein
 
 Tools are anything with a box drawn on them. They're nice, sometimes. Let's make one.
 
-Open task.c. Look for the string "addTool". Here we are. Let's add a new function. We'll call it addToolTeleport. We need a number to serve as our tool identifier, and arbitrarily I choose 76. Some of the existing function, like addToolDestroy and addToolGrab, operate on a pre-existing node - we're going to model ours on addToolGun, which creates its node. So, below addToolGun, add the following:
+Open task.c. Look for the string "addTool". Here we are. Let's add a new function. We'll call it addToolTeleport. We need a number to serve as our tool identifier, and arbitrarily I choose 76. Some of the existing functions, like addToolDestroy and addToolGrab, operate on a pre-existing node - we're going to model ours on addToolGun, which creates its node. So, below addToolGun, add the following:
 ***
 void addToolTeleport(int x, int y)
 {
@@ -155,7 +155,7 @@ void addToolTeleport(int x, int y)
 ***
 Wasn't that easy? We're only just beginning >:)
 
-The next part is actually also fairly easy. A few lines up, we should see the function getToolColor, which colors the boxes that get drawn. Let's add a case statement for our new tool, as follows. Make sure it's above 'default'.
+The next part is actually also fairly easy. A few lines up, we should see the function getToolColor, which colors the boxes that get drawn. Let's add a case statement for our new tool, as follows. Make sure it's above 'default' (though I'm not acutally sure that matters).
 ***
 case 76:
 	return 0x7060FFFF;

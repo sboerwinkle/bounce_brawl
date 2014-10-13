@@ -14,7 +14,7 @@
 #define CIRCLERESOLUTION 60
 
 //I once used a Windows computer with terrible support for OpenGL. The result, I believe, was just not seeing anything when you started a level.
-//Uncomment out the following 'define' if you have a Windows computer (Linux users are fine here, just get mesa) without "good enough" openGL support.
+//Uncomment the following 'define' if you have a Windows computer (Linux users are fine here, just get mesa) without "good enough" openGL support.
 //#define STUPIDINTEL
 //P.S. Actually, the derpy version of drawing caused by defining STUPIDINTEL is a little faster (if ugly). You might experiment with defining it anyway.
 
