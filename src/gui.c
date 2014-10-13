@@ -228,12 +228,14 @@ static void paint()
 				       " V : ACHEIVEMENT VIEW");
 			simpleDrawText(12, " M : MANAGE PLAYERS");
 			simpleDrawText(13, " K : SET KEYS");
-			simpleDrawText(16,
-				       netMode ? "LISTENING" :
-				       "NETWORK INACTIVE");
-			simpleDrawText(17, " H : HOST A GAME");
-			if (pIndex[0] != -1)
-				simpleDrawText(18, " C : CONNECT");
+			if (netMode) {
+				simpleDrawText(16, "LISTENING");
+			} else {
+				simpleDrawText(16, "NETWORK INACTIVE");
+				simpleDrawText(17, " H : HOST A GAME");
+				if (pIndex[0] != -1)
+					simpleDrawText(18, " C : CONNECT");
+			}
 			sprintf(line, " P : PORT : %d", port);
 			simpleDrawText(19, line);
 			sprintf(line, " A : ADDR : %s", addressString);
@@ -434,6 +436,8 @@ static void keyAction(int bit, char pressed)
 				return;
 			}
 			if (bit == SDLK_c) {
+				if (netMode)
+					return;
 				myConnect();
 				nothingChanged = 0;
 				return;
@@ -444,6 +448,8 @@ static void keyAction(int bit, char pressed)
 				return;
 			}
 			if (bit == SDLK_h) {
+				if (netMode)
+					return;
 				char *playerNumbers = calloc(1, 10);
 				int numNet = 0;
 				int i = 0;

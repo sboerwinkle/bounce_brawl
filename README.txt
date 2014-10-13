@@ -73,6 +73,8 @@ That fixed it for me. I next had a whole slew of other errors, but I fixed those
 
 If, upon running the game and starting a level, you notice that you can't see anything, try going to the top of 'src/gfx.c', uncommenting the 'STUPIDINTEL' line, and recompiling. It makes all your circles into octogons :)
 
+One more footnote: 'mingw32-make cleanWindows' is also valid. This deletes all the .o files and the executable, if you want to force a rebuild. Shouldn't need it.
+
 ----Twiddling Performance----
 
 Don't worry, even the (moderately) computer illiterate can follow these instructions.

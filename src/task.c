@@ -448,15 +448,15 @@ static void taskguycontroldoLegs(taskguycontroldata * data)
 {
 	int *myNodes = data->myNodes;
 	char *myKeys = data->myKeys;
-//      short sl = 35;
-//      short ll = 49;
+//      int16_t sl = 35;
+//      int16_t ll = 49;
 	shrinkArm(&data->ten0, 20);
 	shrinkArm(&data->ten1, 20);
 	shrinkArm(&data->nine0, 20);
 	shrinkArm(&data->nine1, 20);
 	shrinkArm(&data->nine2, 28);
 	shrinkArm(&data->eleven0, 28);
-	short sl = 0, ll = 0;
+	int16_t sl = 0, ll = 0;
 	int count = 0;
 	int i = 0;
 	for (; i < 4; i++) {

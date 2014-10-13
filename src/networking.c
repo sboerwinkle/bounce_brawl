@@ -63,7 +63,7 @@ static sem_t mySem, secondSem;
 static volatile struct imgData *dataToSend = NULL;
 static pthread_t hostThreadId;
 
-void addNetCircle(short x, short y, unsigned int r)
+void addNetCircle(int16_t x, int16_t y, unsigned int r)
 {
 	if (numCircles == maxCircles) {
 		maxCircles += 5;
@@ -75,7 +75,7 @@ void addNetCircle(short x, short y, unsigned int r)
 	*(data + 2) = htons(r);
 }
 
-void addNetPlayerCircle(uint16_t ix, short x, short y, uint32_t color)
+void addNetPlayerCircle(uint16_t ix, int16_t x, int16_t y, uint32_t color)
 {
 	if (numPlayerCircles == maxPlayerCircles) {
 		maxPlayerCircles++;
@@ -97,7 +97,8 @@ static void addNetLineSomething()
 }
 
 void addNetLine(uint16_t dest, uint8_t hue)
-{				//This function works whether adding a new circle or a new line. Incrementing of numLines must be handled by the caller for this reason, though numLineBytes and maxLineBytes are handled in here
+{
+//This function works whether adding a new circle or a new line. Incrementing of numLines must be handled by the caller for this reason, though numLineBytes and maxLineBytes are handled in here
 	addNetLineSomething();
 	uint8_t *data = lines + numLineBytes;
 	*((uint16_t *) data) = htons(dest);
@@ -201,14 +202,14 @@ void writeImgs()
 		uint16_t sizeData = htons(size);
 		uint8_t *realData = malloc(size);
 		uint8_t *data = realData + 4;
-		*((short *) data) = htons(numToolMarks);
+		*((int16_t *) data) = htons(numToolMarks);
 		memcpy(data += 2, toolMarks, numToolMarks);
-		*((short *) (data += numToolMarks)) = htons(numCircles);
-		*((short *) (data += 2)) = htons(6 * maxZoomIn);
+		*((int16_t *) (data += numToolMarks)) = htons(numCircles);
+		*((int16_t *) (data += 2)) = htons(6 * maxZoomIn);
 		memcpy(data += 2, circles, 6 * numCircles);
-		*((short *) (data += 6 * numCircles)) = htons(numLines);
+		*((int16_t *) (data += 6 * numCircles)) = htons(numLines);
 		memcpy(data += 2, lines, numLineBytes);
-		*((short *) (data += numLineBytes)) = htons(numPlayerCircles);
+		*((int16_t *) (data += numLineBytes)) = htons(numPlayerCircles);
 		memcpy(data += 2, playerCircles, 10 * numPlayerCircles);
 
 		uint16_t *netCenters = malloc(2 * 2 * maxClients);
@@ -353,7 +354,7 @@ static void waitForNetStuff()
 		if (poll(&myPollFd, 1, 1000) == 1 && myPollFd.revents == POLLIN)
 #endif
 		{
-			if (!SDL_PushEvent(&e))
+			if (SDL_PushEvent(&e) == 1)
 				sem_wait(&mySem);	// If we successfully pushed the event, wait for main thread to process it.
 		}
 #ifdef WINDOWS
@@ -474,7 +475,7 @@ static int netListen(int phase)
 			setColorFromHex(ntohl(*(uint32_t *) (pointer + 2)));
 			drawCircle((float) *(circlePointer + ix) / width2, (float) *(circlePointer + ix + 1) / height2, myMarkSizef);
 			drawCircle((float)
-				   ((*(int16_t *) (pointer + 6) - locX) / zoom) / width2, (float) ((*(int16_t *) (pointer + 8) - locY) / zoom) / width2, myMarkSizef);
+				   (((int16_t) ntohs(*(int16_t *) (pointer + 6)) - locX) / zoom) / width2, (float) (((int16_t) ntohs(*(int16_t *) (pointer + 8)) - locY) / zoom) / height2, myMarkSizef);
 			pointer += 10;
 		}
 		free(data);
