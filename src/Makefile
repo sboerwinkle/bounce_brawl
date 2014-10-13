@@ -5,18 +5,20 @@ CFLAGS=-Wall -O2 -c -pthread -ffast-math $(DEBUG)
 
 LFLAGS=-lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
 
-.PHONY: debug windows remake clean
+.PHONY: linux windows game debug remake clean cleanWindows
+
+linux: game
+	mv game ..
+
+windows:
+	$(MAKE) game DEBUG="-D WINDOWS" LFLAGS="-ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -o game.exe -LLib/SDL2/x86_64-w64-mingw32/lib -lm -lglew32 -lglu32 -lopengl32 -pthread -lmingw32 -lSDL2main -mwindows -lws2_32 -lSDL2"
+	I_hate_Windows.bat
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o
 	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o -o game $(LFLAGS)
-	mv game ..
 
 debug:
 	$(MAKE) DEBUG="-g -O0"
-	
-windows:
-	$(MAKE) DEBUG="-D WINDOWS" LFLAGS="-ILib/SDL2/x86_64-w64-mingw32/include/SDL2 -Dmain=SDL_main -o game.exe -LLib/SDL2/x86_64-w64-mingw32/lib -lSDL2 -lm -lglu32 -lopengl32 -lglew32 -lglu32 -lopengl32 -lglew32 -pthread -lmingw32 -lSDL2main -mwindows -lws2_32 -lSDL2"
-	move game.exe ..
 
 remake:
 	$(MAKE) clean

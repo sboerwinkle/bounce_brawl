@@ -3,6 +3,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <poll.h>
+#include <fcntl.h>
 #else
 #ifndef UNICODE
 #define UNICODE
@@ -17,13 +19,11 @@
 	//#pragma comment(lib, "Ws2_32.lib") //Doesn't work
 #endif
 #include <unistd.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <semaphore.h>
 #include <pthread.h>
-#include <poll.h>
 #include <GL/gl.h>
 #include "gui.h"
 #include "gfx.h"
@@ -326,7 +326,7 @@ static void keyAction(int code, char pressed)
 		unsigned char vhat = myKeys[p];	// Because we're transylvanian
 		if (p)
 			vhat |= 128;
-		sendto(sockfd, &vhat, 1, 0, (struct sockaddr *) (&servaddr), sizeof(servaddr));
+		sendto(sockfd, (char*) &vhat, 1, 0, (struct sockaddr *) (&servaddr), sizeof(servaddr));
 	}
 }
 
@@ -334,8 +334,8 @@ static void waitForNetStuff()
 {
 #ifdef WINDOWS
 	fd_set myFdSet;
-	FD_ZERO(&myFdSet)
-	    FD_SET(sockfd, &myFdSet);
+	FD_ZERO(&myFdSet);
+	FD_SET(sockfd, &myFdSet);
 #else
 	struct pollfd myPollFd = {.events = POLLIN,.fd = sockfd };
 #endif
@@ -505,7 +505,14 @@ void myConnect()
 		close(sockfd);
 		return;
 	}
+#ifdef WINDOWS
+	{
+		u_long nonblock = 1;
+		ioctlsocket(sockfd, FIONBIO, &nonblock);
+	}
+#else
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+#endif
 
 #ifndef WINDOWS
 	in_addr_t addr = inet_addr(addressString);
@@ -598,7 +605,14 @@ void myHost(int max, char *playerNumbers)
 		free(playerNums);
 		return;
 	}
+#ifdef WINDOWS
+	{
+		u_long nonblock = 1;
+		ioctlsocket(sockfd, FIONBIO, &nonblock);
+	}
+#else
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+#endif
 
 	pthread_create(&hostThreadId, NULL, (void *(*)(void *)) &sendImgs, NULL);
 

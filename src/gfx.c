@@ -13,13 +13,10 @@
 //Keep making it smaller, eventually the bottleneck will be elsewhere (i.e., CPU, not GPU) and it'll look uglier with very little performance improvement.
 #define CIRCLERESOLUTION 60
 
-//The Windows computer I was developing on had an Intel graphics card with terrible support for openGL.
-//Comment out the following 'define' if you have a Windows computer (Linux users are fine here, just get mesa) with "good enough" openGL support.
-//All I know for sure is openGL 2.1 isn't enough, but openGL 3.2 probably is.
-#ifdef WINDOWS
-#define STUPIDINTEL
-#endif
-//P.S. Actually, the derpy version of drawing caused by defining STUPIDINTEL is probably actually pretty fast (if ugly). You might experiment with defining it anyway.
+//I once used a Windows computer with terrible support for OpenGL. The result, I believe, was just not seeing anything when you started a level.
+//Uncomment out the following 'define' if you have a Windows computer (Linux users are fine here, just get mesa) without "good enough" openGL support.
+//#define STUPIDINTEL
+//P.S. Actually, the derpy version of drawing caused by defining STUPIDINTEL is a little faster (if ugly). You might experiment with defining it anyway.
 
 static GLuint uniColorId, vbo;
 

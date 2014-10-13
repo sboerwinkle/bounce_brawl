@@ -15,10 +15,6 @@
 #include "gui.h"
 #include "achievements.h"
 
-#ifdef WINDOWS
-#include <windows.h>
-#endif
-
 struct menuItem;
 
 typedef struct menu {
@@ -176,15 +172,20 @@ static inline void simpleDrawText(int line, char *text)
 		 text);
 }
 
+static int errorsCaught = 0;
 //Where we actually draw the screen
 static void paint()
 {
 	static char line[40];
-	GLenum error = glGetError();
-	if (error) {
-		fputs((const char *) gluErrorString(error), logFile);
-		fputc('\n', logFile);
-		fflush(logFile);
+	if (errorsCaught < 10) {
+		GLenum error = glGetError();
+		if (error) {
+			fputs((const char *) gluErrorString(error), logFile);
+			fputc('\n', logFile);
+			if (++errorsCaught >= 10)
+				fputs("Caught 10 errors, not logging anymore.\n", logFile);
+			fflush(logFile);
+		}
 	}
 	if (mode == 0) {
 		if (nothingChanged)
