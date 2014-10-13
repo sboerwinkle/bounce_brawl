@@ -61,7 +61,7 @@ gcc -DGLEW_NO_GLU -DGLEW_MX -O2 -Wall -W -Iinclude  -DGLEW_BUILD -o src/glew.mx.
 gcc -shared -Wl,-soname,libglew32mx.dll -Wl,--out-implib,lib/libglew32mx.dll.a -o lib/glew32mx.dll src/glew.mx.o -L/mingw/lib -lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32
 ar cr lib/libglew32mx.a src/glew.mx.o
 ***
-Don't put in the lines of '*'s, those are just markers. Run the batch file. Look in the 'lib' folder, and copy the contents to \MinGC\lib. If you build a different version of glew than me (1.11.0), it may be necessary to replace the 'glew32.dll' I provide (in this folder) with the one you just made when it comes time to run your game.
+Don't put in the lines of '*'s, those are just markers. Run the batch file. Look in the 'lib' folder, and copy the contents to \MinGC\lib. If you build a different version of glew than me (1.11.0), it may be necessary to replace the 'glew32.dll' I provide (in this folder) with the one you just made when it comes time to run your game. While we're at it, building it form source means you might want to delete (or at least move elsewhere) all the 'dll's I gave you. Just to make sure it uses the right versions.
 
 What you're *supposed* to be able to do now is open a command prompt, go into this folder, go into 'src', and type 'mingw32-make windows'.
 
