@@ -1,6 +1,6 @@
 CC=gcc
 #CFLAGS=-Wall -O2 -c -pthread -ffast-math -fno-math-errno $(DEBUG)
-CFLAGS=-Wall -O2 -c -pthread -ffast-math $(DEBUG)
+CFLAGS=-Wall -O2 -c -pthread $(DEBUG)
 
 LFLAGS=-lSDL2 -lm -lrt -lGLEW -lGL -lGLU -pthread
 
