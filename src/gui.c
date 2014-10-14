@@ -15,6 +15,10 @@
 #include "gui.h"
 #include "achievements.h"
 
+#ifdef WINDOWS
+#include <windows.h>
+#endif
+
 struct menuItem;
 
 typedef struct menu {
