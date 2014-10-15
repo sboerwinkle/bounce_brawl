@@ -109,7 +109,7 @@ The achievements are checked when you quit the level and return to the menu. The
 
 Completing the achievement earns you a pair of stars by the level's name. Completing it with no one taking any damage or respawning earns you the stars, plus that level appears in technicolor. If you earn the entire technicolor base menu, consider the game beaten. Congratulations, sir or madam - not many have the patience and skill for what you have accomplished.
 
-The achievements vary widely in difficulty. If you can't figure out how to beat it, you either haven't wasted enough lives or haven't tried something interesting. If you know how to beat it but always get hurt in the process, try a different achievement. I guarantee that they're all beatable (I've beaten them), but some are
+The achievements vary widely in difficulty. If you can't figure out how to beat it, you either haven't wasted enough lives or haven't tried something interesting. If you know how to beat it but always get hurt in the process, try a different achievement. I guarantee that they're all beatable (I've beaten them (On Linux, at least)), but some are
 Just
 So
 Hard.

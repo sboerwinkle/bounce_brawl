@@ -606,7 +606,7 @@ void lvlgardens()
 	addBridge(ix1 + 10, ix3 + 16, 22, .2, 16, 6, .95, 7, 6);
 	addBridge(ix4 + 7, ix2, 12, .3, 16, 7, .95, 7, 4.2);
 	addElevator(-800, -220, 320);
-	addToolMech1(-640, -270);
+	addToolMech1(-640, -271);
 
 	taskfixedadd(ix4, 1);
 	taskgravityadd();
