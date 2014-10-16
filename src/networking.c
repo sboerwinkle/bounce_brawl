@@ -248,6 +248,7 @@ void writeImgs()
 	numLines = 0;
 	numCircles = 0;
 	numPlayerCircles = 0;
+	numToolMarks = 0;
 }
 
 //Performed once, when the game starts up.
