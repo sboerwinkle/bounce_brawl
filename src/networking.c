@@ -1,22 +1,22 @@
-#include "structs.h"
-#ifndef WINDOWS
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <fcntl.h>
+#ifdef WINDOWS
+	#ifndef UNICODE
+	#define UNICODE
+	#endif
+
+	#define WIN32_LEAN_AND_MEAN
+
+	#include <winsock2.h>
+	#include <Ws2tcpip.h>
+
+	#define myClose(a) closesocket(a)
 #else
-#ifndef UNICODE
-#define UNICODE
-#endif
+	#include <arpa/inet.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <poll.h>
+	#include <fcntl.h>
 
-#define WIN32_LEAN_AND_MEAN
-
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-
-	// Link with ws2_32.lib
-	//#pragma comment(lib, "Ws2_32.lib") //Doesn't work
+	#define myClose(a) close(a)
 #endif
 #include <unistd.h>
 #include <stdio.h>
@@ -25,6 +25,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <GL/gl.h>
+#include "structs.h"
 #include "gui.h"
 #include "gfx.h"
 #include "font.h"
@@ -344,7 +345,7 @@ static void waitForNetStuff()
 	SDL_Event e = {.type = SDL_USEREVENT };	//Since only the main thread can do anything of consequence, this is how we communicate that we have data to read.
 	while (1) {
 		if (!sem_trywait(&secondSem)) {	// If main thread sets mySem without me pushing an event, it's time to quit.
-			close(sockfd);
+			myClose(sockfd);
 			return;
 		}
 		//Wait for network input for a second, then go back to that sem_trywait real quick
@@ -365,64 +366,90 @@ static void waitForNetStuff()
 	}
 }
 
-static int netListen(int phase)
-{				// Helper to myConnect. Is called whenever there's net data to read, and does all the dirty work.
-	uint8_t sizeData[3];
+static int phase;
+
+static void netListen()
+{
+// Helper to myConnect. Is called whenever there's net data to read, and does all the dirty work.
+	char sizeData[3];
 	uint8_t *data = NULL;
 	static uint16_t size = 0;
 	int msgSize;
 	struct sockaddr_in sender;
 	socklen_t addrSize2 = sizeof(struct sockaddr_in);
 	socklen_t addrSize;
-	if (phase == 0) {
+	while (phase == 0) {
 		uint8_t code;
 		addrSize = addrSize2;
 		if (0 >= recvfrom(sockfd, (char *) &code, 1, 0, (struct sockaddr *) &sender, &addrSize))
-			return 0;
+			return;
+		if (sender.sin_addr.s_addr != servaddr.sin_addr.s_addr)
+			continue;
 		if (code) {
 			running = 0;
-			return 0;
-		} else {
-			setColorFromHue(128);
-			drawText(20 - width2, 20 + height2, TEXTSIZE, "ACKNOWLEDGED");
-			myDrawScreenNoClear();
-			return 1;
+			return;
 		}
-	} else if (phase == 1) {
-		addrSize = addrSize2;
-		msgSize = recvfrom(sockfd, (char *) sizeData, 3, 0, (struct sockaddr *) &sender, &addrSize);
-		if (sender.sin_addr.s_addr != servaddr.sin_addr.s_addr || msgSize != 2)
-			return 1;
-		uint8_t *tmpPointer = sizeData;
-		size = ntohs(*((uint16_t *) tmpPointer));
-		if (size == 0) {
-			running = 0;
-			return 1;
+		setColorFromHue(128);
+		drawText(20 - width2, 20 + height2, TEXTSIZE, "ACKNOWLEDGED");
+		myDrawScreenNoClear();
+		phase = 1;
+	}
+	int cycles = 0;
+	for (; cycles < 30; cycles++) {
+		if (phase == 1) {
+			addrSize = addrSize2;
+			msgSize = recvfrom(sockfd, sizeData, 3, 0, (struct sockaddr *) &sender, &addrSize);
+			if (0 >= msgSize) {
+				cycles = 10;
+				break;
+			}
+			if (sender.sin_addr.s_addr != servaddr.sin_addr.s_addr || msgSize != 2)
+				continue;
+			char *strictAliasingAvoider = sizeData;
+			size = ntohs(*((uint16_t*) strictAliasingAvoider));
+			if (size == 0) {
+				if (data)
+					free(data);
+				running = 0;
+				return;
+			}
+			phase = 2;
 		}
-		return 2;
-	} else if (phase == 2) {
-		glClear(GL_COLOR_BUFFER_BIT);
-		data = malloc(size);
+		uint8_t *data2 = malloc(size);
 		addrSize = addrSize2;
-		msgSize = recvfrom(sockfd, (char *) data, size, 0, (struct sockaddr *) &sender, &addrSize);
+		msgSize = recvfrom(sockfd, (char *) data2, size, 0, (struct sockaddr *) &sender, &addrSize);
+		if (0 >= msgSize) {
+			free(data2);
+			cycles = 10;
+			break;
+		}
 		if (sender.sin_addr.s_addr != servaddr.sin_addr.s_addr) {
-			free(data);
-			return 2;
+			free(data2);
+			continue;
 		}
 		if (msgSize == 2) {
-			size = ntohs(*((uint16_t *) data));
+			size = ntohs(*((uint16_t *) data2));
+			free(data2);
 			if (size == 0) {
+				if (data)
+					free(data);
 				running = 0;
-				return 1;
+				return;
 			}
-			free(data);
-			return 2;
+			continue;
 		}
+		if (data)
+			free(data);
+		data = data2;
+		phase = 1;
+	}
+	if (data) {
+		glClear(GL_COLOR_BUFFER_BIT);
 		int16_t locX = ntohs(*(int16_t *) data);
 		int16_t locY = ntohs(*(int16_t *) (data + 2));
 		uint8_t *pointer = data + 6 + ntohs(*(uint16_t *) (data + 4));
 		uint8_t *toolColors = data + 6;
-		size = ntohs(*(uint16_t *) pointer);
+		uint16_t length = ntohs(*(uint16_t *) pointer);
 		float myMarkSizef = (float) (ntohs(*((uint16_t *) (pointer + 2))) / zoom) / width2 / 2;
 		pointer += 4;
 		int16_t *circlePointer = (int16_t *) pointer;
@@ -431,7 +458,7 @@ static int netListen(int phase)
 		int i = 0;
 		char flag = 0;
 		setColorWhite();
-		for (; i < size; i++) {
+		for (; i < length; i++) {
 			radius = ntohs(*((uint16_t *) (pointer + 4)));
 			xf = (float) (*(int16_t *) pointer = ((int16_t)
 							      ntohs(*(int16_t *) pointer) - locX) / zoom) / width2;
@@ -452,11 +479,11 @@ static int netListen(int phase)
 			}
 			pointer += 6;
 		}
-		size = ntohs(*(uint16_t *) pointer);
+		length = ntohs(*(uint16_t *) pointer);
 		pointer += 2;
 		int j;
 		int ix;
-		for (i = 0; i < size; i++) {
+		for (i = 0; i < length; i++) {
 			ix = 3 * ntohs(*(uint16_t *) pointer);
 			msgSize = *(pointer += 2);
 			pointer++;
@@ -469,9 +496,9 @@ static int netListen(int phase)
 				pointer++;
 			}
 		}
-		size = ntohs(*(uint16_t *) pointer);
+		length = ntohs(*(uint16_t *) pointer);
 		pointer += 2;
-		for (i = 0; i < size; i++) {
+		for (i = 0; i < length; i++) {
 			ix = 3 * ntohs(*(uint16_t *) pointer);
 			setColorFromHex(ntohl(*(uint32_t *) (pointer + 2)));
 			drawCircle((float) *(circlePointer + ix) / width2, (float) *(circlePointer + ix + 1) / height2, myMarkSizef);
@@ -481,9 +508,8 @@ static int netListen(int phase)
 		}
 		free(data);
 		myDrawScreenNoClear();
-		return 1;
 	}
-	return 1;
+	return;
 }
 
 void myConnect()
@@ -504,7 +530,7 @@ void myConnect()
 #endif
 
 	if (0 > bind(sockfd, (struct sockaddr *) &myaddr, sizeof(myaddr))) {
-		close(sockfd);
+		myClose(sockfd);
 		return;
 	}
 #ifdef WINDOWS
@@ -519,13 +545,13 @@ void myConnect()
 #ifndef WINDOWS
 	in_addr_t addr = inet_addr(addressString);
 	if (addr == (in_addr_t) (-1)) {
-		close(sockfd);
+		myClose(sockfd);
 		return;
 	}
 #else
 	unsigned long addr = inet_addr(addressString);
 	if (addr == -1) {
-		close(sockfd);
+		myClose(sockfd);
 		return;
 	}
 #endif
@@ -549,7 +575,7 @@ void myConnect()
 		sendto(sockfd, (char *) colors, 8, 0, (struct sockaddr *) (&servaddr), sizeof(servaddr));
 	}
 	myDrawScreen();
-	int stage = 0;
+	phase = 0;
 
 	SDL_Event e;
 	running = 1;
@@ -564,7 +590,7 @@ void myConnect()
 		else if (e.type == SDL_WINDOWEVENT)
 			myDrawScreenNoClear();
 		else if (e.type == SDL_USEREVENT) {
-			stage = netListen(stage);
+			netListen();
 			sem_post(&mySem);
 		} else if (e.type == SDL_QUIT) {
 			SDL_PushEvent(&e);	//Push it back on so main will exit, then hand control back in that direction.
@@ -602,7 +628,7 @@ void myHost(int max, char *playerNumbers)
 	myaddr.sin_port = htons(port);
 
 	if (0 > bind(sockfd, (struct sockaddr *) &myaddr, sizeof(myaddr))) {
-		close(sockfd);
+		myClose(sockfd);
 		free(clients);
 		free(playerNums);
 		return;
@@ -636,7 +662,7 @@ void stopHosting()
 		decolorize(i);
 		sendto(sockfd, (char *) &size, 2, 0, (struct sockaddr *) &clients[i].addr, sizeof(struct sockaddr_in));
 	}
-	close(sockfd);
+	myClose(sockfd);
 	free(clients);
 	free(playerNums);
 	netMode = 0;
