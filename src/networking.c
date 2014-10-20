@@ -567,13 +567,16 @@ void myConnect()
 	pthread_create(&netStuffId, NULL, (void *(*)(void *)) &waitForNetStuff, NULL);
 
 	uint32_t colors[2];
-	colors[0] = htonl(requests[pIndex[0]].color);
-	if (pIndex[1] == -1) {
-		sendto(sockfd, (char *) colors, 4, 0, (struct sockaddr *) (&servaddr), sizeof(servaddr));
+	int num;
+	if (pIndex[0] == -1) {
+		num = 0;
 	} else {
-		colors[1] = htonl(requests[pIndex[1]].color);
-		sendto(sockfd, (char *) colors, 8, 0, (struct sockaddr *) (&servaddr), sizeof(servaddr));
+		colors[0] = htonl(requests[pIndex[0]].color);
+		num = 1;
 	}
+	if (pIndex[1] != -1)
+		colors[num++] = htonl(requests[pIndex[1]].color);
+	sendto(sockfd, (char *) colors, 4*num, 0, (struct sockaddr *) (&servaddr), sizeof(servaddr));
 	myDrawScreen();
 	phase = 0;
 

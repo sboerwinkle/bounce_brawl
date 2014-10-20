@@ -1,7 +1,4 @@
-Use a windows version of closing sockets.
-See if there's a way to determine how many datagrams are waiting.
-When there's communication to be read, loop. If we get at least one drawing packet, well then we draw it. The most recent one.
-Network test. Do I need to beat my brains out on a keyboard?
+Fix player-2 ness
 +sourceforge
 Send email to circle guy: slabode@aim.com
 Content:

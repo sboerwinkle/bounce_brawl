@@ -237,7 +237,7 @@ static void paint()
 			} else {
 				simpleDrawText(16, "NETWORK INACTIVE");
 				simpleDrawText(17, " H : HOST A GAME");
-				if (pIndex[0] != -1)
+				if (pIndex[0] != -1 || pIndex[1] != -1)
 					simpleDrawText(18, " C : CONNECT");
 			}
 			sprintf(line, " P : PORT : %d", port);
@@ -440,7 +440,7 @@ static void keyAction(int bit, char pressed)
 				return;
 			}
 			if (bit == SDLK_c) {
-				if (netMode)
+				if (netMode || (pIndex[0] == -1 && pIndex[1] == -1))
 					return;
 				myConnect();
 				nothingChanged = 0;
@@ -548,17 +548,12 @@ static void keyAction(int bit, char pressed)
 						if (pIndex[0] == -1)
 							pIndex[0] = i;
 						else
-							requests[i].
-							    controlMode =
-							    2;
-					} else if (requests[i].
-						   controlMode == 1) {
+							requests[i].controlMode = 2;
+					} else if (requests[i].controlMode == 1) {
 						if (pIndex[1] == -1)
 							pIndex[1] = i;
 						else
-							requests[i].
-							    controlMode =
-							    2;
+							requests[i].controlMode = 2;
 					}
 				}
 				inputMode = 0;

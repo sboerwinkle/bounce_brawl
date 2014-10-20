@@ -93,13 +93,13 @@ The default controls are set up to minimize keyboard ghosting (look it up), so c
 
 -Hosting
 
-Go to manage players and add as many "NETWORKED PLAYER"s as you want. Go to the main menu and hit the host key. On the manage players screen, the slots will change from grey as people connect. Start a level to begin the lan party.
+Go to manage players and add as many "NETWORKED PLAYER"s as you want. Go to the main menu and hit the host key (H). On the manage players screen, the slots will change from grey as people connect. Start a level to begin the lan party.
 
 Bear in mind that every time you end a level, you will have to start hosting again.
 
 -Connecting
 
-Go to manage players and make sure either "PLAYER 1" or both "PLAYER 1" and "PLAYER 2" are present, depending on how many people are playing on your end. Go to the main menu and hit the connect key. If everything goes well, you should quickly see "ACKNOWLEDGED". Then wait patiently.
+Go to manage players and make sure one or both of "PLAYER 1" and "PLAYER 2" are present, depending on how many people are playing on your end. Go to the main menu and hit the connect key (C). If everything goes well, you should quickly see "ACKNOWLEDGED". Then wait patiently.
 
 ----Achievements----
 
