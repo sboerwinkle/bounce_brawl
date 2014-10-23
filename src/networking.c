@@ -514,8 +514,6 @@ static void netListen()
 
 void myConnect()
 {				// Entered by pressing 'c', not exited until you push 'esc'.
-	if (pIndex[0] == -1)
-		return;
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sockfd < 0)
 		return;
