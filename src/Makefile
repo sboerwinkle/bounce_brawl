@@ -17,7 +17,7 @@ game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievement
 	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o -o game $(LFLAGS)
 
 debug:
-	$(MAKE) DEBUG="-g -O0"
+	$(MAKE) DEBUG="-g -O0 -DLOCALNET"
 
 remake:
 	$(MAKE) clean

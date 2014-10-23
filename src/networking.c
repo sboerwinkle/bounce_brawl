@@ -278,12 +278,18 @@ void stopNetworking()
 #endif
 }
 
+//Helper function to decolorize (just below). Separated because it is called independently around line 688.
+static void blankify(int i)
+{
+	requests[i].color = 0x606060FF;
+}
+
 //Sets a player (or players!) back to gray when their client computer quits
 static void decolorize(int i)
 {
-	requests[clients[i].playerNum1].color = 0x606060FF;
+	blankify(clients[i].playerNum1);
 	if (clients[i].playerNum2 != 255)
-		requests[clients[i].playerNum2].color = 0x606060FF;
+		blankify(clients[i].playerNum2);
 }
 
 //When connected, this handles our key presses.
@@ -350,10 +356,10 @@ static void waitForNetStuff()
 		}
 		//Wait for network input for a second, then go back to that sem_trywait real quick
 #ifdef WINDOWS
-		struct timeval tv = {.tv_sec = 1,.tv_usec = 0 };
+		struct timeval tv = {.tv_sec = 0, .tv_usec = 200000};
 		if (select(sockfd + 1, &myFdSet, NULL, NULL, &tv) == 1)
 #else
-		if (poll(&myPollFd, 1, 1000) == 1 && myPollFd.revents == POLLIN)
+		if (poll(&myPollFd, 1, 200) == 1 && myPollFd.revents == POLLIN)
 #endif
 		{
 			if (SDL_PushEvent(&e) == 1)
@@ -678,8 +684,10 @@ void kickNoRoom()
 		if (clients[i].dead)
 			continue;
 		if (clients[i].playerNum1 < players) {
-			if (clients[i].playerNum2 >= players)
+			if (clients[i].playerNum2 != 255 && clients[i].playerNum2 >= players) {
+				blankify(clients[i].playerNum2);
 				clients[i].playerNum2 = 255;
+			}
 			continue;
 		}
 		clients[i].dead = 1;
@@ -775,20 +783,10 @@ void readLobbyKeys()
 	{
 		size = size2;
 		msgLen = recvfrom(sockfd, (char *) data, 8, 0, (struct sockaddr *) &sender, &size);
-		if (msgLen == 0)
-			continue;
-		current = clients;
-		target = NULL;
-		for (index = 0; index < maxClients; index++) {
-			if (current->dead) {
-				//Yes, this is an excellent place to add a player!
-				if (!target) {
-					target = current;
-				}
-			} else if (sender.sin_addr.s_addr == current->addr.sin_addr.s_addr) {
-				//Hey, it's someone we already know!
-				if (msgLen == 1 && *data == 255) {
-					//Oh, looks like he's quitting.
+		if (msgLen == 1 && *data == 255) {
+			current = clients;
+			for (index = 0; index < maxClients; index++) {
+				if (!current->dead && sender.sin_addr.s_addr == current->addr.sin_addr.s_addr) {
 					current->dead = 1;
 					playerNums[current->playerNum1] = 1;
 					if (current->playerNum2 != 255)
@@ -796,9 +794,19 @@ void readLobbyKeys()
 					decolorize(index);
 					// Ask for a redraw
 					nothingChanged = 0;
-					fputs("Client dropped before game!\n", logFile);
+					puts("Client dropped before game!");
 				}
-				target = NULL;
+				current++;
+			}
+		}
+		if (msgLen != 4 && msgLen != 8)
+			continue;
+		current = clients;
+		target = NULL;
+		for (index = 0; index < maxClients; index++) {
+			if (current->dead) {
+				//Yes, this is an excellent place to add a player!
+				target = current;
 				break;
 			}
 			current++;
@@ -819,9 +827,9 @@ void readLobbyKeys()
 					}
 				}
 			}
-			if (index == 10)
+			if (index == 10) {
 				*data = 1;
-			else {
+			} else {
 				target->addr = sender;
 				target->dead = 0;
 				playerNums[target->playerNum1] = 0;
@@ -833,11 +841,12 @@ void readLobbyKeys()
 				}
 				// Ask for a redraw
 				nothingChanged = 0;
-				fputs("Stored a client.\n", logFile);
+				puts("Stored a client.");
 				*data = 0;
 			}
-		} else
+		} else {
 			*data = 1;
+		}
 		sendto(sockfd, (char *) data, 1, 0, (struct sockaddr *) &sender, size);
 	}
 	free(data);

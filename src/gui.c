@@ -454,10 +454,10 @@ static void keyAction(int bit, char pressed)
 			if (bit == SDLK_h) {
 				if (netMode)
 					return;
-				char *playerNumbers = calloc(1, 10);
+				char *playerNumbers = calloc(10, 1);
 				int numNet = 0;
 				int i = 0;
-				for (; i < 10; i++) {
+				for (; i < numRequests; i++) {
 					if (requests[i].controlMode == -1) {
 						numNet++;
 						playerNumbers[i] = 1;	// :'(
