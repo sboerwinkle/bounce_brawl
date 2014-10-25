@@ -1,4 +1,4 @@
-//This structure stores all the information you'd ever want to know about a player, and doubles as the taskguycontrol's persistent data!
+//This structure stores all the information you'd ever want to know about a player, and doubles as the TGC's persistent data!
 typedef struct {
 	int myNodes[4];
 	int controlType;
@@ -10,14 +10,13 @@ typedef struct {
 	char *myKeys;
 	int num;
 	tool *controlData;
-	int connectedLeg;
 	char exists[4];
 	char alive, injured, firstLife;
 
-	double ten0, ten1, nine0, nine1, nine2, eleven0;	// Arm lengths, named after the indices which certain nodes got when I was still testing taskguycontrol
+	double ten0, ten1, nine0, nine1, nine2, eleven0;	// Arm lengths, named after the indices which certain nodes got when I was still testing TGC
 	long int respawnx, respawny;
 	int centerX, centerY;
-} taskguycontroldata;
+} TGCdata;
 
 extern node *nodes;
 extern int numNodes;
@@ -27,7 +26,7 @@ extern double maxZoomIn;
 extern int zoom;
 extern int centerx;
 extern int centery;
-extern taskguycontroldata *guyDatas;
+extern TGCdata *guyDatas;
 extern int playerNum;		//How many created
 extern int markSize;
 

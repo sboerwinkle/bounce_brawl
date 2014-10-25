@@ -26,7 +26,7 @@ typedef struct task {
 	char (*func) (void *where);
 } task;
 
-//A tool just labels a particular node (where) as being central to a configuration of nodes and connections which the taskguycontrol can recognize and manipulate for fun and profit
+//A tool just labels a particular node (where) as being central to a configuration of nodes and connections which the TGC can recognize and manipulate for fun and profit
 typedef struct {
 	//What kind of tool
 	int type;

@@ -339,7 +339,7 @@ static void lvlbasic()
 	} else
 		playerInc = 0;
 	for (i = 0; i < players; i++) {
-		taskguycontroladd(i * playerInc - 233, -34);
+		TGCadd(i * playerInc - 233, -34);
 	}
 	addScores();
 	taskgravityadd();
@@ -371,7 +371,7 @@ void lvltutorial()
 	tasktextadd(230, -90,
 		    "Try holding 'Left Shift'\nwith 'A' or 'D' to\nroll.");
 	tasktextadd(500, -90,
-		    "Press 'Left Ctrl' to interact with\nobjects marked with squares.\nPress 'L. Shift' to fire this gun.");
+		    "Press 'Left Ctrl' to interact with\nobjects marked with squares.\nPress a direction +\n'L. Shift' to fire this gun.");
 	newNode(650, 140 + 20 * sqrt3 * 2, 16, 150, 4);
 	int hexArg[] = {H,0,0,0,H,0,0,
 			 H,0,0,0,H,H,H,
@@ -397,7 +397,7 @@ void lvltutorial()
 \nsurroundings.\n\n'esc' for main menu");
 	if (players >= 1) {
 		players = 1;
-		taskguycontroladd(10 * 11, -30);
+		TGCadd(10 * 11, -30);
 	}
 	addToolGun(550, -90);
 }
@@ -447,15 +447,15 @@ void lvlcave()
 	addScores();
 	if (players < 1)
 		return;
-	taskguycontroladd(lvlcavesize * -7 - 10,
+	TGCadd(lvlcavesize * -7 - 10,
 			  9 * sqrt3 / 2 * lvlcavesize - 4 * lvlcavesize);
 	if (players < 2)
 		return;
-	taskguycontroladd(lvlcavesize * 7 - 10,
+	TGCadd(lvlcavesize * 7 - 10,
 			  9 * sqrt3 / 2 * lvlcavesize - 4 * lvlcavesize);
 	if (players < 3)
 		return;
-	taskguycontroladd(-10, sqrt3 / 2 * lvlcavesize - 4 * lvlcavesize);
+	TGCadd(-10, sqrt3 / 2 * lvlcavesize - 4 * lvlcavesize);
 }
 
 //These four methods were intended as building blocks, but are currently only used in hanging gardens.
@@ -617,7 +617,7 @@ void lvlgardens()
 		playerInc = 200.0 / ((players + 1) / 2 - 1);
 	int i = 0;
 	for (; i < players; i++) {
-		taskguycontroladd((i >=
+		TGCadd((i >=
 				   halfPlayers ? -650 : -910) +
 				  playerInc * (i % halfPlayers),
 				  25 * sqrt3);
@@ -650,10 +650,10 @@ void lvlsumo()
 		taskfixedadd(i, .5);
 	}
 	if (players > 0) {
-		taskguycontroladd(-55, -30);
+		TGCadd(-55, -30);
 	}
 	if (players > 1) {
-		taskguycontroladd(25, -30);
+		TGCadd(25, -30);
 	}
 	addScores();
 
@@ -675,11 +675,11 @@ void lvltipsy()
 		taskfixedadd(i, .5);
 	}
 	if (players > 0) {
-		taskguycontroladd(220, 270);
+		TGCadd(220, 270);
 		taskscoreadd(0);
 	}
 	if (players > 1) {
-		taskguycontroladd(280, 270);
+		TGCadd(280, 270);
 		taskscoreaddLong(1, 650, 20);
 	}
 
@@ -708,11 +708,11 @@ void lvltilt()
 			      18, 0.5);
 	}
 	if (players > 0) {
-		taskguycontroladd(225, 270);
+		TGCadd(225, 270);
 		taskscoreadd(0);
 	}
 	if (players > 1) {
-		taskguycontroladd(275, 270);
+		TGCadd(275, 270);
 		taskscoreaddLong(1, 650, 20);
 	}
 	taskgravityadd();
@@ -884,10 +884,10 @@ void lvlwalled()
 		killNode(i);
 	}
 	if (players > 0) {
-		taskguycontroladd(-55, -10);
+		TGCadd(-55, -10);
 	}
 	if (players > 1) {
-		taskguycontroladd(25, -10);
+		TGCadd(25, -10);
 	}
 	addScores();
 	taskgravityadd();
@@ -913,7 +913,7 @@ void lvldrop()
 	} else
 		playerInc = 0;
 	for (i = 0; i < players; i++) {
-		taskguycontroladd(-155 + i * playerInc, 0);
+		TGCadd(-155 + i * playerInc, 0);
 	}
 	addScores();
 	taskgravityadd();
@@ -1009,7 +1009,7 @@ void lvlplanet()
 	double rads = players == 0 ? 0 : M_PI * 2 / players;
 	register int i = 0;
 	for (; i < players; i++) {
-		taskguycontroladd(-130 * cos(i * rads),
+		TGCadd(-130 * cos(i * rads),
 				  130 * sin(i * rads));
 	}
 	taskcenteradd(addPlanet(0, 0));
@@ -1029,7 +1029,7 @@ void lvl3rosette()
 	double rads = players == 0 ? 0 : M_PI * 2 / players;
 	register int i = 0;
 	for (; i < players; i++) {
-		taskguycontroladd(240 - 130 * cos(i * rads),
+		TGCadd(240 - 130 * cos(i * rads),
 				  240 - 130 * sin(i * rads));
 	}
 	int indexes[3];
@@ -1064,7 +1064,7 @@ void lvlbigplanet()
 	double rads = players == 0 ? 0 : M_PI * 2 / players;
 	register int i = 0;
 	for (; i < players; i++) {
-		taskguycontroladd(-10 - 520 * cos(i * rads),
+		TGCadd(-10 - 520 * cos(i * rads),
 				  -10 + 520 * sin(i * rads));
 	}
 	int layers[] = { 5, 6, 2, 1, 3, 3 };

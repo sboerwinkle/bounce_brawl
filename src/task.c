@@ -429,10 +429,20 @@ void taskgravityadd()
 	addTask(current);
 }
 
-static inline void taskguycontroldisconnect(taskguycontroldata * data)
+static void TGCdisconnectSub(TGCdata *data)
 {
 	data->controlData->inUse = 0;
 	data->controlType = -1;
+}
+
+static void TGCdisconnect(TGCdata *data)
+{
+	int i = 0;
+	for (; i < 4; i++) {
+		if (data->exists[i])
+			nodes[data->myNodes[i]].connections[0].dead = 1;
+	}
+	TGCdisconnectSub(data);
 }
 
 static void shrinkArm(double *what, double size)
@@ -444,7 +454,7 @@ static void shrinkArm(double *what, double size)
 		*what = size;
 }
 
-static void taskguycontroldoLegs(taskguycontroldata * data)
+static void TGCdoLegs(TGCdata *data)
 {
 	int *myNodes = data->myNodes;
 	char *myKeys = data->myKeys;
@@ -512,10 +522,10 @@ static void taskguycontroldoLegs(taskguycontroldata * data)
 	}
 }
 
-static void taskguycontroldoRoll(taskguycontroldata * data)
+static void TGCdoRoll(TGCdata * data)
 {
 	if (!data->myKeys[4]) {
-		taskguycontroldoLegs(data);
+		TGCdoLegs(data);
 		return;
 	}
 	double rollAmt = 0;
@@ -562,13 +572,21 @@ static void taskguycontroldoRoll(taskguycontroldata * data)
 	}
 }
 
-static void toolGun(taskguycontroldata * data)
+static void toolGun(TGCdata * data)
 {
-	if (data->controlVar < 15)
+	if ((data->controlVar&63) < 25)
 		data->controlVar++;
-	taskguycontroldoLegs(data);
-	if (!data->myKeys[4] || data->lastpressAction || data->controlVar <= 0)
+	if (data->lastpressAction) {
+		if (data->controlVar & 64)
+			TGCdoLegs(data);
+		else
+			TGCdoRoll(data);
 		return;
+	}
+	if (!data->myKeys[4]) {
+		TGCdoLegs(data);
+		return;
+	}
 	int aimingLeg = -1;
 	int i = 0;
 	for (; i < 4; i++) {
@@ -576,21 +594,27 @@ static void toolGun(taskguycontroldata * data)
 			if (aimingLeg == -1)
 				aimingLeg = i;
 			else {
-				aimingLeg = data->connectedLeg;
-				break;
+				data->controlVar &= 63;
+				TGCdoRoll(data);
+				return;
 			}
 		}
 	}
-	if (aimingLeg == -1)
-		aimingLeg = data->connectedLeg;
-	if (!data->exists[(aimingLeg + 2) % 4])
+	if (aimingLeg == -1) {
+		data->controlVar &= 63;
+		TGCdoRoll(data);
+		return;
+	}
+	data->controlVar |= 64;
+	TGCdoLegs(data);
+	if ((data->controlVar&63) <= 10 || !data->exists[(aimingLeg + 2) % 4])
 		return;
 	data->controlVar -= 10;
 	node *one = nodes + data->myNodes[aimingLeg];
 	node *two = nodes + data->myNodes[(aimingLeg + 2) % 4];
 	double dx = one->x - two->x + one->px - two->px;
 	double dy = one->y - two->y + one->py - two->py;
-	double dist = sqrt(dx * dx + dy * dy) / 10.0 / SPEEDFACTOR;	// Velocity of the bullet
+	double dist = sqrt(dx * dx + dy * dy) / 10.0/*Velocity of the bullet*/ / SPEEDFACTOR;
 	if (dist == 0) {
 		dx = 0;
 		dy = 0;
@@ -598,9 +622,12 @@ static void toolGun(taskguycontroldata * data)
 		dx /= dist;
 		dy /= dist;
 	}
+#define BMASS 4
 	int ix =
 	    newNodeLong(one->x, one->y, one->px, one->py, one->xmom + dx,
-			one->ymom + dy, 2, 4, 0);
+			one->ymom + dy, 2, BMASS, 0);
+	one->xmom -= dx*BMASS/one->mass/4;
+	one->ymom -= dy*BMASS/one->mass/4;
 	taskdestroyadd(ix, 100);
 }
 
@@ -614,7 +641,7 @@ static void toolGravity()
 	}
 }
 
-static void toolBigLegs(taskguycontroldata * data)
+static void toolBigLegs(TGCdata * data)
 {
 	char *myKeys = data->myKeys;
 	int centerDists[4] = { 42, 42, 42, 42 };
@@ -661,7 +688,7 @@ static void toolBigLegs(taskguycontroldata * data)
 	}
 }
 
-static int taskguycontrolcreateBody(taskguycontroldata * data)
+static int TGCcreateBody(TGCdata * data)
 {
 	int x = data->respawnx - 10;
 	int y = data->respawny - 10;
@@ -695,9 +722,9 @@ static int taskguycontrolcreateBody(taskguycontroldata * data)
 	return i;
 }
 
-static char taskguycontrol(void *where)
+static char TGC(void *where)
 {
-	taskguycontroldata *data = (taskguycontroldata *) where;
+	TGCdata *data = (TGCdata *) where;
 	int *myNodes = data->myNodes;
 	if (data->alive) {
 		int counter = 0;
@@ -709,9 +736,6 @@ static char taskguycontrol(void *where)
 				continue;
 			node *current = nodes + myNodes[i];
 			if (current->dead) {
-				if (data->controlType != -1
-				    && data->connectedLeg == i)
-					taskguycontroldisconnect(data);
 				data->exists[i] = 0;
 				data->injured = 1;
 			} else {
@@ -739,10 +763,9 @@ static char taskguycontrol(void *where)
 	char *myKeys = data->myKeys;
 	if (!data->lastpress && myKeys[5]) {
 		if (data->controlType != -1) {
-			nodes[myNodes[data->connectedLeg]].connections[0].
-			    dead = 1;
-			taskguycontroldisconnect(data);
+			TGCdisconnect(data);
 		} else {
+#define CONRAD 18 //Connection radius
 			int min = 0;	//I feel kinda bad doing this, as I'm only trying to stop the appearance of a warning about uninitialized variables... I do, though, have the uninitialized variable situation under control. Not to worry.
 			int current;
 			int deltax;
@@ -755,31 +778,16 @@ static char taskguycontrol(void *where)
 					continue;
 				int mx = (int) nodes[myNodes[leg]].x;
 				int my = (int) nodes[myNodes[leg]].y;
-				for (i = 0; i < numTools; i++) {
-					if (tools[i].where == -1
-					    || tools[i].inUse
-					    || nodes[tools[i].where].dead)
+				for (i = numTools - 1; i >= 0; i--) {
+					if (tools[i].where == -1 || tools[i].inUse || nodes[tools[i].where].dead)
 						continue;
-					deltax =
-					    (int) (mx -
-						   nodes[tools[i].where].
-						   x);
-					deltay =
-					    (int) (my -
-						   nodes[tools[i].where].
-						   y);
-					current =
-					    (int) sqrt(deltax * deltax +
-						       deltay * deltay);
-					if (current <
-					    nodes[tools[i].where].size + 18
-					    && (current < min
-						|| data->controlData ==
-						NULL)) {
+					deltax = (int) (mx - nodes[tools[i].where].x);
+					deltay = (int) (my - nodes[tools[i].where].y);
+					current = (int) sqrt(deltax * deltax + deltay * deltay);
+					if (current < nodes[tools[i].where].size + CONRAD
+					    && (current < min || data->controlData == NULL)) {
 						min = current;
-						data->controlData =
-						    tools + i;
-						data->connectedLeg = leg;
+						data->controlData = tools + i;
 					}
 				}
 			}
@@ -789,34 +797,43 @@ static char taskguycontrol(void *where)
 				data->controlIndex =
 				    data->controlData->where;
 				data->controlVar = 0;
-				newConnection(myNodes[data->connectedLeg],
-					      0, data->controlIndex,
-					      (double) 0.8,
-					      (int) nodes[data->
-							  controlIndex].
-					      size + 8, 10, 0.8);
+				int hisx = nodes[data->controlIndex].x;
+				int hisy = nodes[data->controlIndex].y;
+				for (i = 0; i < 4; i++) {
+					if (!data->exists[i])
+						continue;
+					deltax = (int) (hisx - nodes[myNodes[i]].x);
+					deltay = (int) (hisy - nodes[myNodes[i]].y);
+					current = (int) sqrt(deltax * deltax + deltay * deltay);
+					if (current < nodes[data->controlIndex].size + CONRAD) {
+						newConnection(myNodes[i],
+							0, data->controlIndex, 0.4,
+							(int) nodes[data->controlIndex].size + 8,
+							CONRAD - 8, 0.8);
+					}
+				}
 				data->controlData->inUse = 1;
 				if (data->controlType == 0) {
 					killNode(data->controlIndex);
-					taskguycontroldisconnect(data);
+					TGCdisconnect(data);
 				} else if (data->controlType == 2) {
-					connection *con =
-					    nodes[data->controlIndex].
-					    connections;
+					connection *con = nodes[data->controlIndex].connections;
 					if (!con->dead)
-						con->preflength -=
-						    2 * (con->preflength -
-							 con->midlength);
-					taskguycontroldisconnect(data);
-					nodes[myNodes[data->connectedLeg]].
-					    connections[0].dead = 1;
+						con->preflength -= 2 * (con->preflength - con->midlength);
+					TGCdisconnect(data);
 				}
 			}
 		}
-	} else if (data->controlType != -1
-		   && (nodes[myNodes[data->connectedLeg]].connections[0].
-		       dead || nodes[data->controlIndex].dead)) {
-		taskguycontroldisconnect(data);
+	} else if (data->controlType != -1) {
+		int i = 0;
+		for (; i < 4; i++) {
+			if (!data->exists[i])
+				continue;
+			if (!nodes[myNodes[i]].connections[0].dead)
+				break;
+		}
+		if (i == 4)
+			TGCdisconnectSub(data);
 	}
 	switch (data->controlType) {
 	case 100:
@@ -824,13 +841,13 @@ static char taskguycontrol(void *where)
 		break;
 	case 70:
 		toolGravity();
-		taskguycontroldoRoll(data);
+		TGCdoRoll(data);
 		break;
 	case 10:
 		toolGun(data);
 		break;
 	default:
-		taskguycontroldoRoll(data);
+		TGCdoRoll(data);
 		break;
 	}
 	if (frameCount == 0 && data->exists[0]) {
@@ -858,8 +875,8 @@ static char taskguycontrol(void *where)
 		if (data->lastpress == (int) (30 / SPEEDFACTOR)) {
 			if (myKeys[4]) {
 				if (data->controlType != -1)
-					taskguycontroldisconnect(data);
-				taskguycontrolcreateBody(data);
+					TGCdisconnect(data);
+				TGCcreateBody(data);
 			} else {
 				data->respawnx = data->centerX;
 				data->respawny = data->centerY;
@@ -872,17 +889,17 @@ static char taskguycontrol(void *where)
 	return 0;
 }
 
-void taskguycontroladd(int x, int y)
+void TGCadd(int x, int y)
 {
 	task *current = (task *) malloc(sizeof(task));
 	addTask(current);
 
-	current->func = &taskguycontrol;
-	taskguycontroldata *data = guyDatas + playerNum;
+	current->func = &TGC;
+	TGCdata *data = guyDatas + playerNum;
 	data->respawnx = data->centerX = x + 10;
 	data->respawny = data->centerY = y + 10;
 	data->num = playerNum;
-	taskguycontrolcreateBody(data);
+	TGCcreateBody(data);
 	data->firstLife = 1;
 	current->dataUsed = 0;	//Set to 0 so it isn't free'd when the task exits.
 	current->data = data;

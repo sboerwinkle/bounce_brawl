@@ -12,7 +12,7 @@ extern int pIndex[2];
 extern int pKeys[2][NUMKEYS];
 extern int otherKeys[2];
 
-//Stores the keys which each player. AIs or the keyboard writes here, taskguycontrol reads from here.
+//Stores the keys which each player. AIs or the keyboard writes here, TGC reads from here.
 extern char masterKeys[NUMKEYS * 10];
 
 typedef struct {

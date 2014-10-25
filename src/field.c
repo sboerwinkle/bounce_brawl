@@ -26,7 +26,7 @@ int zoom;
 double maxZoomIn;
 
 //Data for all the guys. Contains center, lotsa other stuff. See field.h
-taskguycontroldata *guyDatas;
+TGCdata *guyDatas;
 //How many guys there are.
 int playerNum;
 //Center of the viewscreen
@@ -56,7 +56,7 @@ void initField()
 	playerNum = 0;
 	maxZoomIn = 2.25;
 	zoom = 1;
-	guyDatas = malloc(sizeof(taskguycontroldata) * players);
+	guyDatas = malloc(sizeof(TGCdata) * players);
 }
 
 void stopField()
