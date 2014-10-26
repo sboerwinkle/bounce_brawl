@@ -765,7 +765,7 @@ static char TGC(void *where)
 		if (data->controlType != -1) {
 			TGCdisconnect(data);
 		} else {
-#define CONRAD 18 //Connection radius
+#define CONRAD 20 //Connection radius
 			int min = 0;	//I feel kinda bad doing this, as I'm only trying to stop the appearance of a warning about uninitialized variables... I do, though, have the uninitialized variable situation under control. Not to worry.
 			int current;
 			int deltax;
@@ -807,9 +807,9 @@ static char TGC(void *where)
 					current = (int) sqrt(deltax * deltax + deltay * deltay);
 					if (current < nodes[data->controlIndex].size + CONRAD) {
 						newConnection(myNodes[i],
-							0, data->controlIndex, 0.4,
-							(int) nodes[data->controlIndex].size + 8,
-							CONRAD - 8, 0.8);
+							0, data->controlIndex, 0.3,
+							(int) nodes[data->controlIndex].size + 10,
+							CONRAD - 10, 0.8);
 					}
 				}
 				data->controlData->inUse = 1;
