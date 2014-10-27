@@ -429,20 +429,17 @@ void taskgravityadd()
 	addTask(current);
 }
 
-static void TGCdisconnectSub(TGCdata *data)
-{
-	data->controlData->inUse = 0;
-	data->controlType = -1;
-}
-
 static void TGCdisconnect(TGCdata *data)
 {
-	int i = 0;
-	for (; i < 4; i++) {
-		if (data->exists[i])
+	data->controlData->inUse = 0;
+	if (data->controlType == 100) {
+		int i = 0;
+		for (; i < 4; i++) {
+			if (!data->exists[i]) continue;
 			nodes[data->myNodes[i]].connections[0].dead = 1;
+		}
 	}
-	TGCdisconnectSub(data);
+	data->controlType = -1;
 }
 
 static void shrinkArm(double *what, double size)
@@ -738,6 +735,8 @@ static char TGC(void *where)
 			if (current->dead) {
 				data->exists[i] = 0;
 				data->injured = 1;
+				if (data->controlType != -1 && i == data->connectedLeg)
+					TGCdisconnect(data);
 			} else {
 				counter++;
 				data->centerX += current->x;
@@ -763,9 +762,10 @@ static char TGC(void *where)
 	char *myKeys = data->myKeys;
 	if (!data->lastpress && myKeys[5]) {
 		if (data->controlType != -1) {
+			nodes[myNodes[data->connectedLeg]].connections[0].dead = 1;
 			TGCdisconnect(data);
 		} else {
-#define CONRAD 20 //Connection radius
+#define CONRAD 18 //Connection radius
 			int min = 0;	//I feel kinda bad doing this, as I'm only trying to stop the appearance of a warning about uninitialized variables... I do, though, have the uninitialized variable situation under control. Not to worry.
 			int current;
 			int deltax;
@@ -788,6 +788,7 @@ static char TGC(void *where)
 					    && (current < min || data->controlData == NULL)) {
 						min = current;
 						data->controlData = tools + i;
+						data->connectedLeg = leg;
 					}
 				}
 			}
@@ -797,22 +798,12 @@ static char TGC(void *where)
 				data->controlIndex =
 				    data->controlData->where;
 				data->controlVar = 0;
-				int hisx = nodes[data->controlIndex].x;
-				int hisy = nodes[data->controlIndex].y;
-				for (i = 0; i < 4; i++) {
-					if (!data->exists[i])
-						continue;
-					deltax = (int) (hisx - nodes[myNodes[i]].x);
-					deltay = (int) (hisy - nodes[myNodes[i]].y);
-					current = (int) sqrt(deltax * deltax + deltay * deltay);
-					if (current < nodes[data->controlIndex].size + CONRAD) {
-						newConnection(myNodes[i],
-							0, data->controlIndex, 0.3,
-							(int) nodes[data->controlIndex].size + 10,
-							CONRAD - 10, 0.8);
-					}
-				}
+				newConnection(myNodes[data->connectedLeg],
+					0, data->controlIndex, 0.8,
+					nodes[data->controlIndex].size + 8,
+					CONRAD - 8, 0.8);
 				data->controlData->inUse = 1;
+
 				if (data->controlType == 0) {
 					killNode(data->controlIndex);
 					TGCdisconnect(data);
@@ -820,20 +811,21 @@ static char TGC(void *where)
 					connection *con = nodes[data->controlIndex].connections;
 					if (!con->dead)
 						con->preflength -= 2 * (con->preflength - con->midlength);
+					nodes[myNodes[data->connectedLeg]].connections[0].dead = 1;
 					TGCdisconnect(data);
+				} else if (data->controlType == 100) {
+					int i = 1;
+					for (; i < 4; i++) {
+						newConnection(myNodes[(data->connectedLeg + i) % 4],
+							0, data->controlIndex, 0.3,
+							nodes[data->controlIndex].size + 8,
+							CONRAD - 8, 1);
+					}
 				}
 			}
 		}
-	} else if (data->controlType != -1) {
-		int i = 0;
-		for (; i < 4; i++) {
-			if (!data->exists[i])
-				continue;
-			if (!nodes[myNodes[i]].connections[0].dead)
-				break;
-		}
-		if (i == 4)
-			TGCdisconnectSub(data);
+	} else if (data->controlType != -1 && nodes[myNodes[data->connectedLeg]].connections[0].dead) {
+		TGCdisconnect(data);
 	}
 	switch (data->controlType) {
 	case 100:

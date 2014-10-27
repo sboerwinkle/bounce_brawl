@@ -10,6 +10,7 @@ typedef struct {
 	char *myKeys;
 	int num;
 	tool *controlData;
+	int connectedLeg;
 	char exists[4];
 	char alive, injured, firstLife;
 
