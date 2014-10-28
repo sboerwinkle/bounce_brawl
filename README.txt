@@ -1,6 +1,6 @@
 
 This work is released into the public domain.
-I would say, however, that if you try to monetize anything that you base off of this, or if you fail to include the source code, I hope a faceless terror haunts you for the remainder of your pitiful days.
+I would say, however, that if you fail to release the source code of anything you base off of this, I hope a faceless terror haunts you for the remainder of your pitiful days. Just a suggestion.
 I would also prefer that you keep these few lines included. My name is Simon Boerwinkle.
 fontData.h is the work of A. Schiffler - aschiffler@ferzkopp.net. See fontData.h for license information.
 
