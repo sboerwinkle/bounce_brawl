@@ -1,8 +1,28 @@
+Ahem...
 
-This work is released into the public domain. A couple suggestions, however (in no way binding):
-If you fail to release the source code of anything you base off of this, I hope a faceless terror haunts you for the remainder of your pitiful days. Just a suggestion.
-I would also prefer that you keep these few lines included. My name is Simon Boerwinkle.
 fontData.h is the work of A. Schiffler - aschiffler@ferzkopp.net. See fontData.h for license information.
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Simon Boerwinkle
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 So!
 
