@@ -33,3 +33,5 @@ extern void lvlmechmech();
 extern void lvlmechgun();
 
 extern void lvlsurvive();
+
+extern void lvlscroll();

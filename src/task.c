@@ -1201,11 +1201,111 @@ static char tasktext(void *where)
 void tasktextadd(int x, int y, char *text)
 {
 	task *current = (task *) malloc(sizeof(task));
-	current->func = &tasktext;
+	current->func = tasktext;
 	tasktextdata *data = malloc(sizeof(tasktextdata));
 	data->x = x;
 	data->y = y;
 	data->text = text;
+	current->dataUsed = 1;
+	current->data = data;
+	addTask(current);
+}
+
+typedef struct {
+	int numAnchors;
+	int leftAnchor;
+	int y;
+	int leftX;
+} taskgroundscrolldata;
+//When this is actually created, a bit of extra space at the back is also malloc'd to store a list of 'taskfixeddata*'s. These are the anchors.
+
+static char taskgroundscroll(void *where)
+{
+#define GSSIZE 7
+#define GSSPACING 15
+#define GSMASS 6
+	taskgroundscrolldata *data = (taskgroundscrolldata*) where;
+	taskfixeddata **anchors = (taskfixeddata**)((void*)data + sizeof(taskgroundscrolldata));
+	int shiftX = 0;
+	int count = 0;
+	int i = playerNum - 1;
+	for (; i >= 0; i--) {
+		if (!guyDatas[i].alive)
+			continue;
+		count++;
+		shiftX += guyDatas[i].centerX;
+	}
+	if (count) {
+		shiftX /= count;
+		node *curNode = nodes + (numNodes - 1);
+		for (;;) {
+			curNode->x -= shiftX;
+			if (curNode == nodes)
+				break;
+			curNode--;
+		}
+	}
+	i = data->numAnchors-1;
+	int ix;
+	for (; i >= 0; i--) {
+		if (nodes[anchors[i]->index].dead) {
+			ix = newNode(anchors[i]->x, anchors[i]->y, GSSIZE, GSMASS, 2);
+			nodes[ix].connections[0].dead = 1;
+			nodes[ix].connections[1].dead = 1;
+			anchors[i]->index = ix;
+		}
+		anchors[i]->x -= shiftX;
+	}
+	data->leftX -= shiftX;
+	while (data->leftX < GSSPACING * (data->numAnchors+1) / -2) {
+		//More work to be done here
+		killNode(anchors[data->leftAnchor]->index);
+		//More work here too
+		ix = newNode(data->leftX + GSSPACING * data->numAnchors, data->y, GSSIZE, GSMASS, 2);
+		nodes[ix].connections[0].dead = 1;
+		nodes[ix].connections[1].dead = 1;
+		anchors[data->leftAnchor]->index = ix;
+
+		anchors[data->leftAnchor]->x = data->leftX + GSSPACING * data->numAnchors;
+		data->leftX += GSSPACING;
+		data->leftAnchor = (data->leftAnchor + 1) % data->numAnchors;
+	}
+	while (data->leftX > GSSPACING * (data->numAnchors-3) / -2) {
+		if (data->leftAnchor == 0)
+			data->leftAnchor = data->numAnchors - 1;
+		else
+			data->leftAnchor--;
+		data->leftX -= GSSPACING;
+		killNode(anchors[data->leftAnchor]->index);
+		ix = newNode(data->leftX, data->y, GSSIZE, GSMASS, 2);
+		nodes[ix].connections[0].dead = 1;
+		nodes[ix].connections[1].dead = 1;
+		anchors[data->leftAnchor]->index = ix;
+		anchors[data->leftAnchor]->x = data->leftX;
+	}
+	return 0;
+}
+
+void taskgroundscrolladd(int y, int numAnchors)
+{
+	task *current = malloc(sizeof(task));
+	current->func = taskgroundscroll;
+	//We're so damn sneaky
+	taskgroundscrolldata *data = malloc(sizeof(taskgroundscrolldata) + numAnchors * sizeof(taskfixeddata*));
+	taskfixeddata **anchors = (taskfixeddata**)((void*)data + sizeof(taskgroundscrolldata));
+	data->y = y;
+	data->numAnchors = numAnchors;
+	data->leftAnchor = 0;
+	data->leftX = GSSPACING * (data->numAnchors-1) / -2;
+	int i = 0, ix;
+	for (; i < numAnchors; i++) {
+		ix = newNode(data->leftX + i * GSSPACING, y, GSSIZE, GSMASS, 2);
+		nodes[ix].connections[0].dead = 1;
+		nodes[ix].connections[1].dead = 1;
+		taskfixedadd(ix, 0.5);
+		//We're so damn sneaky
+		anchors[i] = firstTask->data;
+	}
 	current->dataUsed = 1;
 	current->data = data;
 	addTask(current);

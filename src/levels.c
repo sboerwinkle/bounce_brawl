@@ -88,12 +88,8 @@ static int addHex(double x, double y, int width, int height, int *map,
 				mySpacing = spacing;
 				for (subJ = j - 1; subJ >= 0; subJ--) {
 					if (map[subJ * width + i]) {
-						newConnection(tmp,
-							      createConnection
-							      (tmp),
-							      map[subJ *
-								  width +
-								  i] - 1,
+						newConnection(tmp, createConnection(tmp),
+							      map[subJ * width + i] - 1,
 							      fric,
 							      mySpacing,
 							      tolerance,
@@ -107,13 +103,9 @@ static int addHex(double x, double y, int width, int height, int *map,
 				for (subJ = j - 1;
 				     subJ >= 0 && subI < width; subJ--) {
 					if (map[subJ * width + subI]) {
-						newConnection(tmp,
-							      createConnection
-							      (tmp),
-							      map[subJ *
-								  width +
-								  subI] -
-							      1, fric,
+						newConnection(tmp, createConnection(tmp),
+							      map[subJ * width + subI] - 1,
+							      fric,
 							      mySpacing,
 							      tolerance,
 							      str);
@@ -1112,4 +1104,24 @@ void lvlsurvive()
 	lvltest();
 	maxZoomIn = 1.3;
 	taskasteroidsadd(10, 8, 25);
+}
+
+//Base for other levels
+void lvlscroll()
+{
+	initField();
+	maxZoomIn = 1.5;
+	taskgroundscrolladd(0, 45);
+	int i;
+	double playerInc;
+	if (players > 1) {
+		playerInc = 400.0 / (players - 1);
+	} else
+		playerInc = 0;
+	for (i = 0; i < players; i++) {
+		TGCadd(i * playerInc - 200, -30);
+	}
+	addScores();
+	taskgravityadd();
+	taskincineratoradd(10);
 }

@@ -811,15 +811,16 @@ int main(int argc, char **argv)
 {
 	logFile = fopen("log.txt", "w");
 	fputs("Everything looks good from here\n", logFile);	// Rest in peace, Wash.
-	menuItem topMenu = {.achievementUnlocked = 0,.menu = 1 };
+	menuItem topMenu = {.achievementUnlocked = 0, .menu = 1 };
 	currentMenu = &topMenu;
 	topMenu.contents.menu.parent = NULL;
 	topMenu.contents.menu.numItems = 0;
-	topMenu.contents.menu.items = malloc(7 * sizeof(menuItem));
+	topMenu.contents.menu.items = malloc(8 * sizeof(menuItem));
 	menuItem *planetsMenu = addMenuMenu(&topMenu, 3, "PLANET STAGES...");
 	menuItem *flatMenu = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
 	menuItem *suspendedMenu = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
 	menuItem *mechMenu = addMenuMenu(&topMenu, 3, "MECHS...");
+	menuItem *scrollMenu = addMenuMenu(&topMenu, 1, "SCROLLING STAGES...");
 //These two levels were cut from the game. lvltipsy is actually okay, though I haven't tweaked either in a while and there may have been some physics revisions they aren't adapted too. Work them into the menu, and they're yours.
 //      addMenuLevel(&topMenu, lvltipsy, "UNSTABLE STAGE");
 //      addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
@@ -836,13 +837,15 @@ int main(int argc, char **argv)
 	addMenuLevel(flatMenu, lvlbuilding, achieveBuilding, "BUILDING STAGE", "URBAN MOUNTAINEER");
 	addMenuLevel(flatMenu, lvlboulder, achieveBoulder, "BOULDER", "NO BOULDER");
 
+	addMenuLevel(suspendedMenu, lvlgardens, achieveGardens, "HANGING GARDENS", "FLOOD");
+	addMenuLevel(suspendedMenu, lvlwalled, achieveWalled, "WALLED STAGE", "MOAR DESTRUCTION");
+	addMenuLevel(suspendedMenu, lvldrop, achieveDrop, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
+
 	addMenuLevel(mechMenu, lvlmech, achieveManMech, "MAN VS MECH", "BEACHED");
 	addMenuLevel(mechMenu, lvlmechgun, achieveGunMech, "GUN VS MECH", "MOAR PACIFISM");
 	addMenuLevel(mechMenu, lvlmechmech, achieveMechMech, "MECH VS MECH", "CHANGE PLACES!");
 
-	addMenuLevel(suspendedMenu, lvlgardens, achieveGardens, "HANGING GARDENS", "FLOOD");
-	addMenuLevel(suspendedMenu, lvlwalled, achieveWalled, "WALLED STAGE", "MOAR DESTRUCTION");
-	addMenuLevel(suspendedMenu, lvldrop, achieveDrop, "DROPAWAY FLOOR", "I CAN HAZ DESTRUCTION?");
+	addMenuLevel(scrollMenu, lvlscroll, achieveLazy, "REGLAR SCROLLY GROUND", "TRY IT OUT");
 
 	fputs("Menu Created\n", logFile);
 

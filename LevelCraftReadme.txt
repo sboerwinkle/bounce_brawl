@@ -164,13 +164,13 @@ This should make it a nice electric blue.
 
 Alright, now for the real meat. Time to write the function that will make toolTeleport live up to its name. Let's call it 'toolTeleport'. We'll throw it in below toolGun, which can be found by searching for "void toolGun".
 ***
-static void toolTeleport(taskguycontroldata *data) {
+static void toolTeleport(TGCdata *data) {
 ***
-Note that we get a taskguycontroldata pointer, which means we get access to lots of data such as key presses, etc. We'll take advantage of this fairly quickly, by simply redirecting to taskguycontroldoLegs (which does regular leg stuff) if the action key isn't pressed.
+Note that we get a TGCdata (short for taskguycontroldata) pointer, which means we get access to lots of data such as key presses, etc. We'll take advantage of this fairly quickly, by simply redirecting to TGCdoLegs (which does regular leg stuff) if the action key isn't pressed.
 ***
 if (!data->myKeys[4]) {
 	data->controlVar = 0;
-	taskguycontroldoLegs(data);
+	TGCdoLegs(data);
 	return;
 }
 ***
