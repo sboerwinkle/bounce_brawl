@@ -1111,7 +1111,7 @@ void lvlscroll()
 {
 	initField();
 	maxZoomIn = 1.5;
-	taskgroundscrolladd(0, 45);
+	taskgroundscrolladd(0, 30);
 	int i;
 	double playerInc;
 	if (players > 1) {
@@ -1119,7 +1119,7 @@ void lvlscroll()
 	} else
 		playerInc = 0;
 	for (i = 0; i < players; i++) {
-		TGCadd(i * playerInc - 200, -30);
+		TGCadd(i * playerInc - 200, -60);
 	}
 	addScores();
 	taskgravityadd();

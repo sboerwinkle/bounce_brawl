@@ -1218,12 +1218,97 @@ typedef struct {
 	int leftX;
 } taskgroundscrolldata;
 //When this is actually created, a bit of extra space at the back is also malloc'd to store a list of 'taskfixeddata*'s. These are the anchors.
+#define GSSPACING 40
+#define GSHEIGHT 20
+//The below should be the pythagorean theorem on GSSPACING/2, GSHEIGHT
+#define GSLEN 28.284
+#define GSFORCE 10
+#define GSBASESIZE 7
+#define GSBASEMASS 1000
+#define GSSIZE 14
+#define GSMASS 9
+#define GSFRIC 0.92
+#define GSTOL 3
+#define GSTOPYDIFF 12
+
+static void taskgroundscrollBuildLeft(taskgroundscrolldata *data, taskfixeddata **anchors)
+{
+	int baseIx = anchors[data->leftAnchor]->index;
+	if (data->leftAnchor == 0)
+		data->leftAnchor = data->numAnchors - 1;
+	else
+		data->leftAnchor--;
+	data->leftX -= GSSPACING;
+
+	int ix = anchors[data->leftAnchor]->index;
+	killNode(ix);
+	if (!nodes[ix].connections[0].dead) {
+		ix = nodes[ix].connections[0].id;
+		if (!nodes[ix].connections[0].dead)
+			killNode(nodes[ix].connections[0].id);
+		killNode(ix);
+	}
+	ix = newNode(data->leftX, data->y, GSBASESIZE, GSBASEMASS, 2);
+	anchors[data->leftAnchor]->index = ix;
+	anchors[data->leftAnchor]->x = data->leftX;
+	nodes[ix].connections[0].dead = 1;
+	int ix2 = newNode(data->leftX+GSSPACING/2, data->y-GSHEIGHT, GSSIZE, GSMASS, 3);
+	nodes[ix2].connections[0].dead = 1;
+	nodes[ix2].connections[1].dead = 1;
+	newConnection(ix, 1, ix2, GSFRIC, GSLEN, GSTOL, GSFORCE);
+	newConnection(baseIx, 0, ix2, GSFRIC, GSLEN, GSTOL, GSFORCE);
+	if (!nodes[baseIx].connections[1].dead) {
+		ix = nodes[baseIx].connections[1].id;
+		newConnection(ix2, 2, ix, GSFRIC, GSSPACING, GSTOL, GSFORCE / 3);
+		int ix3 = newNode(data->leftX+GSSPACING, data->y-GSHEIGHT - GSTOPYDIFF, GSBASESIZE, GSMASS, 0);
+		newConnection(ix2, 1, ix3, GSFRIC, GSSIZE+GSBASESIZE+GSTOL, GSTOL, GSFORCE);
+		newConnection(ix , 0, ix3, GSFRIC, GSSIZE+GSBASESIZE+GSTOL, GSTOL, GSFORCE);
+	} else {
+		nodes[ix2].connections[2].dead = 1;
+	}
+}
+
+static void taskgroundscrollBuildRight(taskgroundscrolldata *data, taskfixeddata **anchors)
+{
+	int baseIx;
+	if (data->leftAnchor == 0)
+		baseIx = anchors[data->numAnchors - 1]->index;
+	else
+		baseIx = anchors[data->leftAnchor - 1]->index;
+
+	int ix = anchors[data->leftAnchor]->index;
+	killNode(ix);
+	if (!nodes[ix].connections[1].dead) {
+		ix = nodes[ix].connections[1].id;
+		if (!nodes[ix].connections[1].dead)
+			killNode(nodes[ix].connections[1].id);
+		killNode(ix);
+	}
+	int myX = data->leftX + GSSPACING * data->numAnchors;
+	ix = newNode(myX, data->y, GSBASESIZE, GSBASEMASS, 2);
+	anchors[data->leftAnchor]->index = ix;
+	anchors[data->leftAnchor]->x = myX;
+	nodes[ix].connections[1].dead = 1;
+	int ix2 = newNode(myX-GSSPACING/2, data->y-GSHEIGHT, GSSIZE, GSMASS, 3);
+	nodes[ix2].connections[0].dead = 1;
+	nodes[ix2].connections[1].dead = 1;
+	nodes[ix2].connections[2].dead = 1;
+	newConnection(ix, 0, ix2, GSFRIC, GSLEN, GSTOL, GSFORCE);
+	newConnection(baseIx, 1, ix2, GSFRIC, GSLEN, GSTOL, GSFORCE);
+	if (!nodes[baseIx].connections[0].dead) {
+		ix = nodes[baseIx].connections[0].id;
+		newConnection(ix, 2, ix2, GSFRIC, GSSPACING, GSTOL, GSFORCE / 3);
+		int ix3 = newNode(myX-GSSPACING, data->y-GSHEIGHT - GSTOPYDIFF, GSBASESIZE, GSMASS, 0);
+		newConnection(ix2, 0, ix3, GSFRIC, GSSIZE+GSBASESIZE+GSTOL, GSTOL, GSFORCE);
+		newConnection(ix , 1, ix3, GSFRIC, GSSIZE+GSBASESIZE+GSTOL, GSTOL, GSFORCE);
+	}
+
+	data->leftX += GSSPACING;
+	data->leftAnchor = (data->leftAnchor + 1) % data->numAnchors;
+}
 
 static char taskgroundscroll(void *where)
 {
-#define GSSIZE 7
-#define GSSPACING 15
-#define GSMASS 6
 	taskgroundscrolldata *data = (taskgroundscrolldata*) where;
 	taskfixeddata **anchors = (taskfixeddata**)((void*)data + sizeof(taskgroundscrolldata));
 	int shiftX = 0;
@@ -1249,7 +1334,7 @@ static char taskgroundscroll(void *where)
 	int ix;
 	for (; i >= 0; i--) {
 		if (nodes[anchors[i]->index].dead) {
-			ix = newNode(anchors[i]->x, anchors[i]->y, GSSIZE, GSMASS, 2);
+			ix = newNode(anchors[i]->x, anchors[i]->y, GSBASESIZE, GSBASEMASS, 2);
 			nodes[ix].connections[0].dead = 1;
 			nodes[ix].connections[1].dead = 1;
 			anchors[i]->index = ix;
@@ -1258,30 +1343,10 @@ static char taskgroundscroll(void *where)
 	}
 	data->leftX -= shiftX;
 	while (data->leftX < GSSPACING * (data->numAnchors+1) / -2) {
-		//More work to be done here
-		killNode(anchors[data->leftAnchor]->index);
-		//More work here too
-		ix = newNode(data->leftX + GSSPACING * data->numAnchors, data->y, GSSIZE, GSMASS, 2);
-		nodes[ix].connections[0].dead = 1;
-		nodes[ix].connections[1].dead = 1;
-		anchors[data->leftAnchor]->index = ix;
-
-		anchors[data->leftAnchor]->x = data->leftX + GSSPACING * data->numAnchors;
-		data->leftX += GSSPACING;
-		data->leftAnchor = (data->leftAnchor + 1) % data->numAnchors;
+		taskgroundscrollBuildRight(data, anchors);
 	}
 	while (data->leftX > GSSPACING * (data->numAnchors-3) / -2) {
-		if (data->leftAnchor == 0)
-			data->leftAnchor = data->numAnchors - 1;
-		else
-			data->leftAnchor--;
-		data->leftX -= GSSPACING;
-		killNode(anchors[data->leftAnchor]->index);
-		ix = newNode(data->leftX, data->y, GSSIZE, GSMASS, 2);
-		nodes[ix].connections[0].dead = 1;
-		nodes[ix].connections[1].dead = 1;
-		anchors[data->leftAnchor]->index = ix;
-		anchors[data->leftAnchor]->x = data->leftX;
+		taskgroundscrollBuildLeft(data, anchors);
 	}
 	return 0;
 }
@@ -1295,16 +1360,20 @@ void taskgroundscrolladd(int y, int numAnchors)
 	taskfixeddata **anchors = (taskfixeddata**)((void*)data + sizeof(taskgroundscrolldata));
 	data->y = y;
 	data->numAnchors = numAnchors;
-	data->leftAnchor = 0;
-	data->leftX = GSSPACING * (data->numAnchors-1) / -2;
 	int i = 0, ix;
+	int x = GSSPACING * (numAnchors-1) / -2;
 	for (; i < numAnchors; i++) {
-		ix = newNode(data->leftX + i * GSSPACING, y, GSSIZE, GSMASS, 2);
+		ix = newNode(x, y, GSBASESIZE, GSBASEMASS, 2);
 		nodes[ix].connections[0].dead = 1;
 		nodes[ix].connections[1].dead = 1;
 		taskfixedadd(ix, 0.5);
 		//We're so damn sneaky
 		anchors[i] = firstTask->data;
+	}
+	data->leftX = -3 * GSSPACING * (numAnchors-1) / 2;
+	data->leftAnchor = 1;
+	while (data->leftAnchor) {
+		taskgroundscrollBuildRight(data, anchors);
 	}
 	current->dataUsed = 1;
 	current->data = data;
