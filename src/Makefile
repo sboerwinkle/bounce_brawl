@@ -14,6 +14,7 @@ windows:
 	I_hate_Windows.bat
 
 game: field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o
+	@if [ ! -f ../game ]; then echo; echo "This appears to be your first build."; echo "If something goes wrong, make sure you have the following libraries:"; echo "SDL2, GLEW, GLUT"; echo "(I think that's all of them)"; echo; fi;
 	$(CC) $(DEBUG) field.o font.o gui.o levels.o node.o task.o gfx.o networking.o achievements.o -o game $(LFLAGS)
 
 debug:

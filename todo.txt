@@ -1,12 +1,17 @@
+Features:
+  Resizable window
+
 Content:
-  Scrolling ground
   WUPPL, the Weaponized, Unlimited Power, Parlous Lorry. Truly the transportation of champions.
   Dropships. They fly around, people hang onto the bottom.
   AIs specifically designed for piloting and (separately) jumping out of said dropships.
-  A level which combines all four of the above.
+  You on a wuppl with AIs on dropships over scrolling ground.
   Space windmills!!!
   Beanstalk (A John Scalzi reference - what I actually want is two large, orbitting planets w/ a building holding them apart)
   Spaceships
   Warehouse w/ grabber
   dis-integration ray
   Very wide field, rough center, CTF, dropships.
+
+Eh Maybe:
+  Re-orientable viewscreen
