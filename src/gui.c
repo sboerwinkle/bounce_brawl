@@ -46,6 +46,7 @@ static menuItem *currentMenu;
 static menuItem *currentLevel;	// can't be a level*, because we need access to achievementStuff
 
 static SDL_Window *window;
+static char fullscreen = 0;
 
 int players = 0;
 static int numRequests;
@@ -195,7 +196,7 @@ static void paint()
 		if (nothingChanged)
 			return;
 		setColorWhite();
-		simpleDrawText(30, "ESC: CANCEL / GO BACK");
+		simpleDrawText(31, "ESC: CANCEL / GO BACK");
 		if (inputMode == -1) {
 			simpleDrawText(3,
 				       "REALLY QUIT? PRESS ANY KEY TO EXIT");
@@ -232,38 +233,42 @@ static void paint()
 				       " V : ACHEIVEMENT VIEW");
 			simpleDrawText(12, " M : MANAGE PLAYERS");
 			simpleDrawText(13, " K : SET KEYS");
+			simpleDrawText(14,
+					fullscreen ?
+					" F : FULLSCREEN (ON ) (RESTART)" :
+					" F : FULLSCREEN (OFF) (RESTART)");
 			if (netMode) {
-				simpleDrawText(16, "LISTENING");
+				simpleDrawText(17, "LISTENING");
 			} else {
-				simpleDrawText(16, "NETWORK INACTIVE");
-				simpleDrawText(17, " H : HOST A GAME");
+				simpleDrawText(17, "NETWORK INACTIVE");
+				simpleDrawText(18, " H : HOST A GAME");
 				if (pIndex[0] != -1 || pIndex[1] != -1)
-					simpleDrawText(18, " C : CONNECT");
+					simpleDrawText(19, " C : CONNECT");
 			}
 			sprintf(line, " P : PORT : %d", port);
-			simpleDrawText(19, line);
-			sprintf(line, " A : ADDR : %s", addressString);
 			simpleDrawText(20, line);
+			sprintf(line, " A : ADDR : %s", addressString);
+			simpleDrawText(21, line);
 
 			setColorFromHue(256);
 			if (cheats & CHEAT_SLOMO)
-				simpleDrawText(23,
+				simpleDrawText(24,
 					       "SUP: SECRET SLOW STYLE!");
 			if (cheats & CHEAT_NUCLEAR) {
-				simpleDrawText(24, "F6 : I SAID I'M");
+				simpleDrawText(25, "F6 : I SAID I'M");
 				drawText(20 - width2 + TEXTSIZE * 9 * 16,
-					 20 + TEXTSIZE * (9 * 24 -
+					 20 + TEXTSIZE * (9 * 25 -
 							  4 * 0.3) +
 					 height2, TEXTSIZE * 1.3,
 					 "NUCLEAR!");
 			}
 			if (cheats & CHEAT_LOCK)
-				simpleDrawText(25, "TAB: CONTROLS LOCKED");
+				simpleDrawText(26, "TAB: CONTROLS LOCKED");
 			if (cheats & CHEAT_SPEED)
-				simpleDrawText(26,
+				simpleDrawText(27,
 					       "F11: SECRET SUPER SPEED STYLE!");
 			if (cheats & CHEAT_COLORS)
-				simpleDrawText(27, " \\ : COLORLESS MODE");
+				simpleDrawText(28, " \\ : COLORLESS MODE");
 			setColorWhite();
 		} else if (inputMode == 1) {
 			sprintf(line, "PORT : %d", port);
@@ -448,6 +453,11 @@ static void keyAction(int bit, char pressed)
 			}
 			if (bit == SDLK_v) {
 				achievementView = !achievementView;
+				nothingChanged = 0;
+				return;
+			}
+			if (bit == SDLK_f) {
+				fullscreen = !fullscreen;
 				nothingChanged = 0;
 				return;
 			}
@@ -774,6 +784,7 @@ static int loadAchievementsSub(menuItem * m, FILE * f)
 	return c;
 }
 
+//Also reads the fullscreen setting from the achievements file
 static void loadAchievements(menuItem * m)
 {
 	FILE *f;
@@ -781,6 +792,7 @@ static void loadAchievements(menuItem * m)
 		fputs("Achievements file not present!\n", logFile);
 		return;
 	}
+	fullscreen = fgetc(f);
 	loadAchievementsSub(m, f);
 	fclose(f);
 	fputs("Achievements Loaded\n", logFile);
@@ -802,6 +814,7 @@ static void saveAchievementsSub(menuItem * m, FILE * f)
 static void saveAchievements(menuItem * m)
 {
 	FILE *f = fopen("achievements.dat", "w");
+	fputc(fullscreen, f);
 	saveAchievementsSub(m, f);
 	fclose(f);
 	fputs("Achievements Saved\n", logFile);
@@ -883,10 +896,21 @@ int main(int argc, char **argv)
 	fputs(SDL_GetError(), logFile);
 	fputc('\n', logFile);
 	SDL_ClearError();
-	//God, I need a new name. Hope all you Christians out there will pardon the blasphemy. Or don't. Not my problem. 'Murica.
+	int screenDimensions;
+	if (fullscreen) {
+		SDL_DisplayMode dmode;
+		SDL_GetDesktopDisplayMode(0, &dmode);
+		if (dmode.w > dmode.h)
+			screenDimensions = dmode.h;
+		else
+			screenDimensions = dmode.w;
+	} else {
+		screenDimensions = 750;
+	}
+	//God, I need a new name. Hope all you religious types out there will pardon the blasphemy. Or don't. Not my problem. 'Murica.
 	window =
 	    SDL_CreateWindow("Bounce Brawl", SDL_WINDOWPOS_UNDEFINED,
-			     SDL_WINDOWPOS_UNDEFINED, 750, 750,
+			     SDL_WINDOWPOS_UNDEFINED, screenDimensions, screenDimensions,
 			     SDL_WINDOW_OPENGL);
 	fputs(SDL_GetError(), logFile);
 	fputc('\n', logFile);
@@ -905,6 +929,9 @@ int main(int argc, char **argv)
 	fputc('\n', logFile);
 	SDL_ClearError();
 	fputs("Created GL Context\n", logFile);
+	//I don't do this when I initialize the window so that the GL context is still square.
+	if (fullscreen)
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	initGfx(logFile);
 	glClearColor(0, 0, 0, 1);
 	fputs(SDL_GetError(), logFile);
