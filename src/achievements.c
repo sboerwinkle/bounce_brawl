@@ -109,7 +109,7 @@ int achieveManMech()
 	int i = 0;
 	int j;
 	for (; i < numNodes; i++) {
-		if (nodes[i].dead || 18 != nodes[i].mass)
+		if (nodes[i].dead || 14 != nodes[i].mass)
 			continue;
 		count++;
 		for (j = 0; j < nodes[i].numConnections; j++) {
@@ -129,7 +129,7 @@ int achieveGunMech()
 	int i = 0;
 	for (; i < numNodes; i++) {
 		if (!nodes[i].dead
-		    && (18 == nodes[i].mass || 1 == nodes[i].mass))
+		    && (14 == nodes[i].mass || 1 == nodes[i].mass))
 			return 0;
 	}
 	return 1;
@@ -142,7 +142,7 @@ int achieveMechMech()
 	int i = 0;
 	int j, k, l;
 	for (; i < numNodes; i++) {
-		if (nodes[i].dead || nodes[i].mass != 18
+		if (nodes[i].dead || nodes[i].mass != 14
 		    || nodes[i].size != 6)
 			continue;
 		for (j = nodes[i].numConnections - 1; j >= 0; j--) {

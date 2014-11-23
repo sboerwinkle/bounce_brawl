@@ -628,6 +628,57 @@ static void toolGun(TGCdata * data)
 	taskdestroyadd(ix, 100);
 }
 
+static void toolWuppl(TGCdata *data)
+{
+	if (data->myKeys[3] == data->myKeys[1])
+		return;
+	double rollAmt = (data->myKeys[4] ? 3 : 1.5)*SPEEDFACTOR;
+	if (data->myKeys[1])
+		rollAmt = -rollAmt;
+	node *root = nodes + data->controlIndex;
+	node *axle, *wheel;
+	double dx, dy, dvx, dvy, dist;
+	int i = 2, j;
+	for (; i <= 6; i += 4) {
+		if (root->connections[i].dead)
+			continue;
+		axle = nodes + root->connections[i].id;
+		double rotInert = 0; // What I'm measuring isn't actually rotational inertia, I know.
+		int count = 4;
+		for (j = 0; j < 4; j++) {
+			if (axle->connections[j].dead) {
+				count--;
+				continue;
+			}
+			wheel = nodes + axle->connections[j].id;
+			dx = wheel->x - axle->x;
+			dy = wheel->y - axle->y;
+			dvx = wheel->xmom - axle->xmom;
+			dvy = wheel->ymom - axle->ymom;
+			dist = sqrt(dx * dx + dy * dy);
+			dx /= dist;
+			dy /= dist;
+			rotInert += dvx*dy - dvy*dx;
+		}
+		if (count) rotInert /= count;
+		rotInert = (rollAmt - rotInert) / (10*SPEEDFACTOR);
+		for (j = 0; j < 4; j++) {
+			if (axle->connections[j].dead)
+				continue;
+			wheel = nodes + axle->connections[j].id;
+			dx = wheel->x - axle->x;
+			dy = wheel->y - axle->y;
+			dist = sqrt(dx * dx + dy * dy);
+			dx *= rotInert / dist;
+			dy *= rotInert / dist;
+			axle->xmom -= dy;
+			axle->ymom += dx;
+			wheel->xmom += dy;
+			wheel->ymom -= dx;
+		}
+	}
+}
+
 static void toolGravity()
 {
 	int i = 0;
@@ -828,6 +879,9 @@ static char TGC(void *where)
 		TGCdisconnect(data);
 	}
 	switch (data->controlType) {
+	case 101:
+		toolWuppl(data);
+		break;
 	case 100:
 		toolBigLegs(data);
 		break;
@@ -934,6 +988,8 @@ uint32_t getToolColor(int type)
 		return 0x5000FFFF;
 	case 100:
 		return 0xC04040FF;
+	case 101:
+		return 0xC040FFFF;
 	default:
 		return 0xFF00FFFF;
 	}
@@ -949,19 +1005,59 @@ void addGenericTool(int ix, int type)
 
 void addToolMech1(int x, int y)
 {
-	int ix = newNode(x, y, 6, 18, 4);
+	int ix = newNode(x, y, 6, 14, 4);
 	addGenericTool(ix, 100);
-	newNode(x - 30, y - 30, 10, 18, 1);
-	newNode(x + 30, y - 30, 10, 18, 1);
-	newNode(x + 30, y + 30, 10, 18, 1);
-	newNode(x - 30, y + 30, 10, 18, 1);
+	newNode(x - 30, y - 30, 10, 14, 1);
+	newNode(x + 30, y - 30, 10, 14, 1);
+	newNode(x + 30, y + 30, 10, 14, 1);
+	newNode(x - 30, y + 30, 10, 14, 1);
 	int i = 1;
 	for (; i < 5; i++) {
 		newConnectionLong(ix, i - 1, ix + i, .6, i > 2 ? 74 : 42,
-				  58, 34, 1.05);
+				  58, 34, .82);
 		newConnectionLong(ix + i, 0, ix + (i + 2) % 4 + 1, .6,
-				  i == 2 ? 60 : 105, 82, 45, 1.05);
+				  i == 2 ? 60 : 105, 82, 45, .82);
 	}
+}
+
+static int wupplNodes(int ix, int x, int y, char side)
+{
+#define WUPPL_STR 4.5
+#define WUPPL_TOL 6.0
+	int edge = newNode(x+(1-2*side)*60, y, 10, 11, 2);
+	int lip = newNode(x+(1-2*side)*45, y-30, 12, 14, 1);
+	int axle = newNode(x+(1-2*side)*45, y+60, 10, 5, 4);
+	int wheel1 = newNode(x+(1-2*side)*45, y+40, 10, 5, 1);
+	int wheel2 = newNode(x+(1-2*side)*(45+20), y+60, 10, 5, 1);
+	int wheel3 = newNode(x+(1-2*side)*45, y+80, 10, 5, 1);
+	int wheel4 = newNode(x+(1-2*side)*(45-20), y+60, 10, 5, 1);
+	int seat = newNode(x+(1-2*side)*30, y, 13, 11, 0);
+	newConnection(ix, 0+4*side, edge, .95, 60, WUPPL_TOL, WUPPL_STR);
+	newConnection(ix, 1+4*side, lip, .95, 54, WUPPL_TOL, WUPPL_STR);
+	newConnection(ix, 2+4*side, axle, .95, 75, WUPPL_TOL, WUPPL_STR*1.5);
+	newConnection(ix, 3+4*side, seat, .95, 30, WUPPL_TOL, WUPPL_STR);
+	newConnection(edge, 0, lip, .95, 33, WUPPL_TOL, WUPPL_STR);
+	newConnection(edge, 1, axle, .95, 61, WUPPL_TOL, WUPPL_STR*1.5);
+	newConnection(lip, 0, seat, .95, 33, WUPPL_TOL, WUPPL_STR);
+	newConnection(axle, 0, wheel1, .85, 20, WUPPL_TOL, WUPPL_STR*0.8);
+	newConnection(axle, 1, wheel2, .85, 20, WUPPL_TOL, WUPPL_STR*0.8);
+	newConnection(axle, 2, wheel3, .85, 20, WUPPL_TOL, WUPPL_STR*0.8);
+	newConnection(axle, 3, wheel4, .85, 20, WUPPL_TOL, WUPPL_STR*0.8);
+	newConnection(wheel1, 0, wheel2, .85, 29, WUPPL_TOL, WUPPL_STR*0.8);
+	newConnection(wheel2, 0, wheel3, .85, 29, WUPPL_TOL, WUPPL_STR*0.8);
+	newConnection(wheel3, 0, wheel4, .85, 29, WUPPL_TOL, WUPPL_STR*0.8);
+	newConnection(wheel4, 0, wheel1, .85, 29, WUPPL_TOL, WUPPL_STR*0.8);
+	return lip;
+}
+
+void addToolWuppl(int x, int y)
+{
+	int ix = newNode(x, y, 12, 14, 8);
+	addGenericTool(ix, 101);
+	int lip = wupplNodes(ix, x, y, 0);
+	//It doesn't matter how much I need her if she doesn't want me
+	int lip2 = wupplNodes(ix, x, y, 1);
+	newConnection(lip2, createConnection(lip2), lip, .85, 90, WUPPL_TOL, WUPPL_STR);
 }
 
 void addToolGun(double x, double y)
@@ -1222,11 +1318,11 @@ typedef struct {
 #define GSHEIGHT 20
 //The below should be the pythagorean theorem on GSSPACING/2, GSHEIGHT
 #define GSLEN 28.284
-#define GSFORCE 10
+#define GSFORCE 14
 #define GSBASESIZE 7
 #define GSBASEMASS 1000
 #define GSSIZE 14
-#define GSMASS 9
+#define GSMASS 14
 #define GSFRIC 0.92
 #define GSTOL 3
 #define GSTOPYDIFF 12

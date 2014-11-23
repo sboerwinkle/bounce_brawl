@@ -34,6 +34,8 @@ extern void addGenericTool(int ix, int type);
 
 extern void addToolMech1(int x, int y);
 
+extern void addToolWuppl(int x, int y);
+
 extern void addToolGun(double x, double y);
 
 extern void addToolDestroy(int ix);

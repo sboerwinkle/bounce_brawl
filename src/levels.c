@@ -1125,3 +1125,14 @@ void lvlscroll()
 	taskgravityadd();
 	taskincineratoradd(10);
 }
+
+void lvlwuppl()
+{
+	lvlscroll();
+	addToolWuppl(-200, -120);
+	int i = 0;
+	for (; i < 4; i++) {
+		nodes[guyDatas[0].myNodes[i]].y -= 100;
+	}
+	//addToolMech1(-80, -90);
+}

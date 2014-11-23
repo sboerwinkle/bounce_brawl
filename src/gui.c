@@ -833,7 +833,7 @@ int main(int argc, char **argv)
 	menuItem *flatMenu = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
 	menuItem *suspendedMenu = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
 	menuItem *mechMenu = addMenuMenu(&topMenu, 3, "MECHS...");
-	menuItem *scrollMenu = addMenuMenu(&topMenu, 1, "SCROLLING STAGES...");
+	menuItem *scrollMenu = addMenuMenu(&topMenu, 2, "SCROLLING STAGES...");
 //These two levels were cut from the game. lvltipsy is actually okay, though I haven't tweaked either in a while and there may have been some physics revisions they aren't adapted too. Work them into the menu, and they're yours.
 //      addMenuLevel(&topMenu, lvltipsy, "UNSTABLE STAGE");
 //      addMenuLevel(&topMenu, lvltilt, "TILTY STAGE");
@@ -859,6 +859,7 @@ int main(int argc, char **argv)
 	addMenuLevel(mechMenu, lvlmechmech, achieveMechMech, "MECH VS MECH", "CHANGE PLACES!");
 
 	addMenuLevel(scrollMenu, lvlscroll, achieveLazy, "REGLAR SCROLLY GROUND", "TRY IT OUT");
+	addMenuLevel(scrollMenu, lvlwuppl, achieveLazy, "WUPPL TESTING", "TRY IT OUT");
 
 	fputs("Menu Created\n", logFile);
 
