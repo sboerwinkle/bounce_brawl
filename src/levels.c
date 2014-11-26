@@ -1080,6 +1080,13 @@ void lvlbigplanet()
 	addScores();
 }
 
+void lvlbigpwuppl()
+{
+	lvlbigplanet();
+	addToolWuppl(100, -570);
+	addToolWuppl(-100, -570);
+}
+
 void lvlmech()
 {
 	lvlbasic();

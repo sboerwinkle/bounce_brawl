@@ -829,7 +829,7 @@ int main(int argc, char **argv)
 	topMenu.contents.menu.parent = NULL;
 	topMenu.contents.menu.numItems = 0;
 	topMenu.contents.menu.items = malloc(8 * sizeof(menuItem));
-	menuItem *planetsMenu = addMenuMenu(&topMenu, 3, "PLANET STAGES...");
+	menuItem *planetsMenu = addMenuMenu(&topMenu, 4, "PLANET STAGES...");
 	menuItem *flatMenu = addMenuMenu(&topMenu, 4, "FLAT STAGES...");
 	menuItem *suspendedMenu = addMenuMenu(&topMenu, 3, "SUSPENDED STAGES...");
 	menuItem *mechMenu = addMenuMenu(&topMenu, 3, "MECHS...");
@@ -844,6 +844,7 @@ int main(int argc, char **argv)
 	addMenuLevel(planetsMenu, lvlplanet, achievePlanet, "SINGLE PLANET", "SPAAAAAAAAACE!!!");
 	addMenuLevel(planetsMenu, lvl3rosette, achieveRosette, "3-ROSETTE", "CONTIGUOUS LANDMASS");
 	addMenuLevel(planetsMenu, lvlbigplanet, achieveBigPlanet, "BIG PLANET", "EVERYTHING BUT THE SEED");
+	addMenuLevel(planetsMenu, lvlbigpwuppl, achieveLazy, "BIG PLANET W/ WUPPLS", "LOL JUST PLAY IT");
 
 	addMenuLevel(flatMenu, lvltest, achievePlain, "PLAIN STAGE", "PACIFISM");
 	addMenuLevel(flatMenu, lvlsurvive, achieveAsteroids, "ASTEROID SURVIVAL", "OM NOM ASTEROID");

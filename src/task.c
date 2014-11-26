@@ -632,7 +632,7 @@ static void toolWuppl(TGCdata *data)
 {
 	if (data->myKeys[3] == data->myKeys[1])
 		return;
-	double rollAmt = (data->myKeys[4] ? 3 : 1.5)*SPEEDFACTOR;
+	double rollAmt = (data->myKeys[4] ? (data->myKeys[0] ? 7 : 5) : 3)*SPEEDFACTOR;
 	if (data->myKeys[1])
 		rollAmt = -rollAmt;
 	node *root = nodes + data->controlIndex;
@@ -1025,20 +1025,20 @@ static int wupplNodes(int ix, int x, int y, char side)
 #define WUPPL_STR 4.5
 #define WUPPL_TOL 6.0
 	int edge = newNode(x+(1-2*side)*60, y, 10, 11, 2);
-	int lip = newNode(x+(1-2*side)*45, y-30, 12, 14, 1);
-	int axle = newNode(x+(1-2*side)*45, y+60, 10, 5, 4);
-	int wheel1 = newNode(x+(1-2*side)*45, y+40, 10, 5, 1);
-	int wheel2 = newNode(x+(1-2*side)*(45+20), y+60, 10, 5, 1);
-	int wheel3 = newNode(x+(1-2*side)*45, y+80, 10, 5, 1);
-	int wheel4 = newNode(x+(1-2*side)*(45-20), y+60, 10, 5, 1);
-	int seat = newNode(x+(1-2*side)*30, y, 13, 11, 0);
+	int lip = newNode(x+(1-2*side)*45, y-50, 12, 14, 1);
+	int axle = newNode(x+(1-2*side)*45, y+50, 10, 5, 4);
+	int wheel1 = newNode(x+(1-2*side)*45, y+30, 10, 5, 1);
+	int wheel2 = newNode(x+(1-2*side)*(45+20), y+50, 10, 5, 1);
+	int wheel3 = newNode(x+(1-2*side)*45, y+70, 10, 5, 1);
+	int wheel4 = newNode(x+(1-2*side)*(45-20), y+50, 10, 5, 1);
+	int seat = newNode(x+(1-2*side)*30, y, 14, 11, 0);
 	newConnection(ix, 0+4*side, edge, .95, 60, WUPPL_TOL, WUPPL_STR);
-	newConnection(ix, 1+4*side, lip, .95, 54, WUPPL_TOL, WUPPL_STR);
-	newConnection(ix, 2+4*side, axle, .95, 75, WUPPL_TOL, WUPPL_STR*1.5);
+	newConnection(ix, 1+4*side, lip, .95, 67, WUPPL_TOL, WUPPL_STR);
+	newConnection(ix, 2+4*side, axle, .95, 67, WUPPL_TOL, WUPPL_STR*1.5);
 	newConnection(ix, 3+4*side, seat, .95, 30, WUPPL_TOL, WUPPL_STR);
-	newConnection(edge, 0, lip, .95, 33, WUPPL_TOL, WUPPL_STR);
-	newConnection(edge, 1, axle, .95, 61, WUPPL_TOL, WUPPL_STR*1.5);
-	newConnection(lip, 0, seat, .95, 33, WUPPL_TOL, WUPPL_STR);
+	newConnection(edge, 0, lip, .95, 52, WUPPL_TOL, WUPPL_STR);
+	newConnection(edge, 1, axle, .95, 52, WUPPL_TOL, WUPPL_STR*1.5);
+	newConnection(lip, 0, seat, .95, 52, WUPPL_TOL, WUPPL_STR);
 	newConnection(axle, 0, wheel1, .85, 20, WUPPL_TOL, WUPPL_STR*0.8);
 	newConnection(axle, 1, wheel2, .85, 20, WUPPL_TOL, WUPPL_STR*0.8);
 	newConnection(axle, 2, wheel3, .85, 20, WUPPL_TOL, WUPPL_STR*0.8);
@@ -1052,7 +1052,7 @@ static int wupplNodes(int ix, int x, int y, char side)
 
 void addToolWuppl(int x, int y)
 {
-	int ix = newNode(x, y, 12, 14, 8);
+	int ix = newNode(x, y, 14, 14, 8);
 	addGenericTool(ix, 101);
 	int lip = wupplNodes(ix, x, y, 0);
 	//It doesn't matter how much I need her if she doesn't want me

@@ -26,6 +26,8 @@ extern void lvl3rosette();
 
 extern void lvlbigplanet();
 
+extern void lvlbigpwuppl();
+
 extern void lvlmech();
 
 extern void lvlmechmech();
