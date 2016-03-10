@@ -55,7 +55,7 @@ int achieveBuilding()
 }
 
 //For levels which require only a certain number of nodes to remain
-static int achieveDestruction(numAcceptable)
+static int achieveDestruction(int numAcceptable)
 {
 	int alive = -4 * players - numAcceptable;
 	int i = 0;
